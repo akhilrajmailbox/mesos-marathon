@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)http://jlordiales.me/2015/04/01/consul-template/ -->
+<html class=" js no-touch cssanimations csstransitions" lang="en"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Consul Template for transparent load balancing of containers – Development the way it should be</title>
+<meta name="description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta name="keywords" content="Docker, Consul, Registrator, Consul Template">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://jlordiales.me/images/">
+<meta name="twitter:title" content="Consul Template for transparent load balancing of containers">
+<meta name="twitter:description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta name="twitter:creator" content="@jlordiales">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Consul Template for transparent load balancing of containers">
+<meta property="og:description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta property="og:url" content="http://jlordiales.me/2015/04/01/consul-template">
+<meta property="og:site_name" content="Development the way it should be">
+
+
+
+
+
+<link rel="canonical" href="http://jlordiales.me/2015/04/01/consul-template">
+<link href="http://jlordiales.me/feed.xml" type="application/atom+xml" rel="alternate" title="Development the way it should be Feed">
+<link rel="author" href="https://google.com/+JoseLuisOrdialesCoscia?rel=author">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="./Consul Template for transparent load balancing of containers – Development the way it should be_files/main.min.css">
+<!-- Webfonts -->
+<link href="./Consul Template for transparent load balancing of containers – Development the way it should be_files/css" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<div class="fit-vids-style">­<style>               .fluid-width-video-wrapper {                 width: 100%;                              position: relative;                       padding: 0;                            }                                                                                   .fluid-width-video-wrapper iframe,        .fluid-width-video-wrapper object,        .fluid-width-video-wrapper embed {           position: absolute;                       top: 0;                                   left: 0;                                  width: 100%;                              height: 100%;                          }                                       </style></div><script type="text/javascript" async="" src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/linkid.js"></script><script async="" src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/analytics.js"></script><script src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://jlordiales.me/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://jlordiales.me/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://jlordiales.me/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://jlordiales.me/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://jlordiales.me/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://jlordiales.me/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+<script type="text/javascript" async="" src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/embed.js"></script><script async="" type="text/javascript" src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/count.js"></script><script src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/alfie.f51946af45e0b561c60f768335c9eb79.js" async="" charset="UTF-8"></script></head>
+
+<body id="post">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://jlordiales.me/">Home</a></li>
+		<li>
+			<a href="http://jlordiales.me/2015/04/01/consul-template/#">About</a>
+			<ul class="dl-submenu"><li class="dl-back"><a href="http://jlordiales.me/2015/04/01/consul-template/#">back</a></li>
+				<li>
+					<img src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/avatar.jpg" alt="Jose Luis Ordiales photo" class="author-photo">
+					<h4>Jose Luis Ordiales</h4>
+					<p>Professional software developer and scientist. Naturally curious and critical thinker</p>
+				</li>
+				<li><a href="http://jlordiales.me/about/">Learn More</a></li>
+				<li>
+					<a href="mailto:jlordiales@gmail.com"><i class="fa fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/jlordiales"><i class="fa fa-twitter"></i> Twitter</a>
+				</li>
+				
+				<li>
+					<a href="https://google.com/+JoseLuisOrdialesCoscia"><i class="fa fa-google-plus"></i> Google+</a>
+				</li>
+				<li>
+					<a href="http://linkedin.com/in/jordiales"><i class="fa fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="http://github.com/jlordiales"><i class="fa fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="http://jlordiales.me/2015/04/01/consul-template/#">Posts</a>
+			<ul class="dl-submenu"><li class="dl-back"><a href="http://jlordiales.me/2015/04/01/consul-template/#">back</a></li>
+				<li><a href="http://jlordiales.me/posts/">All Posts</a></li>
+				<li><a href="http://jlordiales.me/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="http://jlordiales.me/2015/04/01/consul-template" rel="bookmark" title="Consul Template for transparent load balancing of containers">Consul Template for transparent load balancing of containers</a></h1>
+        
+        <h2>April 01, 2015</h2>
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>In the <a href="http://jlordiales.me/2015/02/03/registrator">previous post</a> we talked about
+Registrator and how, combined with a service discovery backend like Consul, it
+allows us to have transparent discovery for our containers while still keeping
+their portability.
+One thing we didn’t talk about though is how are we supposed to access those
+services registered in Consul from our consumer applications, which could be
+running as containers themselves.</p>
+
+<p>As an example, imagine we have a service exposing a REST API. To provide
+horizontal scalability we decide to run 3 instances of that service, all
+registered in Consul. 
+Each container will be listening on a random port assigned by Docker, so how do
+we know where to connect to from our consumers?
+We can use Consul’s own DNS capabilities, as we saw on the last post, but even
+though Consul offers the possibility of asking for SRV records (which include
+the port information as well as the IP) most client libraries in modern
+programming languages don’t care about this information and only use the IP
+address, leaving the task of specifying the port to the developer.
+We could always use Consul’s REST API to query for the services we are
+interested in and parse the IP and Port from there. But this approach seems
+rather complex and it would couple our consumer app to Consul’s specific API.</p>
+
+<p>In this post I want to explore one possible approach to solve this problem in a
+portable and transparent way, both from the point of view of our services as
+from the point of view of our consumers.
+It is certainly not the only possible approach nor the best but it is something
+that I have seen working quite successfully in the past.</p>
+
+<h1 id="introduction">Introduction</h1>
+<p>Lets think about our current problem again. We have 2 or more containers that
+expose a REST API and we want to consume that API from another application.
+We are using Consul as a service discovery mechanism and Registrator to
+transparently register our containers there.
+We know that we can get the IP of our service by using Consul’s DNS interface
+but we don’t know which port on that IP to use.
+For the purposes of this post, our service container will be the Python service
+that we have been using so far (available in the Docker hub as
+jlodiales/python-micro-service). 
+In turn, our consumer will simply be the <code>curl</code> command line tool.</p>
+
+<p>It would be great if there was a proxy running on a well known port that we
+could send requests to. That proxy would then pass the request to the correct
+service and transmit the response back to us. This sounds a lot like something
+that Nginx or HAProxy could do.
+But now we have just moved the problem one step further. That is, how does our
+proxy know which port our containers are running on? 
+Luckily for us, the guys from <a href="https://hashicorp.com/">HashiCorp</a> have developed
+a little standalone tool to do just this: <a href="https://hashicorp.com/blog/introducing-consul-template.html">Consul
+Template</a>.</p>
+
+<h1 id="consul-template">Consul Template</h1>
+<p>From the project’s <a href="https://github.com/hashicorp/consul-template">Github repo</a>:</p>
+
+<blockquote>
+  <p>This project provides a convenient way to populate values from Consul into the
+filesystem using the consul-template daemon.
+The daemon consul-template queries a Consul instance and updates any number of
+specified templates on the filesystem. As an added bonus, consul-template can
+optionally run arbitrary commands when the update process completes.</p>
+</blockquote>
+
+<p>We’ll see how this works with a simple example. First, we’ll run our Consul
+cluster. For simplicity we’ll run just one node but exactly the same would apply
+on a multi-node setup.</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run -p 8400:8400 -p 8500:8500 -p 8600:53/udp <span class="se">\</span>
+-h consul --name consul <span class="se">\</span>
+progrium/consul -server -advertise <span class="nv">$DOCKER_IP</span> -bootstrap</code></pre></div>
+
+<p>Notice that we are advertising the $DOCKER_IP as Consul’s IP. The reason for
+that is that Registrator will always register new containers as accessible in
+Consul’s advertise IP. We discussed this in the 
+<a href="http://jlordiales.me/2015/02/03/registrator#advertise">previous post</a>. Also, as a
+remainder, the DOCKER_IP variable is simply boot2docker’s IP 
+(<code>export DOCKER_IP=$(boot2docker ip 2&gt; /dev/null)</code>). If you are running on
+native Linux then that would be <code>localhost</code>.</p>
+
+<p>Now that we have Consul running, we’ll do the same for Registrator:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run -d <span class="se">\</span>
+-v /var/run/docker.sock:/tmp/docker.sock <span class="se">\</span>
+--name registrator -h registrator <span class="se">\</span>
+gliderlabs/registrator:latest consul://<span class="nv">$DOCKER_IP</span>:8500</code></pre></div>
+
+<p>And finally our Python service. As we said before, lets imagine we want to run 3
+instances of it:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run -d -P --name node1 -h node1 jlordiales/python-micro-service:latest
+<span class="nv">$ </span>docker run -d -P --name node2 -h node2 jlordiales/python-micro-service:latest
+<span class="nv">$ </span>docker run -d -P --name node3 -h node3 jlordiales/python-micro-service:latest</code></pre></div>
+
+<p>We can query consul to make sure that our new containers are running:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>curl <span class="nv">$DOCKER_IP</span>:8500/v1/catalog/service/python-micro-service
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"Address"</span>: <span class="s2">"192.168.59.103"</span>,
+    <span class="s2">"Node"</span>: <span class="s2">"node1"</span>,
+    <span class="s2">"ServiceAddress"</span>: <span class="s2">""</span>,
+    <span class="s2">"ServiceID"</span>: <span class="s2">"registrator:node1:5000"</span>,
+    <span class="s2">"ServiceName"</span>: <span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServicePort"</span>: 49162,
+    <span class="s2">"ServiceTags"</span>: null
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"Address"</span>: <span class="s2">"192.168.59.103"</span>,
+    <span class="s2">"Node"</span>: <span class="s2">"node1"</span>,
+    <span class="s2">"ServiceAddress"</span>: <span class="s2">""</span>,
+    <span class="s2">"ServiceID"</span>: <span class="s2">"registrator:node2:5000"</span>,
+    <span class="s2">"ServiceName"</span>: <span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServicePort"</span>: 49163,
+    <span class="s2">"ServiceTags"</span>: null
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"Address"</span>: <span class="s2">"192.168.59.103"</span>,
+    <span class="s2">"Node"</span>: <span class="s2">"node1"</span>,
+    <span class="s2">"ServiceAddress"</span>: <span class="s2">""</span>,
+    <span class="s2">"ServiceID"</span>: <span class="s2">"registrator:node3:5000"</span>,
+    <span class="s2">"ServiceName"</span>: <span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServicePort"</span>: 49164,
+    <span class="s2">"ServiceTags"</span>: null
+  <span class="o">}</span>
+<span class="o">]</span></code></pre></div>
+
+<p>Now for the fun part. We’ll install Consul Template and see what happens when we
+run it against our current setup. We can get the latest release from
+<a href="https://github.com/hashicorp/consul-template/releases">here</a> for whatever
+architecture we are running on. In my case I’m running on a Mac so:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>wget https://github.com/hashicorp/consul-template/releases/download/v0.7.0/consul-template_0.7.0_darwin_amd64.tar.gz -O /tmp/consul-template.tar.gz
+<span class="nv">$ </span>tar -xvzf /tmp/consul-template.tar.gz -C /tmp --strip-components<span class="o">=</span>1</code></pre></div>
+
+<p>Next, we’ll write a simple template and run consul-template to parse it and
+generate the result. You can read all about the templates syntax and provided
+functions at the project’s
+<a href="https://github.com/hashicorp/consul-template#templating-language">documentation</a>:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'{{range service "python-micro-service"}}\nserver {{.Address}}:{{.Port}}{{end}}'</span> &gt; /tmp/consul.ctmpl
+<span class="nv">$ </span>/tmp/consul-template -consul <span class="nv">$DOCKER_IP</span>:8500 -template /tmp/consul.ctmpl:/tmp/consul.result -dry -once
+
+&gt; /tmp/consul.result
+
+server 192.168.59.103:49162
+server 192.168.59.103:49163
+server 192.168.59.103:49164</code></pre></div>
+
+<p>By specifying the <code>-dry</code> parameter we tell consul-template to send the output to
+stdout instead of the file specified on the command (<em>/tmp/consul.result</em> in this
+case). The <code>-once</code> parameter tells Consul Template to query Consul and generate
+the output just once. If we don’t do this then the app will keep running in the
+foreground polling Consul at regular intervals (which is what we would want in a
+typical scenario).  You can see that the result includes the 3 instances of the
+service with their respective ports.</p>
+
+<p>To see what happens when we change the information registered in Consul, we are
+going to run consul-template again but this time we won’t specify the <code>-once</code>
+parameter in order to leave the daemon running:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>/tmp/consul-template -consul <span class="nv">$DOCKER_IP</span>:8500 -template /tmp/consul.ctmpl:/tmp/consul.result -dry</code></pre></div>
+
+<p>With that running, we’ll go to a new terminal and stop one of the running python
+containers:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker stop node3</code></pre></div>
+
+<p>You should almost instantly see the refreshed output in the terminal running
+consul-template that now only shows 2 entries. Conversely, if we run a new
+container:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run -d -P --name node4 -h node4 jlordiales/python-micro-service:latest</code></pre></div>
+
+<p>The consul-template output gets updated again with the new service.</p>
+
+<h1 id="combining-consul-template-and-a-reverse-proxy">Combining Consul Template and a reverse proxy</h1>
+<p>So we saw that we can use Consul Template to parse a template file and produce a
+new file with the information read from Consul. How can we use this from our
+consumer applications in order to have transparent service location and load
+balance?
+Well, one option is to front our services with Nginx or HAProxy, creating the
+config files for these with Consul Template.
+We’ll how this would work for Nginx. All the files that I’ll describe in the
+following section can be found <a href="https://github.com/jlordiales/docker-nginx-consul">in this
+repo</a> if you just want to
+clone from it.</p>
+
+<p>I’ll first show the Dockerfile that we’ll use for the Nginx image and then
+explain each section of it:</p>
+
+<div class="highlight"><pre><code class="language-docker" data-lang="docker"><span class="k">FROM</span> nginx:latest
+
+<span class="k">ENTRYPOINT</span> <span class="o">[</span><span class="s2">"/bin/start.sh"</span><span class="o">]</span>
+<span class="k">EXPOSE</span> <span class="m">80</span>
+<span class="k">VOLUME</span> /templates
+<span class="k">ENV</span> CONSUL_URL consul:8500
+
+<span class="k">ADD</span> start.sh /bin/start.sh
+<span class="k">RUN</span> rm -v /etc/nginx/conf.d/<span class="se">\*</span>.conf
+
+<span class="k">ADD</span> https://github.com/hashicorp/consul-template/releases/download/v0.7.0/consul-template_0.7.0_linux_amd64.tar.gz /usr/bin/
+<span class="k">RUN</span> tar -C /usr/local/bin --strip-components <span class="m">1</span> -zxf /usr/bin/consul-template_0.7.0_linux_amd64.tar.gz</code></pre></div>
+
+<p>We are basing our image from the official Nginx image, available
+<a href="https://registry.hub.docker.com/_/nginx/">here</a>.
+This gives us a ready to use, default Nginx installation. Then we say that the
+entrypoint will be the /bin/start.sh (will see that one in a bit) and that our
+container will expose port 80, where Nginx will be listening for new
+connections.
+Next we define a volume <em>/templates</em>, which is where we will mount our template
+files from the host. This way we can reuse the same image for different services
+and templates.
+In the following step we define and environment variable with the location of
+our Consul cluster. By default, it will try to resolve to <em>consul:8500</em> which
+would be the behavior if we have Consul running as a container in the same host
+and we link it to this Nginx container (with the alias consul, of course). But
+this environment variable can also be overridden when we run the container if we
+want to point somewhere else.
+We then add the start up script (which is used as the entrypoint to our
+containers) and remove all default configurations from Nginx.
+On the last 2 lines we download the latest version of Consul Template
+(0.7.0 at the time of writing this) and we put it on /usr/local/bin.</p>
+
+<p>The start.sh script is very simple:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c">#!/bin/bash</span>
+service nginx start
+consul-template -consul<span class="o">=</span><span class="nv">$CONSUL_URL</span> -template<span class="o">=</span><span class="s2">"/templates/service.ctmpl:/etc/nginx/conf.d/service.conf:service nginx reload"</span></code></pre></div>
+
+<p>We just start the nginx service and then leave consul-template running on the
+foreground. Here we use the CONSUL_URL environment variable that we defined
+before. Consul template expects to find a <code>service.ctmpl</code> file in <code>/templates</code>.
+This is the template that we would mount as a volume from our host. The result
+is then placed in <code>/etc/nginx/conf.d/service.conf</code> where Nginx will be able to
+read from. Finally, every time the template is re-rendered we do a <code>service
+nginx reload</code> in order to read the new configuration.</p>
+
+<p>Time to see this in action. If you still have the Consul, Registrator and Python
+containers running from the first part of this post then you only need to run
+the Nginx container (otherwise start them again).</p>
+
+<p>The only thing you’ll need is a template file like the following, save it as
+<code>/tmp/service.ctmpl</code> for convenience:</p>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">upstream python-service {
+  least_conn;
+  {{range service "python-micro-service"}}server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=60 weight=1;
+  {{else}}server 127.0.0.1:65535; # force a 502{{end}}
+}
+
+server {
+  listen 80 default_server;
+
+  charset utf-8;
+
+  location ~ ^/python-micro-service/(.\*)$ {
+    proxy_pass http://python-service/$1$is_args$args;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}</code></pre></div>
+
+<p>Now run the nginx container with:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run -p 8080:80 -d --name nginx --volume /tmp/service.ctmpl:/templates/service.ctmpl --link consul:consul jlordiales/nginx-consul</code></pre></div>
+
+<p>We can <code>curl</code> the service multiple times:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>curl <span class="nv">$DOCKER_IP</span>:8080/python-micro-service/
+<span class="nv">$ </span>curl <span class="nv">$DOCKER_IP</span>:8080/python-micro-service/
+<span class="nv">$ </span>curl <span class="nv">$DOCKER_IP</span>:8080/python-micro-service/
+<span class="nv">$ </span>curl <span class="nv">$DOCKER_IP</span>:8080/python-micro-service/</code></pre></div>
+
+<p>You should see a “Hello World from nodeX” where X alternates between 1, 2 and 3.
+We are effectively load balancing between the 3 nodes. But there’s something
+even cooler that you can try.
+Leave this running on a terminal:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="k">while</span> <span class="nb">true</span><span class="p">;</span> <span class="k">do</span> curl <span class="nv">$DOCKER_IP</span>:8080/python-micro-service/<span class="p">;</span> <span class="nb">echo</span> -----<span class="p">;</span> sleep 1<span class="p">;</span> <span class="k">done</span><span class="p">;</span></code></pre></div>
+
+<p>That will keep calling nginx every second, which in turn will send the request
+to one of the 3 nodes. Now from another terminal, stop <code>node1</code> with:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker stop node1</code></pre></div>
+
+<p>If you check the terminal running the <code>while</code> loop you’ll notice that the
+requests are now going to node2 and node3 only. You can play around with this
+(starting and stopping nodes) to see the configuration updated almost
+instantaneous and nginx adjusting which nodes it sends requests to.
+And, more importantly, all of this while keeping our service containers and our
+nginx container completely ignorant about the fact that we are using Consul as a
+service discovery mechanism!</p>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>This post completes the subject of transparent service discovery in Docker. We
+saw how we can use a reverse proxy sitting in front of our containers,
+accessible through a well known port. The proxy, in turn is kept updated with
+the information available in our Consul cluster thanks to a small and handy tool
+called Consul Template.</p>
+
+<p>Combined with Registrator and Consul this gives us extreme flexibility and
+portability. Of course, as with almost everything else, there are other
+alternatives and approaches. I would be glad to hear other people’s experiences
+around this area.</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://jlordiales.me/tags/#Docker" title="Pages tagged Docker" class="tag">Docker</a><a href="http://jlordiales.me/tags/#Consul" title="Pages tagged Consul" class="tag">Consul</a><a href="http://jlordiales.me/tags/#Registrator" title="Pages tagged Registrator" class="tag">Registrator</a><a href="http://jlordiales.me/tags/#Consul Template" title="Pages tagged Consul Template" class="tag">Consul Template</a></span>
+        <span><a href="http://jlordiales.me/2015/04/01/consul-template" rel="bookmark" title="Consul Template for transparent load balancing of containers">Consul Template for transparent load balancing of containers</a> was published on <span class="entry-date date published updated"><time datetime="2015-04-01T00:00:00-04:00">April 01, 2015</time></span></span>
+        
+        <span class="author vcard"><span class="fn"><a href="http://jlordiales.me/about/" title="About Jose Luis Ordiales">Jose Luis Ordiales</a></span></span>
+        <div class="social-share">
+          <ul class="socialcount socialcount-small inline-list">
+            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://jlordiales.me/2015/04/01/consul-template" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://jlordiales.me/2015/04/01/consul-template" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+            <li class="googleplus"><a href="https://plus.google.com/share?url=http://jlordiales.me/2015/04/01/consul-template" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+          </ul>
+        </div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    <section id="disqus_thread"><iframe id="dsq-app2" name="dsq-app2" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 1435px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></section><!-- /#disqus_thread -->
+    
+    <div class="read-more">
+      
+        <div class="read-more-header">
+          <a href="http://jlordiales.me/2015/02/03/registrator" class="read-more-btn">Read More</a>
+        </div><!-- /.read-more-header -->
+        <div class="read-more-content">
+          <h3><a href="http://jlordiales.me/2015/07/12/coreos" title="Orchestrating your containers with CoreOS, an introduction">Orchestrating your containers with CoreOS, an introduction</a></h3>
+          <p>Most docker tutorials that you'll find out there (the ones in this blogincluded) will assume that you have a single host running all your...… <a href="http://jlordiales.me/2015/07/12/coreos">Continue reading</a></p>
+        </div><!-- /.read-more-content -->
+      
+      <div class="read-more-list">
+        
+          <div class="list-item">
+            <h4><a href="http://jlordiales.me/2015/04/02/boot2docker-port-forward" title="Accessing docker containers on localhost when using Boot2Docker">Accessing docker containers on localhost when using Boot2Docker</a></h4>
+            <span>Published on April 02, 2015</span>
+          </div><!-- /.list-item -->
+        
+          <div class="list-item">
+            <h4><a href="http://jlordiales.me/2015/02/03/registrator" title="Automatic container registration with Consul and Registrator">Automatic container registration with Consul and Registrator</a></h4>
+            <span>Published on February 03, 2015</span>
+          </div><!-- /.list-item -->
+        
+      </div><!-- /.read-more-list -->
+      
+    </div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>© 2015 Jose Luis Ordiales. Powered by <a href="http://jekyllrb.com/">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://jlordiales.me/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="./Consul Template for transparent load balancing of containers – Development the way it should be_files/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-56085926-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jlordiales'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the &lt;a href="http://disqus.com/?ref_noscript"&gt;comments powered by Disqus.&lt;/a&gt;</noscript>
+
+
+	        
+
+
+
+</body></html>

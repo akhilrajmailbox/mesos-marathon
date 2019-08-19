@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+
+  mesos-marathon:
+    image: mesos-marathon
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mesos-marathon
+    hostname: mesos-marathon
+    environment:
+      TERM: xterm-256color
+    volumes:
+     - /etc/localtime:/etc/localtime:ro
+     - /etc/timezone:/etc/timezone:ro
+     - $PWD/jenkins:/var/lib/jenkins
+    ports:
+     - 22
+     - 5050:5050
+     - 6060:6060
+     - 8080:8080
+    tty: true
+

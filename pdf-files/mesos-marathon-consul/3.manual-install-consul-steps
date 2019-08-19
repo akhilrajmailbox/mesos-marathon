@@ -1,0 +1,148 @@
+******************************************************************************************************************************************************
+manual installation>>
+******************************************************************************************************************************************************
+
+======================================================================================================================================================
+for bootstrapping::
+======================================================================================================================================================
+
+
+consul agent -server -bootstrap-expect=1 -data-dir=/var/consul -node=agent-one -bind=192.168.1.234 -config-dir=/etc/consul.d
+ctrl + z
+jobs
+bg %[number of job]
+
+======================================================================================================================================================
+for adding agents from another server::
+======================================================================================================================================================
+
+
+consul agent -data-dir=/var/consul -node=agent-two -bind=192.168.1.235 -config-dir=/etc/consul.d
+ctrl + z
+jobs
+bg %[number of job]
+
+======================================================================================================================================================
+to see the members::
+======================================================================================================================================================
+
+consul members
+
+
+links::
+https://www.consul.io/intro/getting-started/join.html
+
+
+******************************************************************************************************************************************************
+docker installation>>
+******************************************************************************************************************************************************
+
+======================================================================================================================================================
+create the environment::
+======================================================================================================================================================
+
+
+run two images
+
+consul  		akhilrajmailbox/ci-cd-mesos:consul-server	progrium/consul
+registrator		akhilrajmailbox/ci-cd-mesos:registrator		gliderlabs/registrator
+
+
+======================================================================================================================================================
+
+
+adding first consul-node::
+
+export PRIVATE_IP=192.168.1.18
+export BRIDGE_IP=172.17.0.1
+docker run -d --name consul -h $HOSTNAME -p $PRIVATE_IP:8300:8300 -p $PRIVATE_IP:8301:8301 -p $PRIVATE_IP:8301:8301/udp -p $PRIVATE_IP:8302:8302 -p $PRIVATE_IP:8302:8302/udp -p $PRIVATE_IP:8400:8400 -p $PRIVATE_IP:8500:8500 -p $BRIDGE_IP:53:53/udp akhilrajmailbox/ci-cd-mesos:consul-server -server -advertise $PRIVATE_IP --bootstrap -ui-dir /ui
+
+
+adding another consul-node::
+
+export PRIVATE_IP=192.168.1.235
+export BRIDGE_IP=172.17.0.1
+docker run -d --name consul -h $HOSTNAME -p $PRIVATE_IP:8300:8300 -p $PRIVATE_IP:8301:8301 -p $PRIVATE_IP:8301:8301/udp -p $PRIVATE_IP:8302:8302 -p $PRIVATE_IP:8302:8302/udp -p $PRIVATE_IP:8400:8400 -p $PRIVATE_IP:8500:8500 -p $BRIDGE_IP:53:53/udp akhilrajmailbox/ci-cd-mesos:consul-server -server -advertise $PRIVATE_IP --bootstrap -ui-dir /ui -join 192.168.1.18
+
+
+
+adding registrator-node::
+
+docker run -d -v /var/run/docker.sock:/tmp/docker.sock --net=host akhilrajmailbox/ci-cd-mesos:registrator -internal consul://$PRIVATE_IP:8500
+
+
+adding haproxy-node::
+
+docker run -d -e SERVICE_NAME=rest --name=rest --dns 172.17.0.1 -p 80:80 -p 1936:1936 sirile/haproxy
+
+
+======================================================================================================================================================
+
+change in “/etc/default/docker”
+
+DOCKER_OPTS="--dns 172.17.0.1 --dns 8.8.8.8 --dns-search service.consul"
+
+
+UI
+http://ip-address:8500
+
+======================================================================================================================================================
+
+curl http://192.168.1.18:8500/v1/agent/members
+curl http://192.168.1.18:8500/v1/catalog/datacenters
+curl http://192.168.1.18:8500/v1/catalog/services
+
+
+======================================================================================================================================================
+testing::
+======================================================================================================================================================
+
+
+install an application
+docker run -d -P --name=nginx1 nginx
+
+go to UI and take that name of service
+
+check in console
+dig @172.17.0.1 nginx-443.service.consul
+
+
+create a container
+docker run -it ubuntu:14.04 /bin/bash
+
+try to ping
+ping nginx-443.service.consul
+
+
+links::
+https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/
+
+
+
+
+======================================================================================================================================================
+
+tomcat.json
+
+{
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "eboraas/apache",
+      "network": "BRIDGE",
+      "portMappings": [
+        { "containerPort": 80, "hostPort": 0, "protocol": "tcp", "servicePort": 80 },
+        { "containerPort": 443, "hostPort": 0, "protocol": "tcp", "servicePort": 443 }
+        ]
+  }
+ },
+  "id": "tomcat",
+  "Name": "tomcat",
+  "instances": 2,
+  "cpus": 1,
+  "mem": 512
+}
+
+======================================================================================================================================================
+
+

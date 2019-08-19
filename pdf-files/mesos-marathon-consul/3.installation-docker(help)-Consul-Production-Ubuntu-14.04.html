@@ -1,0 +1,489 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html class="js" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" version="XHTML+RDFa 1.0" dir="ltr" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:og="http://ogp.me/ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"><head profile="http://www.w3.org/1999/xhtml/vocab">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="https://www.livewyer.com/sites/all/themes/livewyer/favicon.ico" type="image/vnd.microsoft.icon">
+<link rel="shortlink" href="https://www.livewyer.com/node/29">
+<link rel="canonical" href="https://www.livewyer.com/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator">
+<meta name="Generator" content="Drupal 7 (http://drupal.org)">
+  <title>Service Discovery for Docker Containers using Consul and 
+Registrator | LiveWyer - The Infrastructure Development Company | Cloud 
+Hosting | Kubernetes Solutions | Digital Strategy | Training</title>
+  <link type="text/css" rel="stylesheet" href="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css" media="all">
+<link type="text/css" rel="stylesheet" href="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/css_G8-qBIcAzonkPTT9CuydwwFsZG0cvxkIyf9e8DHEpv0.css" media="all">
+<link type="text/css" rel="stylesheet" href="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/css_WMrXdGVWs8vq5tOVOQSp7hjaC2Jdjr3Rxe_-uyazBBY.css" media="all">
+<link type="text/css" rel="stylesheet" href="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/bootstrap.css" media="all">
+<link type="text/css" rel="stylesheet" href="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/css_x-HHEexz4n57jJqkjyLSKeu4W8ncq-HV0MTs5_CpvP0.css" media="all">
+  <script async="" src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/analytics_002.js"></script><script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/analytics.js" async=""></script><script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/js_MpKfe1sTh5JIVGCZ17DsAuT1rqAC38MLLlkjqjQ1X_k.js"></script>
+<script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/bootstrap.js"></script>
+<script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/js_I8yX6RYPZb7AtMcDUA3QKDZqVkvEn35ED11_1i7vVpc.js"></script>
+<script>(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,"script","//www.google-analytics.com/analytics.js","ga");ga("create", "UA-55367969-1", {"cookieDomain":"auto"});ga("set", "anonymizeIp", true);ga("send", "pageview");</script>
+<script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/js_tzEGTRyjbSNo4GS4Eh6_ZJb5BgaDvQF9UshkdxwThp0.js"></script>
+<script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/js_7XN7MTZ7tt6UokDGHcdvyFiS4Uklc7nSjj9wCttgGNY.js"></script>
+<script>jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"livewyer","theme_token":"7Gkhdi6CfFbXWzXzx85AtIuh1tcfXCuFNTCECFYvVIE","js":{"sites\/all\/themes\/bootstrap\/js\/bootstrap.js":1,"sites\/all\/modules\/contrib\/jquery_update\/replace\/jquery\/1.10\/jquery.min.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"\/\/netdna.bootstrapcdn.com\/bootstrap\/3.0.2\/js\/bootstrap.min.js":1,"sites\/all\/modules\/contrib\/google_analytics\/googleanalytics.js":1,"0":1,"sites\/all\/modules\/contrib\/disqus\/disqus.js":1,"sites\/all\/themes\/livewyer\/js\/lw.js":1,"sites\/all\/themes\/livewyer\/js\/jquery.magnific-popup.js":1,"sites\/all\/themes\/livewyer\/js\/prism.js":1},"css":{"modules\/system\/system.base.css":1,"modules\/field\/theme\/field.css":1,"sites\/all\/modules\/contrib\/views\/css\/views.css":1,"sites\/all\/modules\/contrib\/ckeditor\/css\/ckeditor.css":1,"sites\/all\/modules\/contrib\/ctools\/css\/ctools.css":1,"sites\/all\/modules\/contrib\/nice_menus\/css\/nice_menus.css":1,"sites\/all\/modules\/contrib\/nice_menus\/css\/nice_menus_default.css":1,"\/\/netdna.bootstrapcdn.com\/bootstrap\/3.0.2\/css\/bootstrap.min.css":1,"sites\/all\/themes\/bootstrap\/css\/overrides.css":1,"sites\/all\/themes\/livewyer\/css\/style.css":1,"sites\/all\/themes\/livewyer\/css\/magnific-popup.css":1,"sites\/all\/themes\/livewyer\/css\/prism.css":1}},"googleanalytics":{"trackOutbound":1,"trackMailto":1,"trackDownload":1,"trackDownloadExtensions":"7z|aac|arc|arj|asf|asx|avi|bin|csv|doc(x|m)?|dot(x|m)?|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|msi|msp|pdf|phps|png|ppt(x|m)?|pot(x|m)?|pps(x|m)?|ppam|sld(x|m)?|thmx|qtm?|ra(m|r)?|sea|sit|tar|tgz|torrent|txt|wav|wma|wmv|wpd|xls(x|m|b)?|xlt(x|m)|xlam|xml|z|zip"},"disqus":{"domain":"livewyer","url":"https:\/\/www.livewyer.com\/blog\/2015\/02\/05\/service-discovery-docker-containers-using-consul-and-registrator","title":"Service Discovery for Docker Containers using Consul and Registrator","identifier":"node\/29"},"bootstrap":{"anchorsFix":0,"anchorsSmoothScrolling":0,"popoverEnabled":1,"popoverOptions":{"animation":1,"html":0,"placement":"right","selector":"","trigger":"click","title":"","content":"","delay":0,"container":"body"},"tooltipEnabled":1,"tooltipOptions":{"animation":1,"html":0,"placement":"auto left","selector":"","trigger":"hover focus","delay":0,"container":"body"}}});</script>
+</head>
+<body class="html not-front not-logged-in no-sidebars page-node page-node- page-node-29 node-type-news page-blog-article disqus-processed">
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+  </div>
+    
+<header id="navbar" role="banner" class="navbar container navbar-default">
+  <div class="container">
+    <div class="inner-container no-top-margin no-bottom-margin">
+    <div class="navbar-header">
+            <a class="logo navbar-btn pull-left" href="https://www.livewyer.com/" title="Home">
+        <img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/logo.png" alt="Home">
+      </a>
+      
+      
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+
+          <div class="navbar-collapse collapse">
+        <nav role="navigation">
+                                            <div class="region region-navigation">
+    <section id="block-nice-menus-1" class="block block-nice-menus main-nav main-nav clearfix">
+
+      
+  <ul class="nice-menu nice-menu-down nice-menu-main-menu" id="nice-menu-1"><li class="menu-417 menuparent  menu-path-node-12 first odd "><a href="https://www.livewyer.com/products">Products</a><ul><li class="menu-1381 menu-path-node-9 first odd "><a href="https://www.livewyer.com/products/cloud-hosting">Cloud Hosting</a></li>
+<li class="menu-1380 menu-path-node-6  even "><a href="https://www.livewyer.com/products/infrastructure-dev">Infrastructure Dev</a></li>
+<li class="menu-1533 menu-path-node-49  odd "><a href="https://www.livewyer.com/products/kubernetes-solutions">Kubernetes Solutions</a></li>
+<li class="menu-1382 menu-path-node-8  even last"><a href="https://www.livewyer.com/products/kubernetes-training">Kubernetes Training</a></li>
+</ul></li>
+<li class="menu-418 menuparent  menu-path-node-44  even "><a href="https://www.livewyer.com/customers">Customers</a><ul><li class="menu-1530 menu-path-node-41 first odd "><a href="https://www.livewyer.com/customers/charities">Charities</a></li>
+<li class="menu-1531 menu-path-node-42  even "><a href="https://www.livewyer.com/customers/enterprise">Enterprise</a></li>
+<li class="menu-1529 menu-path-node-40  odd "><a href="https://www.livewyer.com/customers/startups">Startups</a></li>
+<li class="menu-1532 menu-path-node-43  even last"><a href="https://www.livewyer.com/customers/web-agencies">Web agencies</a></li>
+</ul></li>
+<li class="menu-557 menu-path-blog  odd "><a href="https://www.livewyer.com/blog" title="">Blog</a></li>
+<li class="menu-419 menu-path-node-15  even "><a href="https://www.livewyer.com/about">About</a></li>
+<li class="menu-1421 menu-path-node-45  odd last popup-contact menu-path-contact"><a href="https://www.livewyer.com/contact">Contact us</a></li>
+</ul>
+
+</section> <!-- /.block -->
+  </div>
+                  </nav>
+      </div>
+        </div>
+  </div>
+</header>
+<div class="container-wrapper ">
+<div class="main-container container">
+
+  <header role="banner" id="page-header">
+
+              </header> <!-- /#page-header -->
+
+  <div class="row">
+
+    
+    <section class="col-sm-12">
+                  <a id="main-content"></a>
+
+              
+      
+        <div class="content-top"><div class="horizontal-box"><div class="inner-container no-top-margin no-bottom-margin">
+          <h1 class="page-header ">Service Discovery for Docker Containers using Consul and Registrator</h1>
+        </div></div></div>
+
+                    
+
+                                              <div class="region region-content">
+    <section id="block-system-main" class="block block-system  clearfix">
+
+      
+  <div id="node-29" class="node node-news clearfix" about="/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator" typeof="sioc:Item foaf:Document">
+
+      <span property="dc:title" content="Service Discovery for Docker Containers using Consul and Registrator" class="rdf-meta element-hidden"></span>
+
+  <div class="content">
+    <div class="view view-blog view-id-blog view-display-id-page_single horizontal-content blog-full-view view-dom-id-0095882acaac0d5545da423612f1da6d">
+
+
+
+
+  <div id="view-blog-container" class="view-content activate-accordion">
+    
+
+
+  <div class="views-row views-row-1 views-row-odd views-row-first views-row-last bg-blog-1">
+      
+          <div class="horizontal-box blog-title">
+<div class="inner-container no-top-margin no-bottom-margin">
+  <div class="blog-profile-photo">  <div class="user-picture">
+    <img typeof="foaf:Image" src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/picture-7-1424887798.png" alt="jsanders's picture" title="jsanders's picture">  </div>
+</div>
+  <div class="blog-created">2nd February 2015</div>
+  <div class="blog-author">By Jake Sanders</div>
+</div>
+</div>    
+          <div id="29" class="horizontal-box blog-post">
+  <div class="bg-white">
+  <div class="inner-container">
+  <div class="banner">
+      <div class="blog-banner"><img typeof="foaf:Image" src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/LW_BLOG_02_ILLUSTRATION_DESKTOP.png" alt="" width="1110" height="300"></div>
+  </div>
+  <div class="blog-content">
+    <p>You've converted your monolithic application stack into a series 
+of linked docker containers, and everything is working great! However, 
+you want to move the database to another node with faster disks, or 
+perhaps spin up some more PHP interpreters to deal with additional load.
+ Now your containers are running across several nodes and you have to 
+reconfigure every service to point to the new locations, costing time 
+and making your nice containerised solution no better than normal hosts 
+running the apps themselves. In this article, we'll look at automated 
+service discovery for docker containers, allowing you to spin up or down
+ new services and have your containers configure themselves 
+automatically.</p>
+
+<p>The accepted solution to service discovery is to use a distributed 
+key-value store. There are several implementations out there, including 
+Zookeeper, etcd, Open Chord and many more. In this article we'll be 
+taking a look at one of the newer implementations, <a href="https://consul.io/">Consul</a>.
+ Consul is an all-in-one solution for service discovery, health-checking
+ and plain key-value stores. It exposes data both over an HTTP API and 
+as a DNS server, making it extremely easy to use. Each of your 
+applications will register themselves in Consul, and when they require a
+ service, such as database access, they will query consul to discover 
+which node/port that particular service is running on.</p>
+
+<p>&nbsp;</p>
+
+<h3>Architecture</h3>
+
+<p><a class="popup-image" href="https://www.livewyer.com/sites/default/files/blog/LW_BLOG_02_DIAGRAM_01.png"><img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/LW_BLOG_02_DIAGRAM_01.png"></a></p>
+
+<p>Consul is written in go, and all features are compiled in to a single
+ static binary, easily deployed alongside your existing application. 
+Each node runs a long-running instance of this binary, called the consul
+ agent. Said agent can be run in either client or server mode, and from 
+here on we'll simply refer to them as client nodes or server nodes.</p>
+
+<p>Both clients and servers present the DNS and HTTP interfaces, so you 
+can query any node in the cluster and get the same response. If a client
+ receives an RPC request, it forwards it to a server node for handling. 
+When a client joins your consul cluster by contacting any existing node,
+ the information about your new host propagates though the cluster via a
+ gossip protocol, ensuring all nodes on the local network are kept up to
+ date while using minimal network traffic.</p>
+
+<p>A server node acts just like a regular client node, but it has a few 
+more responsibilities, namely maintaining the state of the cluster, 
+responding to RPC queries and participating in leader election. You will
+ need 3 server nodes to withstand a single failure, or 5 nodes to 
+withstand 2 simultaneous failures. If a server receives an RPC request 
+while it is not the leader, it forwards it on to the currently elected 
+leader.</p>
+
+<p>If your cluster spans multiple datacentres, servers in each LAN can 
+notify each other of cluster events using their own gossip pool over the
+ internet. This is separate from the LAN gossip pool that each set of 
+clients operates within.</p>
+
+<p>&nbsp;</p>
+
+<h3>Toy Implementation</h3>
+
+<p>Firstly, we just want to get consul up and running. Seeing as we're 
+already using docker, why not containerise consul? Start a single-node 
+server for testing purposes like so:</p>
+
+<pre class="  language-bash"><code class="  language-bash">docker run <span class="token operator">-</span>d <span class="token operator">-</span>p <span class="token number">8400</span><span class="token punctuation">:</span><span class="token number">8400</span> <span class="token operator">-</span>p <span class="token number">8500</span><span class="token punctuation">:</span><span class="token number">8500</span> <span class="token operator">-</span>p <span class="token number">53</span><span class="token punctuation">:</span><span class="token number">53</span><span class="token operator">/</span>udp <span class="token operator">-</span>h consul<span class="token operator">-</span>server<span class="token operator">-</span>node <span class="token operator">--</span>name consul progrium<span class="token operator">/</span>consul <span class="token operator">-</span>server <span class="token operator">-</span>bootstrap</code></pre>
+
+<p>Verify it's working by visiting http://[address.of.host]:8500/ui/ and you should see the web UI.</p>
+
+<p>We want to use register each of our containerised services in consul,
+ without having to reconfigure each service to become consul aware. To 
+do this, we are going to use Registrator.</p>
+
+<p>Registrator is a service that runs forever, while listening for 
+docker events. If a container is started that publishes ports, 
+registrator will register the service in consul, and if the container is
+ stopped or killed, registrator will remove it. Once again, we can run 
+it inside a container with the following command:</p>
+
+<pre class="  language-bash"><code class="  language-bash">docker run <span class="token operator">-</span>d <span class="token operator">--</span>link consul<span class="token punctuation">:</span>consul <span class="token operator">--</span>name registrator <span class="token operator">-</span>v <span class="token operator">/</span>var<span class="token operator">/</span>run<span class="token operator">/</span>docker<span class="token punctuation">.</span>sock<span class="token punctuation">:</span><span class="token operator">/</span>tmp<span class="token operator">/</span>docker<span class="token punctuation">.</span>sock <span class="token operator">-</span>h <span class="token property">$HOSTNAME</span> progrium<span class="token operator">/</span>registrator consul<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>consul<span class="token punctuation">:</span><span class="token number">8500</span></code></pre>
+
+<p>Now, run a service that exposes a port, for example:</p>
+
+<pre>docker run -d -P --name nginx nginx</pre>
+
+<p>Finally, check the consul web UI, and you will be able to see the 
+name of the service and published port. In order to programmatically 
+retrieve it, you can use HTTP or DNS. For example:</p>
+
+<pre class="  language-bash"><code class="  language-bash">$ curl http<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span>localhost<span class="token punctuation">:</span><span class="token number">8500</span><span class="token operator">/</span>v1<span class="token operator">/</span>catalog<span class="token operator">/</span>services
+<span class="token punctuation">{</span><span class="token string">"consul"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">"consul-53"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token string">"udp"</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">"consul-8400"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">"consul-8500"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">"nginx-443"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token string">"nginx-80"</span><span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
+ 
+$ dig @localhost nginx<span class="token number">-80</span><span class="token punctuation">.</span>service<span class="token punctuation">.</span>consul
+ 
+<span class="token punctuation">;</span><span class="token punctuation">;</span> ANSWER SECTION<span class="token punctuation">:</span>
+nginx<span class="token number">-80</span><span class="token punctuation">.</span>service<span class="token punctuation">.</span>consul<span class="token punctuation">.</span> <span class="token number">0</span>      IN      A       <span class="token number">172.17</span><span class="token punctuation">.</span><span class="token number">0.104</span>
+</code></pre>
+
+<p>I would recommend you take a quick glance at the <a href="http://www.consul.io/docs/agent/basics.html">official documentation</a> now, so you can get a grasp on how one would use consul's API.</p>
+
+<p>&nbsp;</p>
+
+<h3>Multi-node implementation</h3>
+
+<p>The toy implementation is pretty useless, as it accomplishes nothing 
+you couldn't do with "docker inspect." We will now deploy consul across 3
+ hosts, and show how to get a service running on one host to talk to a 
+service on another.</p>
+
+<p>I will assume your nodes are all on the same LAN, or are connected 
+with via some other means like a VPN or a cloud provider's "private 
+network" option. If not, the tutorial will work just fine over WAN, but 
+beware you will be left with an insecure cluster!</p>
+
+<p>On each host, run the following commands:</p>
+
+<pre class="  language-bash"><code class="  language-bash">export PRIVATE_IP<span class="token operator">=</span><span class="token punctuation">[</span>your private IP here<span class="token punctuation">]</span>
+export BRIDGE_IP<span class="token operator">=</span><span class="token number">172.17</span><span class="token punctuation">.</span><span class="token number">42.1</span> <span class="token comment" spellcheck="true"># Change if you're using a non-default docker bridge
+</span>docker run <span class="token operator">-</span>d <span class="token operator">--</span>name consul <span class="token operator">-</span>h <span class="token property">$HOSTNAME</span> \
+    <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8300</span><span class="token punctuation">:</span><span class="token number">8300</span> <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8301</span><span class="token punctuation">:</span><span class="token number">8301</span> <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8301</span><span class="token punctuation">:</span><span class="token number">8301</span><span class="token operator">/</span>udp \
+    <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8302</span><span class="token punctuation">:</span><span class="token number">8302</span> <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8302</span><span class="token punctuation">:</span><span class="token number">8302</span><span class="token operator">/</span>udp <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8400</span><span class="token punctuation">:</span><span class="token number">8400</span> \
+    <span class="token operator">-</span>p <span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8500</span><span class="token punctuation">:</span><span class="token number">8500</span> <span class="token operator">-</span>p <span class="token property">$BRIDGE_IP</span><span class="token punctuation">:</span><span class="token number">53</span><span class="token punctuation">:</span><span class="token number">53</span><span class="token operator">/</span>udp \
+    progrium<span class="token operator">/</span>consul <span class="token operator">-</span>server <span class="token operator">-</span>advertise <span class="token property">$PRIVATE_IP</span> <span class="token operator">-</span>bootstrap<span class="token operator">-</span>expect <span class="token number">3</span>
+ 
+docker run <span class="token operator">-</span>d <span class="token operator">--</span>name registrator \
+    <span class="token operator">-</span>v <span class="token operator">/</span>var<span class="token operator">/</span>run<span class="token operator">/</span>docker<span class="token punctuation">.</span>sock<span class="token punctuation">:</span><span class="token operator">/</span>tmp<span class="token operator">/</span>docker<span class="token punctuation">.</span>sock \
+    <span class="token operator">-</span>h <span class="token property">$HOSTNAME</span> progrium<span class="token operator">/</span>registrator consul<span class="token punctuation">:</span><span class="token operator">/</span><span class="token operator">/</span><span class="token property">$PRIVATE_IP</span><span class="token punctuation">:</span><span class="token number">8500</span>
+</code>
+</pre>
+
+<p>Then on the other 2 hosts, instruct them to join the cluster:</p>
+
+<pre class="  language-bash"><code class="  language-bash">$ docker exec consul consul join <span class="token punctuation">[</span>private IP of first host<span class="token punctuation">]</span>
+ 
+Successfully joined cluster by contacting <span class="token number">1</span> nodes<span class="token punctuation">.</span></code></pre>
+
+<p>We can add new hosts at any time by running the consul agent in 
+client mode instead of server mode. for example, let's expose the web UI
+ on a 4th host:</p>
+
+<pre class="  language-bash"><code class="  language-bash">export PRIVATE_IP<span class="token operator">=</span><span class="token punctuation">[</span>your private IP here<span class="token punctuation">]</span>
+ 
+docker run <span class="token operator">-</span>d <span class="token operator">--</span>name consul <span class="token operator">-</span>h <span class="token property">$HOSTNAME</span> \
+    <span class="token operator">-</span>p <span class="token number">8300</span><span class="token punctuation">:</span><span class="token number">8300</span> <span class="token operator">-</span>p <span class="token number">8301</span><span class="token punctuation">:</span><span class="token number">8301</span> <span class="token operator">-</span>p <span class="token number">8301</span><span class="token punctuation">:</span><span class="token number">8301</span><span class="token operator">/</span>udp <span class="token operator">-</span>p <span class="token number">8302</span><span class="token punctuation">:</span><span class="token number">8302</span> <span class="token operator">-</span>p <span class="token number">8302</span><span class="token punctuation">:</span><span class="token number">8302</span><span class="token operator">/</span>udp \
+    <span class="token operator">-</span>p <span class="token number">8400</span><span class="token punctuation">:</span><span class="token number">8400</span> <span class="token operator">-</span>p <span class="token number">8500</span><span class="token punctuation">:</span><span class="token number">8500</span> <span class="token operator">-</span>p <span class="token number">53</span><span class="token punctuation">:</span><span class="token number">53</span><span class="token operator">/</span>udp \
+    progrium<span class="token operator">/</span>consul <span class="token operator">-</span>advertise <span class="token property">$PRIVATE_IP</span> <span class="token operator">-</span>join <span class="token punctuation">[</span>IP of an existing node<span class="token punctuation">]</span></code></pre>
+
+<p>Now you can visit http://[IP of 4th host]:8500/ui and view your 
+cluster state. The overall topology of our cluster now looks like this:</p>
+
+<p><a class="popup-image" href="https://www.livewyer.com/sites/default/files/blog/LW_BLOG_02_DIAGRAM_02.png"><img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/LW_BLOG_02_DIAGRAM_02.png"></a></p>
+
+<p>&nbsp;</p>
+
+<h3>Automatic service discovery</h3>
+
+<p>Now we have all our services registered in a decentralised key-value 
+store, we would like any parts of our application stack that depend on 
+each other to be automatically configured to point at the node on which 
+that dependency is currently running. A simple way is to use consul's 
+DNS resolver. If you review the set-up commands from earlier in the 
+article, you'll notice we forwarded requests to UDP port 53 (DNS) on the
+ docker bridge IP to the consul container. This means if you create a 
+new container and pass "–dns=" to your docker run command, you will be 
+able to access your other services as if they were running anywhere on 
+the internet. For example, let's fire up a mysql container on one of our
+ hosts:</p>
+
+<pre class="  language-bash"><code class="  language-bash">docker run <span class="token operator">-</span>d <span class="token operator">--</span>dns<span class="token operator">=</span><span class="token number">172.17</span><span class="token punctuation">.</span><span class="token number">42.1</span> <span class="token operator">--</span>name mysql <span class="token operator">-</span>p <span class="token number">3306</span><span class="token punctuation">:</span><span class="token number">3306</span> <span class="token operator">-</span>e MYSQL_ROOT_PASSWORD<span class="token operator">=</span>consul<span class="token operator">-</span>test mysql<span class="token punctuation">:</span><span class="token number">5.5</span></code></pre>
+
+<p>Then on a different host, you will be able to access that container by referring to the special domain "service.consul."</p>
+
+<pre class="  language-bash"><code class="  language-bash">docker run <span class="token operator">--</span>rm <span class="token operator">-</span>it <span class="token operator">--</span>dns<span class="token operator">=</span><span class="token number">172.17</span><span class="token punctuation">.</span><span class="token number">42.1</span> ubuntu bash
+$ apt<span class="token operator">-</span>get update <span class="token operator">&amp;&amp;</span> apt<span class="token operator">-</span>get install mysql<span class="token operator">-</span>client
+$ mysql <span class="token operator">-</span>u root <span class="token operator">-</span>h mysql<span class="token punctuation">.</span>service<span class="token punctuation">.</span>consul <span class="token operator">-</span>p
+Enter password<span class="token punctuation">:</span>
+Welcome to the MySQL monitor<span class="token punctuation">.</span>  Commands end with <span class="token punctuation">;</span> or \g<span class="token punctuation">.</span>
+Your MySQL connection id is <span class="token number">4</span>
+Server version<span class="token punctuation">:</span> <span class="token number">5.5</span><span class="token punctuation">.</span><span class="token number">41</span> MySQL Community Server <span class="token punctuation">(</span>GPL<span class="token punctuation">)</span></code></pre>
+
+<p>However, for many applications, DNS-based resolution is unsuitable. 
+For example, if you need to know the port a service is running on, 
+Consul will expose it through an SRV record, but most applications do 
+not support these. Other applications won't support DNS at all, 
+preferring hard-coded IP addresses in configuration files. To support 
+these applications, we will use...</p>
+
+<p>&nbsp;</p>
+
+<h3>Consul-template</h3>
+
+<p><a href="https://github.com/hashicorp/consul-template">Consul-template</a>
+ is a daemon that queries consul and updates any number of configuration
+ files on the filesystem, then optionally restarts other daemons 
+whenever a configuration change is detected. We'll use this configure an
+ nginx container to pass any PHP requests to a PHP container running 
+somewhere on the cluster.</p>
+
+<p>As consul template is a daemon itself, this means we'll have to run 2
+ processes inside our container. There are many ways of doing this, but 
+one of the most lightweight solutions is to use <a href="http://smarden.org/runit/">runit</a>,
+ basically a very tiny init replacement for embedded devices, or in our 
+case, containers. runit simply takes a directory containing text files 
+that describe how to run a service, runs them, restarts them if they 
+die, and cleans them up when the container is requested to stop.</p>
+
+<p>&nbsp;</p>
+
+<p>N.B. All the code for this container is stored in <a href="https://github.com/livewyer-ops/example-nginx-consul">this git repository</a>, so it's probably easiest to clone it and make your own changes as you follow along.</p>
+
+<p>Firstly, let's create the runit service files for consul-template and nginx:</p>
+
+<p><strong>consul-template.service</strong></p>
+
+<pre class="  language-bash"><code class="  language-bash"><span class="token important">#!/bin/sh</span>
+CONSUL<span class="token operator">=</span>consul<span class="token punctuation">.</span>service<span class="token punctuation">.</span>consul
+exec consul<span class="token operator">-</span>template \
+     <span class="token operator">-</span>consul<span class="token operator">=</span><span class="token property">$CONSUL</span><span class="token punctuation">:</span><span class="token number">8500</span> \
+     <span class="token operator">-</span>template <span class="token string">"/etc/consul-templates/nginx.conf:/etc/nginx/nginx.conf:sv hup nginx"</span>
+</code></pre>
+
+<p>&nbsp;</p>
+
+<p><strong>nginx.service</strong></p>
+
+<pre class="  language-bash"><code class="  language-bash"><span class="token important">#!/bin/sh</span>
+<span class="token operator">/</span>usr<span class="token operator">/</span>sbin<span class="token operator">/</span>nginx <span class="token operator">-</span>c <span class="token operator">/</span>etc<span class="token operator">/</span>nginx<span class="token operator">/</span>nginx<span class="token punctuation">.</span>conf <span class="token operator">-</span>t <span class="token operator">&amp;&amp;</span> \
+exec <span class="token operator">/</span>usr<span class="token operator">/</span>sbin<span class="token operator">/</span>nginx <span class="token operator">-</span>c <span class="token operator">/</span>etc<span class="token operator">/</span>nginx<span class="token operator">/</span>nginx<span class="token punctuation">.</span>conf
+</code>
+</pre>
+
+<p>Next, create the consul template configuration for nginx. It looks 
+mostly the same as a standard configuration, apart from this block:</p>
+
+<p><strong>nginx.conf</strong></p>
+
+<pre class="  language-apacheconf"><code class="  language-apacheconf">...
+upstream php {
+    least_conn;
+    {{range service <span class="token string">"tiny-php5-fpm"</span>}}server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=60 weight=1;
+    {{else}}server 127.0.0.1:65535; <span class="token comment" spellcheck="true"># force a 502{{end}}</span>
+}
+...
+location ~ \.php {
+<span class="token directive-inline property">    include</span>                 fastcgi_params;
+    fastcgi_index   index.php;
+    fastcgi_param   SCRIPT_FILENAME <span class="token variable">$document_root</span><span class="token variable">$fastcgi_script_name</span>;
+    fastcgi_pass    php;
+}
+</code>
+</pre>
+
+<p>This is the <a href="http://golang.org/pkg/text/template/">magic</a> that consul-template will replace with the services it's read from your consul instance.</p>
+
+<p>Finally the Dockerfile:</p>
+
+<p><strong>Dockerfile</strong></p>
+
+<pre>FROM jakexks/tiny-nginx
+MAINTAINER Jake Sanders 
+ 
+ADD consul-template /bin/consul-template
+ 
+RUN mkdir -p /etc/service/nginx &amp;&amp; mkdir -p /etc/service/consul-template &amp;&amp; rm /etc/nginx/nginx.conf
+ADD consul-template.service /etc/service/consul-template/run
+ADD nginx.conf /etc/consul-templates/nginx.conf
+ADD nginx.service /etc/service/nginx/run
+ 
+CMD ["/usr/bin/runsvdir", "/etc/service"]</pre>
+
+<p>Let's try it out! On one host, run:</p>
+
+<pre>docker run -d -P --name php jakexks/tiny-php5-fpm</pre>
+
+<p>On another, run:</p>
+
+<pre>docker run -d --dns=172.17.42.1 -p 80:80 --name livewyer-nginx jakexks/livewyer-nginx-consul</pre>
+
+<p>then visit http://[IP of nginx node]/index.php and you should see the phpinfo() page.</p>
+
+<p>For homework, run several nginx containers across your cluster and 
+configure a load-balancer that discovers them all using consul-template.
+ If you've been following this article all the way through, it should be
+ fairly easy!</p>
+
+
+    <div class="lw-base-corp-green cta-bottom mt24 mb24 popup-contact">
+      <p class="centred">Looking to utilise containers?</p>
+  <p class="centred">Get in touch with us to see how we can help you.</p>
+ <p class="centred"><a href="https://www.livewyer.com/contact"><img class="mb16 mt16" src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/button-contact-us.svg" alt="Contact us" title="Contact us"></a></p>
+  <p class="centred">+44 (0)20 3608 0110</p>
+    </div>    
+      <div class="socialmedia">
+<span><a target="_blank" href="https://plus.google.com/share?url=https://www.livewyer.com/blog/2015/02/05/service-discovery-docker-containers-using-consul-and-registrator"><img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/icon-googleplus.svg"></a></span>
+<span><a target="_blank" href="https://twitter.com/share?text=Service%20Discovery%20for%20Docker%20Containers%20using%20Consul%20and%20Registrator&amp;url=http://lwy.io/1MAvTGd"><img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/icon-twitter.svg"></a></span>
+     </div>
+    <div class="blog-tags">
+      <div class="underline gray"></div>
+      <div>
+      <div class="tags-label">Tags:</div>
+      <div class="tag"><div class="item-list"><ul><li class="first"><a href="https://www.livewyer.com/blog/term/10">Consul</a></li>
+<li><a href="https://www.livewyer.com/blog/term/6">Docker</a></li>
+<li class="last"><a href="https://www.livewyer.com/blog/term/11">nginx</a></li>
+</ul></div></div>
+    </div>    </div>
+  </div>
+  </div>
+  </div> 
+</div>        </div>
+  </div>
+
+
+
+
+
+
+</div>  </div>
+
+
+</div>
+
+</section> <!-- /.block -->
+<section id="block-lw-local-lw-blog-prev-next" class="block block-lw-local  clearfix">
+
+      
+  <div class="horizontal-content"><div class="horizontal-box"><div class="bg-white"><div class="inner-container"><div class="pagenav pagenav-prev"><span class="arrow left">&lt;</span><a href="https://www.livewyer.com/blog/2015/02/04/applications-scale-running-docker-apache-mesos">Previous</a><p class="post-title"><a href="https://www.livewyer.com/blog/2015/02/04/applications-scale-running-docker-apache-mesos">Applications at scale: Running Docker Containers on Apache Mesos</a></p></div><div class="pagenav pagenav-next"><a href="https://www.livewyer.com/blog/2015/02/16/running-apache-mesos-inside-docker-coreos">Next</a><span class="arrow">&gt;</span><p class="post-title"><a href="https://www.livewyer.com/blog/2015/02/16/running-apache-mesos-inside-docker-coreos">Running Apache Mesos Inside Docker on CoreOS</a></p></div><p class="pagenav pagenav-center"><a href="https://www.livewyer.com/blog">Top</a></p></div></div></div></div>
+</section> <!-- /.block -->
+<section id="block-disqus-disqus-comments" class="block block-disqus  clearfix">
+
+        <h2 class="block-title">Comments</h2>
+    
+  <div id="disqus_thread"><iframe verticalscrolling="no" horizontalscrolling="no" src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/a.html" style="width: 1px ! important; min-width: 100% ! important; border: medium none ! important; overflow: hidden ! important; height: 534px ! important;" title="Disqus" tabindex="0" scrolling="no" allowtransparency="true" name="dsq-app2" id="dsq-app2" width="100%" frameborder="0"></iframe></div>
+</section> <!-- /.block -->
+  </div>
+    </section>
+
+    
+  </div>
+</div>
+</div>
+<div class="footer-wrapper">
+<div class="container col-sm-12">
+  <footer class="footer">
+      <div class="region region-footer">
+    <section id="block-block-1" class="block block-block  clearfix">
+
+      
+  <p class="copyright"><img src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/logo-footer.svg">&nbsp;©2016</p>
+
+</section> <!-- /.block -->
+  </div>
+  </footer>
+</div>
+</div>
+  <script src="3.installation-docker%28help%29-Consul-Production-Ubuntu-14.04_files/js_B2uv6dkjoYobfQVyuXdchgrpnnx4oM0TkP_bDVf8Qrg.js"></script>
+
+
+</body></html>

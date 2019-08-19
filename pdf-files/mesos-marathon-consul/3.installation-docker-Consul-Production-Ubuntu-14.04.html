@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="en">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="en">
+<![endif]-->
+<!--[if !(IE 7) & !(IE 8)]><!-->
+<html lang="en"><!--<![endif]--><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Service Discovery with Consul | Sreenivas Makam's Blog</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="pingback" href="https://sreeninet.wordpress.com/xmlrpc.php">
+	<!--[if lt IE 9]>
+	<script src="https://s0.wp.com/wp-content/themes/pub/twentythirteen/js/html5.js"></script>
+	<![endif]-->
+	<link rel="dns-prefetch" href="https://s2.wp.com/">
+<link rel="dns-prefetch" href="https://s1.wp.com/">
+<link rel="dns-prefetch" href="https://s0.wp.com/">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+<link rel="alternate" type="application/rss+xml" title="Sreenivas Makam's Blog » Feed" href="https://sreeninet.wordpress.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="Sreenivas Makam's Blog » Comments Feed" href="https://sreeninet.wordpress.com/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Sreenivas Makam's Blog » Service Discovery with&nbsp;Consul Comments Feed" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/feed/">
+	<script async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/beacon.js"></script><script type="text/javascript" async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/platform.js"></script><script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/showad.js" async=""></script><script type="text/javascript">
+		/* <![CDATA[ */
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function () {
+					oldonload();
+					func();
+				}
+			}
+		}
+		/* ]]> */
+	</script>
+			<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/72x72\/","ext":".png","svgUrl":"https:\/\/s0.wp.com\/wp-content\/mu-plugins\/wpcom-smileys\/twemoji\/2\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/s1.wp.com\/wp-includes\/js\/wp-emoji-release.min.js?m=1473172720h&ver=4.6.1-RC1-38499"}};
+			!function(a,b,c){function d(a){var c,d,e,f,g,h=b.createElement("canvas"),i=h.getContext&&h.getContext("2d"),j=String.fromCharCode;if(!i||!i.fillText)return!1;switch(i.textBaseline="top",i.font="600 32px Arial",a){case"flag":return i.fillText(j(55356,56806,55356,56826),0,0),!(h.toDataURL().length<3e3)&&(i.clearRect(0,0,h.width,h.height),i.fillText(j(55356,57331,65039,8205,55356,57096),0,0),c=h.toDataURL(),i.clearRect(0,0,h.width,h.height),i.fillText(j(55356,57331,55356,57096),0,0),d=h.toDataURL(),c!==d);case"diversity":return i.fillText(j(55356,57221),0,0),e=i.getImageData(16,16,1,1).data,f=e[0]+","+e[1]+","+e[2]+","+e[3],i.fillText(j(55356,57221,55356,57343),0,0),e=i.getImageData(16,16,1,1).data,g=e[0]+","+e[1]+","+e[2]+","+e[3],f!==g;case"simple":return i.fillText(j(55357,56835),0,0),0!==i.getImageData(16,16,1,1).data[0];case"unicode8":return i.fillText(j(55356,57135),0,0),0!==i.getImageData(16,16,1,1).data[0];case"unicode9":return i.fillText(j(55358,56631),0,0),0!==i.getImageData(16,16,1,1).data[0]}return!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i;for(i=Array("simple","flag","unicode8","diversity","unicode9"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/wp-emoji-release.js" type="text/javascript"></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="all-css-0-1" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_003.css" type="text/css" media="all">
+<link rel="stylesheet" id="twentythirteen-fonts-css" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/css.css" type="text/css" media="all">
+<link rel="stylesheet" id="all-css-2-1" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_002.css" type="text/css" media="all">
+<!--[if lt IE 9]>
+<link rel='stylesheet' id='twentythirteen-ie-css'  href='https://s0.wp.com/wp-content/themes/pub/twentythirteen/css/ie.css?m=1423935199h&#038;ver=2013-07-18' type='text/css' media='all' />
+<![endif]-->
+<link rel="stylesheet" id="all-css-4-1" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a.css" type="text/css" media="all">
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_003"></script>
+<link rel="stylesheet" id="all-css-0-2" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/style.css" type="text/css" media="all">
+<!--[if lt IE 8]>
+<link rel='stylesheet' id='highlander-comments-ie7-css'  href='https://s1.wp.com/wp-content/mu-plugins/highlander-comments/style-ie7.css?m=1351637563h&#038;ver=20110606' type='text/css' media='all' />
+<![endif]-->
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://sreeninet.wordpress.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://s1.wp.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Microservices Infrastructure using&nbsp;Mantl" href="https://sreeninet.wordpress.com/2016/03/25/microservices-infrastructure-using-mantl/">
+<link rel="next" title="Opensource Meetup Presentation" href="https://sreeninet.wordpress.com/2016/04/17/opensource-meetup-presentation/">
+<meta name="generator" content="WordPress.com">
+<link rel="canonical" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a.html">
+<link rel="shortlink" href="http://wp.me/p41Qkn-XZ">
+<link rel="alternate" type="application/json+oembed" href="https://public-api.wordpress.com/oembed/1.0/?format=json&amp;url=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F&amp;for=wpcom-auto-discovery"><link rel="alternate" type="application/xml+oembed" href="https://public-api.wordpress.com/oembed/1.0/?format=xml&amp;url=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F&amp;for=wpcom-auto-discovery">
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Service Discovery with Consul">
+<meta property="og:url" content="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/">
+<meta property="og:description" content="In a Microservices architecture, Services are dynamic, distributed and present in large numbers. It is needed to have a good Service discovery solution to address this dynamic problem. In this blog…">
+<meta property="article:published_time" content="2016-04-17T13:39:22+00:00">
+<meta property="article:modified_time" content="2016-09-05T16:25:11+00:00">
+<meta property="og:site_name" content="Sreenivas Makam's Blog">
+<meta property="og:image" content="https://sreeninet.files.wordpress.com/2016/04/consul1.png">
+<meta property="og:image:width" content="1117">
+<meta property="og:image:height" content="527">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:site" content="@wordpressdotcom">
+<meta name="twitter:image" content="https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=240">
+<meta name="twitter:card" content="summary">
+<meta property="fb:app_id" content="249643311490">
+<meta property="article:publisher" content="https://www.facebook.com/WordPresscom">
+<link rel="shortcut icon" type="image/x-icon" href="https://s2.wp.com/i/favicon.ico" sizes="16x16 24x24 32x32 48x48">
+<link rel="icon" type="image/x-icon" href="https://s2.wp.com/i/favicon.ico" sizes="16x16 24x24 32x32 48x48">
+<link rel="apple-touch-icon-precomposed" href="https://s0.wp.com/i/webclip.png">
+<link rel="openid.server" href="https://sreeninet.wordpress.com/?openidserver=1">
+<link rel="openid.delegate" href="https://sreeninet.wordpress.com/">
+<link rel="search" type="application/opensearchdescription+xml" href="https://sreeninet.wordpress.com/osd.xml" title="Sreenivas Makam's Blog">
+<link rel="search" type="application/opensearchdescription+xml" href="https://s1.wp.com/opensearch.xml" title="WordPress.com">
+		<style type="text/css">
+			.recentcomments a {
+				display: inline !important;
+				padding: 0 !important;
+				margin: 0 !important;
+			}
+
+			table.recentcommentsavatartop img.avatar, table.recentcommentsavatarend img.avatar {
+				border: 0px;
+				margin: 0;
+			}
+
+			table.recentcommentsavatartop a, table.recentcommentsavatarend a {
+				border: 0px !important;
+				background-color: transparent !important;
+			}
+
+			td.recentcommentsavatarend, td.recentcommentsavatartop {
+				padding: 0px 0px 1px 0px;
+				margin: 0px;
+			}
+
+			td.recentcommentstextend {
+				border: none !important;
+				padding: 0px 0px 2px 10px;
+			}
+
+			.rtl td.recentcommentstextend {
+				padding: 0px 10px 2px 0px;
+			}
+
+			td.recentcommentstexttop {
+				border: none;
+				padding: 0px 0px 0px 10px;
+			}
+
+			.rtl td.recentcommentstexttop {
+				padding: 0px 10px 0px 0px;
+			}
+		</style>
+		<meta name="application-name" content="Sreenivas Makam's Blog"><meta name="msapplication-window" content="width=device-width;height=device-height"><meta name="msapplication-task" content="name=Subscribe;action-uri=https://sreeninet.wordpress.com/feed/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="msapplication-task" content="name=Sign up for a free blog;action-uri=http://wordpress.com/signup/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="msapplication-task" content="name=WordPress.com Support;action-uri=http://support.wordpress.com/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="msapplication-task" content="name=WordPress.com Forums;action-uri=http://forums.wordpress.com/;icon-uri=https://s2.wp.com/i/favicon.ico"><meta name="title" content="Service Discovery with&nbsp;Consul | Sreenivas Makam's Blog on WordPress.com">
+<meta name="description" content="In a Microservices architecture, Services are dynamic, distributed and present in large numbers. It is needed to have a good Service discovery solution to address this dynamic problem. In this blog, I will cover basics of Service discovery and using Consul to do Service discovery. What is Service discovery? Service discovery should provide the following:…">
+	<style type="text/css" id="twentythirteen-header-css">
+			.site-header {
+			background: url(https://s0.wp.com/wp-content/themes/pub/twentythirteen/images/headers/circle.png) no-repeat scroll top;
+			background-size: 1600px auto;
+		}
+		@media (max-width: 767px) {
+			.site-header {
+				background-size: 768px auto;
+			}
+		}
+		@media (max-width: 359px) {
+			.site-header {
+				background-size: 360px auto;
+			}
+		}
+		</style>
+			<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/amzn_ads.js"></script>
+		<script type="text/javascript">
+		try { amznads.getAds("3033"); } catch(e) { /* ignore */ }
+		</script><script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/bid"></script>
+		<script type="text/javascript">
+		try {
+			var a9_p = amznads.getKeys(),
+			_ipw_custom = {
+				wordAds: '0',
+				adSafe: '0',
+				domain: 'sreeninet.wordpress.com',
+				pageURL: 'https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/'
+			};
+			if("undefined"!=typeof a9_p&&""!=a9_p&&null!==a9_p&&"[object Array]"===Object.prototype.toString.call(a9_p)){var a="",b=0,c=a9_p.length;a9_p.sort();for(var d=0;d<c;d++){a9_p[d-b]=a9_p[d-b].replace(/a1x6p/,"a160x600p");var e=a9_p[d-b].split("p");e[0]==a&&(a9_p.splice(d-b,1),b++);a=e[0]}_ipw_custom.amznPay=a9_p};document.close();
+		} catch(e) {}
+		</script> 		<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/publishertag.js"></script>
+ 		<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/head.js"></script>
+		<script type="text/javascript">
+		jQuery(window).ready(function () {
+			jQuery("a.wpa-about").text("About these ads");
+		});
+		</script><link rel="amphtml" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/amp/"><style type="text/css" id="syntaxhighlighteranchor"></style>
+<script type="text/javascript">
+	window.google_analytics_uacct = "UA-52447-2";
+</script>
+
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-52447-2']);
+	_gaq.push(['_setDomainName', 'wordpress.com']);
+	_gaq.push(['_initData']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+	})();
+</script><script type="text/javascript" async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ga.js"></script>
+<style type="text/css"></style><script type="text/javascript" async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_002.js"></script><link rel="stylesheet" type="text/css" id="gravatar-card-css" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/hovercard.css"><link rel="stylesheet" type="text/css" id="gravatar-card-services-css" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/services.css"><script type="text/javascript" charset="utf-8" async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/button.js"></script><script type="text/javascript" async="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a.js"></script></head>
+
+<body class="single single-post postid-3719 single-format-standard mp6 customizer-styles-applied single-author sidebar highlander-enabled highlander-light">
+	<div id="page" class="hfeed site">
+		<header id="masthead" class="site-header" role="banner">
+			<a class="home-link" href="https://sreeninet.wordpress.com/" title="Sreenivas Makam's Blog" rel="home">
+				<h1 class="site-title">Sreenivas Makam's Blog</h1>
+				<h2 class="site-description"></h2>
+			</a>
+
+			<div id="navbar" class="navbar">
+				<nav id="site-navigation" class="navigation main-navigation" role="navigation">
+					<button class="menu-toggle">Menu</button>
+					<a class="screen-reader-text skip-link" href="#content" title="Skip to content">Skip to content</a>
+					<div class="menu-menu-1-container"><ul id="primary-menu" class="nav-menu"><li id="menu-item-4763" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-4763"><a href="https://sreeninet.wordpress.com/">Home</a></li>
+<li id="menu-item-4765" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4765"><a href="https://sreeninet.wordpress.com/about/">About</a></li>
+</ul></div>					<form role="search" method="get" class="search-form" action="https://sreeninet.wordpress.com/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input class="search-field" placeholder="Search …" name="s" type="search">
+				</label>
+				<input class="search-submit" value="Search" type="submit">
+			</form>				</nav><!-- #site-navigation -->
+			</div><!-- #navbar -->
+		</header><!-- #masthead -->
+
+		<div id="main" class="site-main">
+
+	<div id="primary" class="content-area">
+		<div id="content" class="site-content" role="main">
+
+						
+				
+<article id="post-3719" class="post-3719 post type-post status-publish format-standard hentry category-consul category-containers category-docker category-etcd category-hashicorp category-service-discovery">
+	<header class="entry-header">
+		
+				<h1 class="entry-title">Service Discovery with&nbsp;Consul</h1>
+		
+		<div class="entry-meta">
+			<span class="date"><a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/" title="Permalink to Service Discovery with&nbsp;Consul" rel="bookmark"><time class="entry-date" datetime="2016-04-17T13:39:22+00:00">April 17, 2016</time></a></span><span class="categories-links"><a href="https://sreeninet.wordpress.com/category/consul/" rel="category tag">Consul</a>, <a href="https://sreeninet.wordpress.com/category/containers/" rel="category tag">Containers</a>, <a href="https://sreeninet.wordpress.com/category/docker/" rel="category tag">Docker</a>, <a href="https://sreeninet.wordpress.com/category/etcd/" rel="category tag">etcd</a>, <a href="https://sreeninet.wordpress.com/category/hashicorp/" rel="category tag">Hashicorp</a>, <a href="https://sreeninet.wordpress.com/category/service-discovery/" rel="category tag">Service Discovery</a></span><span class="author vcard"><a class="url fn n" href="https://sreeninet.wordpress.com/author/sreemakam/" title="View all posts by Sreenivas Makam" rel="author">Sreenivas Makam</a></span>					</div><!-- .entry-meta -->
+	</header><!-- .entry-header -->
+
+		<div class="entry-content">
+		<p>In a Microservices architecture, Services are dynamic, distributed 
+and present in large numbers. It is needed to have a good Service 
+discovery solution to address this dynamic problem. In this blog, I will
+ cover basics of Service discovery and using Consul to do Service 
+discovery.</p>
+<h3>What is Service discovery?</h3>
+<p>Service discovery should provide the following:</p>
+<ol>
+<li>Discovery – Services need to discover each other to get IP address 
+and port detail to communicate with other services in the cluster.</li>
+<li>Health check – Only healthy services should participate in handling 
+traffic, unhealthy services need to be dynamically pruned out.</li>
+<li>Load balancing – Traffic destined to a particular service should be 
+dynamically load balanced to all instances providing the particular 
+service.</li>
+</ol>
+<p>Following are the critical components of Service discovery:</p>
+<p><span id="more-3719"></span></p>
+<ul>
+<li>Service Registry – Maintains a database of services and provides an 
+external API(HTTP/DNS) to interact. This is typically Implemented as a 
+distributed key, value store.</li>
+<li>Registrator – Registers services dynamically to Service registry by listening to events.</li>
+<li>Health checker – Monitors Service health dynamically and updates Service registry appropriately.</li>
+<li>Load balancer – Distribute traffic destined to service to active participants.</li>
+</ul>
+<h3>Consul for Service Discovery</h3>
+<p>There are many possible solutions(etcd, zookeeper, skydns) available 
+for Service discovery. Consul is a comprehensive Service discovery 
+solution that covers all the critical components explained above. 
+Following are some architecture details of Consul:</p>
+<ul>
+<li>Has a distributed key, value(KV) store for storing Service database.</li>
+<li>Provides comprehensive service health checking using both in-built solutions as well as user provided custom solutions.</li>
+<li>Provides REST based HTTP api for interaction.</li>
+<li>Service database can be queried using DNS.</li>
+<li>Does dynamic load balancing.</li>
+<li>Supports single data center and can be scaled to support multiple data centers.</li>
+<li>Integrates well with Docker.</li>
+</ul>
+<h3>Consul installation</h3>
+<p>Consul can be installed in standalone mode or in a cluster of 
+servers. For development purpose, we can use a single cluster node. For 
+production purposes, it is necessary to have a multi-node Consul cluster
+ to have built-in redundancy. When starting a multi-node cluster, it is 
+necessary to specify one Consul neighbor for a node after which Consul 
+members use the gossip protocol to communicate with themselves, elect a 
+leader and create a working cluster. Consul can be installed as an 
+application software or as a Docker Container. For this blog, I will use
+ single node <a href="https://github.com/gliderlabs/docker-consul">Consul Docker Container</a>.<br>
+Following command starts Consul Docker Container:</p>
+<pre>docker run -d -p 8500:8500 -p 172.17.0.1:53:8600/udp -p 8400:8400 gliderlabs/consul-server -node myconsul -bootstrap
+</pre>
+<p>Following are some notes on the above command:</p>
+<ul>
+<li>Within Consul, port 8400 is used for RPC, 8500 is used for HTTP, 
+8600 is used for DNS. By using “-p” option, we are exposing these ports 
+to the host machine.</li>
+<li>“172.17.0.1” is the Docker bridge IP address. We are remapping 
+Consul Container’s port 8600 to host machine’s Docker bridge port 53 so 
+that Containers on that host can use Consul for DNS.</li>
+<li>“bootstrap” option is used to operate Consul in standalone mode.</li>
+</ul>
+<p>Following is the Consul version that I am running. This output is inside Consul Container.</p>
+<pre># consul --version
+Consul v0.6.3
+</pre>
+<p>Following output shows the HTTP REST api example listing the active nodes:</p>
+<pre>$ curl -s http://localhost:8500/v1/catalog/nodes | jq .
+[
+  {
+    "ModifyIndex": 4,
+    "CreateIndex": 3,
+    "Address": "172.17.0.2",
+    "Node": "myconsul"
+  }
+]
+</pre>
+<p>Following output shows that no active services are running:</p>
+<pre>$ curl -s http://localhost:8500/v1/catalog/services | jq .
+{
+  "consul": []
+}
+</pre>
+<h3>Example Application used in this blog</h3>
+<p>For this blog, we will use the following application.</p>
+<p><img data-attachment-id="3779" data-permalink="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/consul1/" data-orig-file="https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=437&amp;h=206" data-orig-size="1117,527" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="consul1" data-image-description="" data-medium-file="https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=437&amp;h=206?w=300" data-large-file="https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=437&amp;h=206?w=604" class="alignnone  wp-image-3779" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/consul1.png" alt="consul1" srcset="https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=437&amp;h=206 437w, https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=874&amp;h=412 874w, https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=150&amp;h=71 150w, https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=300&amp;h=142 300w, https://sreeninet.files.wordpress.com/2016/04/consul1.png?w=768&amp;h=362 768w" sizes="(max-width: 437px) 100vw, 437px" width="437" height="206"></p>
+<p>Following are some notes on the above application:</p>
+<ul>
+<li>Two nginx containers&nbsp;will serve as the web servers. ubuntu container will serve as http client.</li>
+<li>Consul will load balance the request between two nginx web servers.</li>
+<li>DNS and health check will be provided by Consul.</li>
+<li>We will first try this application with manual service registration and later use dynamic service registration using <a href="https://github.com/gliderlabs/registrator">gliderlabs registrator</a>.</li>
+</ul>
+<p>Following are some pre-requisites:</p>
+<p>To allow Docker Containers to use Docker bridge as the DNS IP 
+address, we need to add the following to Docker start options. For 
+Ubuntu 14.04, we need to specify the following options in 
+“/etc/default/docker”.</p>
+<pre>DOCKER_OPTS="--dns 172.17.0.1 --dns 8.8.8.8 --dns-search service.consul"
+</pre>
+<p>“172.17.0.1” is the Docker bridge IP address in my case. “dns-search”
+ option allows us to specify the default domain name. When Docker 
+startup options are changed, it is needed to restart Docker engine.</p>
+<h3>Example application using manual registration</h3>
+<h4>Application with no health check</h4>
+<p>First, lets start the 3 Docker Containers comprising the application:</p>
+<pre>docker run -d -P --name=nginx1 nginx
+docker run -d -P --name=nginx2 nginx
+docker run -ti smakam/myubuntu:v3 sh
+</pre>
+<p>Following output shows all running Containers, including 3 application Containers as well as Consul:</p>
+<pre>$ docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                                                                                                             NAMES
+75663b0a2a9f        smakam/myubuntu:v3         "sh"                     4 seconds ago       Up 3 seconds                                                                                                                          grave_mahavira
+167bb121198e        nginx                      "nginx -g 'daemon off"   42 seconds ago      Up 41 seconds       0.0.0.0:32821-&gt;80/tcp, 0.0.0.0:32820-&gt;443/tcp                                                                     nginx2
+0ea2573fc764        nginx                      "nginx -g 'daemon off"   44 seconds ago      Up 43 seconds       0.0.0.0:32819-&gt;80/tcp, 0.0.0.0:32818-&gt;443/tcp                                                                     nginx1
+e27c1d7f63db        gliderlabs/consul-server   "/bin/consul agent -s"   About an hour ago   Up About an hour    0.0.0.0:8400-&gt;8400/tcp, 8300-8302/tcp, 8600/tcp, 8301-8302/udp, 0.0.0.0:8500-&gt;8500/tcp, 172.17.0.1:53-&gt;8600/udp   thirsty_albattani
+</pre>
+<p>Let’s register these 2 services manually:</p>
+<pre><strong>http1.json:</strong>
+{
+  "ID": "http1",
+  "Name": "http",
+  "Address": "172.17.0.3",
+  "Port": 80
+}
+</pre>
+<p><strong>http2.json:</strong></p>
+<pre>{
+  "ID": "http2",
+  "Name": "http",
+  "Address": "172.17.0.4",
+  "Port": 80
+}
+
+curl -X PUT --data-binary @http1.json http://localhost:8500/v1/agent/service/register
+curl -X PUT --data-binary @http2.json http://localhost:8500/v1/agent/service/register
+</pre>
+<p>Now let’s look at the Consul service registry. We can see below that 
+the service name “http” is composed of 2 web servers(172.17.0.3:80, 
+172.17.0.4:80)</p>
+<pre>$ curl -s http://localhost:8500/v1/catalog/service/http | jq .
+[
+  {
+    "ModifyIndex": 372,
+    "CreateIndex": 372,
+    "Node": "myconsul",
+    "Address": "172.17.0.2",
+    "ServiceID": "http1",
+    "ServiceName": "http",
+    "ServiceTags": [],
+    "ServiceAddress": "172.17.0.3",
+    "ServicePort": 80,
+    "ServiceEnableTagOverride": false
+  },
+  {
+    "ModifyIndex": 373,
+    "CreateIndex": 373,
+    "Node": "myconsul",
+    "Address": "172.17.0.2",
+    "ServiceID": "http2",
+    "ServiceName": "http",
+    "ServiceTags": [],
+    "ServiceAddress": "172.17.0.4",
+    "ServicePort": 80,
+    "ServiceEnableTagOverride": false
+  }
+]
+</pre>
+<p>Now, let’s look at DNS database. This shows both the web servers that are part of “http” service.</p>
+<pre>$ dig @172.17.0.1 http.service.consul 
+
+; &lt;&lt;&gt;&gt; DiG 9.9.5-3ubuntu0.7-Ubuntu &lt;&lt;&gt;&gt; @172.17.0.1 http.service.consul
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 4972
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;http.service.consul.		IN	A
+
+;; ANSWER SECTION:
+http.service.consul.	0	IN	A	172.17.0.3
+http.service.consul.	0	IN	A	172.17.0.4
+</pre>
+<p>We can also look at DNS service records that will show the port 
+number associated with each service. In this case, “http” service 
+exposes port 80.</p>
+<pre>$ dig @172.17.0.1 http.service.consul SRV
+
+; &lt;&lt;&gt;&gt; DiG 9.9.5-3ubuntu0.7-Ubuntu &lt;&lt;&gt;&gt; @172.17.0.1 http.service.consul SRV
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 34138
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;http.service.consul.		IN	SRV
+
+;; ANSWER SECTION:
+http.service.consul.	0	IN	SRV	1 1 80 <span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>.
+http.service.consul.	0	IN	SRV	1 1 80 <span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>.
+
+;; ADDITIONAL SECTION:
+<span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>. 0	IN	A	172.17.0.4
+<span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>. 0	IN	A	172.17.0.3
+</pre>
+<p>Now, let’s try to ping the dns name and check if load balancing is 
+happening. As we can see below, the ping request shifts between 
+172.17.0.3 and 172.17.0.4 for service “http.service.consul”</p>
+<pre>$ ping -c1 http.service.consul
+PING http.service.consul (172.17.0.4) 56(84) bytes of data.
+64 bytes from 172.17.0.4: icmp_seq=1 ttl=64 time=0.105 ms
+
+--- http.service.consul ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.105/0.105/0.105/0.000 ms
+sreeni@ubuntu:~/consul$ ping -c1 http.service.consul
+PING http.service.consul (172.17.0.3) 56(84) bytes of data.
+64 bytes from 172.17.0.3: icmp_seq=1 ttl=64 time=0.110 ms
+
+--- http.service.consul ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.110/0.110/0.110/0.000 ms
+</pre>
+<p>In the example above, we have registered the service manually and 
+also there is no health check configured. Because of the manual 
+registration, the services would stay in Consul database even if the 
+service is removed. Because there is no health check, the service would 
+stay in Consul database even if the service dies.<br>
+We can use the following command to deregister the services manually.</p>
+<pre>curl -X PUT  http://localhost:8500/v1/agent/service/deregister/http1
+curl -X PUT  http://localhost:8500/v1/agent/service/deregister/http2
+</pre>
+<h4>Application with http health check</h4>
+<p>With http based health check, Consul takes care of doing periodic 
+http check and remove the service from registry if the health check 
+fails. Consul provides other health check mechanisms other than http.<br>
+Following are two example services with http based health check and the example shows how to register them to Consul.</p>
+<pre><strong>http1_checkhttp.json:</strong>
+{
+  "ID": "http1",
+  "Name": "http",
+  "Address": "172.17.0.3",
+  "Port": 80,
+  "check": {
+    "http": "http://172.17.0.3:80",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+<strong>http2_checkhttp.json:</strong>
+{
+  "ID": "http2",
+  "Name": "http",
+  "Address": "172.17.0.4",
+  "Port": 80,
+  "check": {
+    "http": "http://172.17.0.4:80",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+curl -X PUT --data-binary @http1_checkhttp.json http://localhost:8500/v1/agent/service/register
+curl -X PUT --data-binary @http2_checkhttp.json http://localhost:8500/v1/agent/service/register
+</pre>
+<p>Following command shows the configured health checks and shows the status as passing.</p>
+<pre>$ curl -s http://localhost:8500/v1/health/checks/http | jq .
+[
+  {
+    "ModifyIndex": 424,
+    "CreateIndex": 423,
+    "Node": "myconsul",
+    "CheckID": "service:http1",
+    "Name": "Service 'http' check",
+    "Status": "passing",
+    "Notes": "",
+    "Output": "",
+    "ServiceID": "http1",
+    "ServiceName": "http"
+  },
+  {
+    "ModifyIndex": 427,
+    "CreateIndex": 425,
+    "Node": "myconsul",
+    "CheckID": "service:http2",
+    "Name": "Service 'http' check",
+    "Status": "passing",
+    "Notes": "",
+    "Output": "",
+    "ServiceID": "http2",
+    "ServiceName": "http"
+  }
+]
+</pre>
+<p>Following picture shows the Consul GUI and services with health check passing for “http” service.</p>
+<p><img data-attachment-id="3853" data-permalink="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/consul2/" data-orig-file="https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=280&amp;h=279" data-orig-size="844,843" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="consul2" data-image-description="" data-medium-file="https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=280&amp;h=279?w=300" data-large-file="https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=280&amp;h=279?w=604" class="alignnone  wp-image-3853" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/consul2.png" alt="consul2" srcset="https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=280&amp;h=279 280w, https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=560&amp;h=558 560w, https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=150&amp;h=150 150w, https://sreeninet.files.wordpress.com/2016/04/consul2.png?w=300&amp;h=300 300w" sizes="(max-width: 280px) 100vw, 280px" width="280" height="279"></p>
+<p>To prove that the health check is working, lets kill one of the Docker containers using:</p>
+<pre>docker rm -f nginx2
+</pre>
+<p>Following picture shows that the health check for “http2” service is critical:</p>
+<p><img data-attachment-id="3854" data-permalink="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/consul3/" data-orig-file="https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=279&amp;h=276" data-orig-size="844,836" data-comments-opened="1" data-image-meta="{&quot;aperture&quot;:&quot;0&quot;,&quot;credit&quot;:&quot;&quot;,&quot;camera&quot;:&quot;&quot;,&quot;caption&quot;:&quot;&quot;,&quot;created_timestamp&quot;:&quot;0&quot;,&quot;copyright&quot;:&quot;&quot;,&quot;focal_length&quot;:&quot;0&quot;,&quot;iso&quot;:&quot;0&quot;,&quot;shutter_speed&quot;:&quot;0&quot;,&quot;title&quot;:&quot;&quot;,&quot;orientation&quot;:&quot;0&quot;}" data-image-title="consul3" data-image-description="" data-medium-file="https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=279&amp;h=276?w=300" data-large-file="https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=279&amp;h=276?w=604" class="alignnone  wp-image-3854" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/consul3.png" alt="consul3" srcset="https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=279&amp;h=276 279w, https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=558&amp;h=552 558w, https://sreeninet.files.wordpress.com/2016/04/consul3.png?w=300&amp;h=297 300w" sizes="(max-width: 279px) 100vw, 279px" width="279" height="276"></p>
+<p>Once the health check fails, the service gets removed from service 
+registry. Following command shows that only 1 active web server is 
+present for “http” service now.</p>
+<pre>$ dig @172.17.0.1 http.service.consul
+
+; &lt;&lt;&gt;&gt; DiG 9.9.5-3ubuntu0.7-Ubuntu &lt;&lt;&gt;&gt; @172.17.0.1 http.service.consul
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 36858
+;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;http.service.consul.		IN	A
+
+;; ANSWER SECTION:
+http.service.consul.	0	IN	A	172.17.0.3
+
+;; Query time: 1 msec
+;; SERVER: 172.17.0.1#53(172.17.0.1)
+;; WHEN: Sat Apr 09 22:35:10 PDT 2016
+;; MSG SIZE  rcvd: 72
+</pre>
+<h4>Application with tcp based check</h4>
+<p>Following is an example service with TCP based check. Here Consul server will do a periodic TCP check to specified IP and port.</p>
+<pre>{
+  "ID": "http",
+  "Name": "http",
+  "Address": "172.17.0.3",
+  "Port": 80,
+  "check": {
+    "tcp": "172.17.0.3:80",
+    "interval": "10s",
+    "timeout": "1s"
+   }
+}
+</pre>
+<h3>Application using script based check</h3>
+<p>Following is an example service using script based check. Here, 
+Consul server periodically executes the user specified script to verify 
+the health of the service.</p>
+<pre>{
+  "ID": "http",
+  "Name": "http",
+  "Address": "172.17.0.3",
+  "Port": 80,
+  "check": {
+     "script": "curl 172.17.0.3 &gt;/dev/null 2&gt;&amp;1",
+     "interval": "10s"
+   }
+}
+</pre>
+<h4>Application using TTL based check</h4>
+<p>Compared to the previous health checks which are triggered by Consul 
+server, this health check is triggered by the service . The service 
+needs to periodically update a shared TTL counter that Consul server 
+maintains. If the TTL counter is not refreshed within a particular 
+period, the service is assumed unhealthy. Following is an example 
+service with TTL based check.</p>
+<pre>{
+  "ID": "web",
+  "Name": "web",
+  "Address": "172.17.0.3",
+  "Port": 80,
+  "check": {
+     "Interval": "10s",
+     "TTL": "15s"
+   }
+}
+</pre>
+<p>To manually trigger TTL based keepalive update, we can do the following:</p>
+<pre>curl http://localhost:8500/v1/agent/check/pass/service:http1
+curl http://localhost:8500/v1/agent/check/pass/service:http2
+</pre>
+<h3>Example application with automatic registration using Registrator</h3>
+<p>Manual registration with Consul is error-prone and it can be overcome by an application like&nbsp;<a href="https://github.com/gliderlabs/registrator">Gliderlabs Registrator</a>. Registrator listens for Docker events and dynamically updates Consul service registry.</p>
+<p>Choosing the IP address for the registration is critical. There are 2 choices:</p>
+<ol>
+<li>With internal IP option, Container IP and port number gets 
+registered with Consul. This approach is useful when we want to access 
+the service registry from within a Container. Following is an example of
+ starting Registrator using “internal” IP option.
+<pre>docker run -d -v /var/run/<span class="skimlinks-unlinked">docker.sock:/tmp/docker.sock</span> --net=host gliderlabs/registrator -internal consul://localhost:8500
+</pre>
+</li>
+<li>With external IP option, host IP and port number gets registered 
+with Consul. Its necessary to specify IP address manually. If its not 
+specified, loopback address gets registered. Following is an example of 
+starting Registrator using “external” IP option.
+<pre>docker run -d -v /var/run/<span class="skimlinks-unlinked">docker.sock:/tmp/docker.sock</span> gliderlabs/registrator -ip 192.168.99.100 consul://192.168.99.100:8500
+</pre>
+</li>
+</ol>
+<p>First, let’s start Consul server and Registrator:</p>
+<pre>docker run -d -p 8500:8500 -p 172.17.0.1:53:8600/udp -p 8400:8400 gliderlabs/consul-server -node myconsul -bootstrap
+docker run -d -v /var/run/<span class="skimlinks-unlinked">docker.sock:/tmp/docker.sock</span> --net=host gliderlabs/registrator -internal consul://localhost:8500
+</pre>
+<p>Let’s start the 2 nginx services with service name as “http” and with http based health checks enabled.</p>
+<pre>docker run -d -p :80 -e "SERVICE_80_NAME=http" -e "SERVICE_80_ID=http1" -e "SERVICE_80_CHECK_HTTP=true" -e "SERVICE_80_CHECK_HTTP=/" --name=nginx1 nginx
+docker run -d -p :80 -e "SERVICE_80_NAME=http" -e "SERVICE_80_ID=http2" -e "SERVICE_80_CHECK_HTTP=true" -e "SERVICE_80_CHECK_HTTP=/" --name=nginx2 nginx
+</pre>
+<p>In the above example, we have passed environment variables that Registrator will use when registering the service with Consul.<br>
+Let’s look at the service details now:</p>
+<pre>$ curl -s http://localhost:8500/v1/catalog/service/http | jq .
+[
+  {
+    "ModifyIndex": 20,
+    "CreateIndex": 16,
+    "Node": "myconsul",
+    "Address": "172.17.0.2",
+    "ServiceID": "http1",
+    "ServiceName": "http",
+    "ServiceTags": [],
+    "ServiceAddress": "172.17.0.3",
+    "ServicePort": 80,
+    "ServiceEnableTagOverride": false
+  },
+  {
+    "ModifyIndex": 19,
+    "CreateIndex": 17,
+    "Node": "myconsul",
+    "Address": "172.17.0.2",
+    "ServiceID": "http2",
+    "ServiceName": "http",
+    "ServiceTags": [],
+    "ServiceAddress": "172.17.0.4",
+    "ServicePort": 80,
+    "ServiceEnableTagOverride": false
+  }
+]
+</pre>
+<p>As we can see above, “http” service is composed of “http1” with “172.17.0.3:80” and “http2” with “172.17.0.4:80” service.<br>
+We can look at DNS details to confirm the same:</p>
+<pre>$ dig @172.17.0.1 http.service.consul SRV
+
+; &lt;&lt;&gt;&gt; DiG 9.9.5-3ubuntu0.7-Ubuntu &lt;&lt;&gt;&gt; @172.17.0.1 http.service.consul SRV
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 34138
+;; flags: qr aa rd; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 2
+;; WARNING: recursion requested but not available
+
+;; QUESTION SECTION:
+;http.service.consul.		IN	SRV
+
+;; ANSWER SECTION:
+http.service.consul.	0	IN	SRV	1 1 80 <span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>.
+http.service.consul.	0	IN	SRV	1 1 80 <span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>.
+
+;; ADDITIONAL SECTION:
+<span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>. 0	IN	A	172.17.0.4
+<span class="skimlinks-unlinked">myconsul.node.dc1.consul</span>. 0	IN	A	172.17.0.3
+</pre>
+<p>Following example shows service registration with TTL based check enabled for service exposing port 80.</p>
+<pre>docker run -d -p :80 -e "SERVICE_80_NAME=http" -e "SERVICE_80_ID=http1" -e "SERVICE_80_CHECK_TTL=30s" --name=nginx1 nginx
+docker run -d -p :80 -e "SERVICE_80_NAME=http" -e "SERVICE_80_ID=http2" -e "SERVICE_80_CHECK_TTL=30s" --name=nginx2 nginx
+</pre>
+<p>As we can see, Consul with Registrator makes the Service discovery process dynamic and easy to manage.</p>
+<h3>References</h3>
+<ul>
+<li><a href="http://www.simplicityitself.io/getting/started/with/microservices/2015/06/10/service-discovery-overview.html">Service discovery overview</a></li>
+<li><a href="http://progrium.com/blog/2014/07/29/understanding-modern-service-discovery-with-docker/">Modern Service discovery with Docker</a></li>
+<li><a href="http://artplustech.com/docker-consul-dns-registrator/">Service discovery with Consul and Registrator</a></li>
+<li><a href="https://jlordiales.me/2015/01/23/docker-consul/">Dockerized Service discovery with Consul</a></li>
+<li><a href="https://www.nginx.com/blog/service-discovery-in-a-microservices-architecture/">Service discovery in Microservices architecture</a></li>
+<li><a href="http://www.mammatustech.com/consul-service-discovery-and-health-for-microservices-architecture-tutorial">Consul Service discovery and health check for Microservices</a></li>
+<li><a href="https://www.consul.io/">Consul webpage</a></li>
+<li><a href="https://github.com/gliderlabs/docker-consul">Consul Docker Container</a></li>
+<li><a href="https://github.com/gliderlabs/registrator">Gliderlabs Registrator</a></li>
+<li><a href="http://gliderlabs.com/registrator/">Gliderlabs Registrator webpage</a></li>
+</ul>
+		<div class="wpcnt">
+			<div class="wpa wpmrec" style="display: inline-block ! important;">
+				<a class="wpa-about" href="https://wordpress.com/about-these-ads/" rel="nofollow">About these ads</a>
+				        <div id="crt-1128127193" style="width: 300px; height: 250px; display: none;"></div>
+        <script type="text/javascript">
+        var o = document.getElementById('crt-1128127193');
+        if ("undefined"!=typeof Criteo) {
+            var p = o.parentNode;
+            p.style.setProperty('display', 'inline-block', 'important');
+            o.style.setProperty('display', 'block', 'important');
+            Criteo.DisplayAcceptableAdIfAdblocked({zoneid:388248,containerid:"crt-1128127193",collapseContainerIfNotAdblocked:true});
+        } else {
+            o.style.setProperty('display', 'none', 'important');
+        }
+        </script>
+				<div class="u">
+					<script type="text/javascript">
+					(function(g){if("undefined"!=typeof g.__ATA){g.__ATA.initAd({sectionId:26942, width:300, height:250});}})(window);
+					</script><div id="automattic-id-4996" data-section="26942" style="width:300px; height:250px;"><iframe style="border:none;width:300px;height:250px;" scrolling="no" name="fif_slot_automattic-id-_automattic-id-4996" id="fif_slot_automattic-id-_automattic-id-4996" src="javascript:&quot;<html><body style='background:transparent;margin:0%;'></body></html>&quot;" width="300" height="250" frameborder="0"></iframe></div>
+				</div>
+			</div>
+		</div><div id="jp-post-flair" class="sharedaddy sd-like-enabled sd-sharing-enabled"><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-twitter"><a rel="nofollow" data-shared="sharing-twitter-3719" class="share-twitter sd-button share-icon" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?share=twitter&amp;nb=1" target="_blank" title="Click to share on Twitter"><span>Twitter</span></a></li><li class="share-facebook"><a rel="nofollow" data-shared="sharing-facebook-3719" class="share-facebook sd-button share-icon" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?share=facebook&amp;nb=1" target="_blank" title="Share on Facebook"><span>Facebook</span></a></li><li class="share-google-plus-1"><a rel="nofollow" data-shared="sharing-google-3719" class="share-google-plus-1 sd-button share-icon" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?share=google-plus-1&amp;nb=1" target="_blank" title="Click to share on Google+"><span>Google</span></a></li><li class="share-email share-service-visible"><a rel="nofollow" data-shared="" class="share-email sd-button share-icon" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?share=email&amp;nb=1" target="_blank" title="Click to email"><span>Email</span></a></li><li class="share-pocket"><a rel="nofollow" data-shared="" class="share-pocket sd-button share-icon" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?share=pocket&amp;nb=1" target="_blank" title="Click to share on Pocket"><span>Pocket</span></a></li><li class="share-end"></li></ul></div></div></div><div class="sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-loaded" id="like-post-wrapper-59544823-3719-585a7143e14c8" data-src="//widgets.wp.com/likes/#blog_id=59544823&amp;post_id=3719&amp;origin=sreeninet.wordpress.com&amp;obj_id=59544823-3719-585a7143e14c8" data-name="like-post-frame-59544823-3719-585a7143e14c8"><h3 class="sd-title">Like this:</h3><div class="likes-widget-placeholder post-likes-widget-placeholder" style="height: 55px; display: none;"><span class="button"><span>Like</span></span> <span class="loading">Loading...</span></div><iframe class="post-likes-widget jetpack-likes-widget" name="like-post-frame-59544823-3719-585a7143e14c8" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_002.html" width="100%" height="55px" frameborder="0"></iframe><span class="sd-text-color"></span><a class="sd-link-color"></a></div>
+<div id="jp-relatedposts" class="jp-relatedposts" style="display: block;">
+	<h3 class="jp-relatedposts-headline"><em>Related</em></h3>
+<div class="jp-relatedposts-items jp-relatedposts-items-minimal"><p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="5237" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="https://sreeninet.wordpress.com/2016/07/14/comparing-swarm-swarmkit-and-swarm-mode/" title="Comparing Swarm, Swarmkit and Swarm Mode
+
+One of the big features in Docker 1.12 release is Swarm mode. Docker had Swarm available for Container orchestration from 1.6 release. Docker released Swarmkit as an opensource project for orchestrating distributed systems few weeks before Docker 1.12(RC) release. I had some confusion between these three projects. In this blog,…" rel="nofollow" data-origin="3719" data-position="0">Comparing Swarm, Swarmkit and Swarm Mode</a></span><span class="jp-relatedposts-post-context">In "Containers"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="3420" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="https://sreeninet.wordpress.com/2016/03/25/microservices-infrastructure-using-mantl/" title="Microservices Infrastructure using Mantl
+
+Mantl is an Open source project from Cisco and it provides an integrated solution to deploy distributed Microservices. Any company deploying Microservices has to integrate different components before the solution becomes production ready. Mantl makes it easier by integrating the different components and providing the glue software that integrates the…" rel="nofollow" data-origin="3719" data-position="1">Microservices Infrastructure using Mantl</a></span><span class="jp-relatedposts-post-context">In "Ansible"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="5437" data-post-format="false"><span class="jp-relatedposts-post-title"><a class="jp-relatedposts-post-a" href="https://sreeninet.wordpress.com/2016/07/29/service-discovery-and-load-balancing-internals-in-docker-1-12/" title="Service Discovery and Load balancing Internals in Docker 1.12
+
+Docker 1.12 release has revamped its support for Service Discovery and Load balancing. Prior to 1.12 release, support for Service discovery and Load balancing was pretty primitive in Docker. In this blog, I have covered the internals of Service Discovery and Load balancing in Docker release 1.12. I will cover…" rel="nofollow" data-origin="3719" data-position="2">Service Discovery and Load balancing Internals in Docker 1.12</a></span><span class="jp-relatedposts-post-context">In "boot2docker"</span></p></div></div></div>	</div><!-- .entry-content -->
+	
+	<footer class="entry-meta">
+		
+			</footer><!-- .entry-meta -->
+</article><!-- #post -->
+					<nav class="navigation post-navigation" role="navigation">
+		<h1 class="screen-reader-text">Post navigation</h1>
+		<div class="nav-links">
+
+			<a href="https://sreeninet.wordpress.com/2016/03/25/microservices-infrastructure-using-mantl/" rel="prev"><span class="meta-nav">←</span> Microservices Infrastructure using&nbsp;Mantl</a>			<a href="https://sreeninet.wordpress.com/2016/04/17/opensource-meetup-presentation/" rel="next">Opensource Meetup Presentation <span class="meta-nav">→</span></a>
+		</div><!-- .nav-links -->
+	</nav><!-- .navigation -->
+					
+<div id="comments" class="comments-area">
+
+			<h2 class="comments-title">
+			6 thoughts on “<span>Service Discovery with&nbsp;Consul</span>”		</h2>
+
+		<ol class="comment-list">
+					<li id="comment-700" class="comment even thread-even depth-1 parent highlander-comment">
+			<article id="div-comment-700" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/72435d9b8ae037db81a17bd9a3a5e07f.png" class="avatar avatar-74 grav-hashed grav-hijack" id="grav-72435d9b8ae037db81a17bd9a3a5e07f-0" width="74" height="74">						<b class="fn"><a href="http://www.shippable.com/" rel="external nofollow" class="url">Tom Trahan</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#comment-700">
+							<time datetime="2016-05-27T21:06:21+00:00">
+								May 27, 2016 at 9:06 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Very nice introductory post on a tricky topic.  Thank you.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?replytocom=700#respond" onclick='return addComment.moveForm( "div-comment-700", "700", "respond", "3719" )' aria-label="Reply to Tom Trahan">Reply</a></div>			</article><!-- .comment-body -->
+<ol class="children">
+		<li id="comment-701" class="comment byuser comment-author-sreemakam bypostauthor odd alt depth-2 highlander-comment">
+			<article id="div-comment-701" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/27f449c8f412ee8b419399a6f64ac3d8.png" class="avatar avatar-74 grav-hashed grav-hijack" id="grav-27f449c8f412ee8b419399a6f64ac3d8-0" width="74" height="74">						<b class="fn"><a href="https://sreeninet.wordpress.com/" rel="external nofollow" class="url">Sreenivas Makam</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#comment-701">
+							<time datetime="2016-05-28T01:10:14+00:00">
+								May 28, 2016 at 1:10 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Thanks for the feedback </p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?replytocom=701#respond" onclick='return addComment.moveForm( "div-comment-701", "701", "respond", "3719" )' aria-label="Reply to Sreenivas Makam">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+		<li id="comment-868" class="comment even thread-odd thread-alt depth-1 parent highlander-comment">
+			<article id="div-comment-868" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/fb594684036f4e9ff301dd12cc31f000.png" class="avatar avatar-74 grav-hashed grav-hijack" id="grav-fb594684036f4e9ff301dd12cc31f000-0" width="74" height="74">						<b class="fn">Sachin K</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#comment-868">
+							<time datetime="2016-09-05T10:51:18+00:00">
+								September 5, 2016 at 10:51 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Very nice post to understand consul dns load balancing .  I want
+ to work it on for advance scenarios . I am trying to access this domain
+ name from different host within a same network and it resolving too . 
+but it’s not pinging .<br>
+can you help me ..?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?replytocom=868#respond" onclick='return addComment.moveForm( "div-comment-868", "868", "respond", "3719" )' aria-label="Reply to Sachin K">Reply</a></div>			</article><!-- .comment-body -->
+<ol class="children">
+		<li id="comment-877" class="comment byuser comment-author-sreemakam bypostauthor odd alt depth-2 parent highlander-comment">
+			<article id="div-comment-877" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/27f449c8f412ee8b419399a6f64ac3d8.png" class="avatar avatar-74 grav-hashed grav-hijack" id="grav-27f449c8f412ee8b419399a6f64ac3d8-1" width="74" height="74">						<b class="fn"><a href="https://sreeninet.wordpress.com/" rel="external nofollow" class="url">Sreenivas Makam</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#comment-877">
+							<time datetime="2016-09-05T16:27:25+00:00">
+								September 5, 2016 at 4:27 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Does the ping work without dns name?<br>
+Is this overlay network across containers in the 2 hosts?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/?replytocom=877#respond" onclick='return addComment.moveForm( "div-comment-877", "877", "respond", "3719" )' aria-label="Reply to Sreenivas Makam">Reply</a></div>			</article><!-- .comment-body -->
+<ol class="children">
+		<li id="comment-879" class="comment even depth-3 highlander-comment">
+			<article id="div-comment-879" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/fb594684036f4e9ff301dd12cc31f000.png" class="avatar avatar-74 grav-hashed grav-hijack" id="grav-fb594684036f4e9ff301dd12cc31f000-1" width="74" height="74">						<b class="fn">Sachin K</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#comment-879">
+							<time datetime="2016-09-06T04:49:29+00:00">
+								September 6, 2016 at 4:49 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>no ping is not working without dnsname . their is no overlay 
+network , both containers are on same host (i. e. my vm on xen server) 
+and I am trying to access it from my laptop (os is ubuntu 16). I used 
+dnsmasq for domain name resolution .</p>
+				</div><!-- .comment-content -->
+
+							</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+</ol><!-- .children -->
+</li><!-- #comment-## -->
+		<li id="comment-1021" class="pingback odd alt thread-even depth-1 highlander-comment">
+			<div class="comment-body">
+				Pingback: <a href="https://www.tramasoli.com/?p=99" rel="external nofollow" class="url">howto #3 – O que é, o que faz, do que se alimenta o Consul.io – www.tramasoli.com</a> 			</div>
+</li><!-- #comment-## -->
+		</ol><!-- .comment-list -->
+
+		
+		
+	
+					<div id="respond" class="comment-respond js">
+			<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/#respond" style="display:none;">Cancel reply</a></small></h3>				<form action="https://sreeninet.wordpress.com/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate="">
+					<input id="highlander_comment_nonce" name="highlander_comment_nonce" value="4d9899bbba" type="hidden"><input name="_wp_http_referer" value="/2016/04/17/service-discovery-with-consul/" type="hidden">
+<input name="hc_post_as" id="hc_post_as" value="guest" type="hidden">
+
+<div class="comment-form-field comment-textarea">
+	
+	<div id="comment-form-comment"><textarea tabindex="-1" style="position: absolute; top: -999px; left: 0px; right: auto; bottom: auto; border: 0px none; padding: 0px; box-sizing: content-box; overflow-wrap: break-word; height: 0px ! important; min-height: 0px ! important; overflow: hidden; transition: none 0s ease 0s ; font-family: Arial,Helvetica,Tahoma,Verdana,sans-serif; font-size: 14px; font-weight: 400; font-style: normal; letter-spacing: 0px; text-transform: none; text-decoration: none; word-spacing: 0px; text-indent: 0px; line-height: 16px; width: 582px;" class="autosizejs ">Enter your comment here...</textarea><textarea id="comment" name="comment" title="Enter your comment here..." placeholder="Enter your comment here..." style="height: 36px; overflow: hidden; overflow-wrap: break-word; resize: none;"></textarea></div>
+</div>
+
+<div id="comment-form-identity" style="display: none;">
+
+	<div id="comment-form-nascar">
+		<p>Fill in your details below or click an icon to log in:</p>
+		<ul>
+			<li class="selected" style="display:none;">
+				<a href="#comment-form-guest" id="postas-guest" title="Guest">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="#comment-form-load-service:WordPress.com" id="postas-wordpress" title="WordPress.com">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="#comment-form-load-service:Twitter" id="postas-twitter" title="Twitter">
+					<span></span>
+				</a>
+			</li>
+			<li>
+				<a href="#comment-form-load-service:Facebook" id="postas-facebook" title="Facebook">
+					<span></span>
+				</a>
+			</li>
+			<li>
+			<iframe id="googleplus-sign-in" name="googleplus-sign-in" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_003.html" scrolling="no" allowtransparency="true" seamless="seamless" width="24" height="24" frameborder="0"></iframe>
+			</li>
+		</ul>
+	</div>
+
+	<div id="comment-form-guest" class="comment-form-service selected">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+<a href="https://gravatar.com/site/signup/" target="_blank">				<img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ad516503a11cd5ca435acc9bb6523536.png" alt="Gravatar" class="no-grav" width="25">
+</a>			</div>
+
+				<div class="comment-form-fields">
+				<div class="comment-form-field comment-form-email">
+					<label for="email">Email <span class="required">(required)</span> <span class="nopublish">(Address never made public)</span></label>
+					<div class="comment-form-input"><input id="email" name="email" type="email"></div>
+				</div>
+				<div class="comment-form-field comment-form-author">
+					<label for="author">Name <span class="required">(required)</span></label>
+					<div class="comment-form-input"><input id="author" name="author" type="text"></div>
+				</div>
+				<div class="comment-form-field comment-form-url">
+					<label for="url">Website</label>
+					<div class="comment-form-input"><input id="url" name="url" type="url"></div>
+				</div>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-wordpress" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ad516503a11cd5ca435acc9bb6523536.png" alt="WordPress.com Logo" class="no-grav" width="25">
+			</div>
+
+				<div class="comment-form-fields">
+				<input name="wp_avatar" id="wordpress-avatar" class="comment-meta-wordpress" value="" type="hidden">
+				<input name="wp_user_id" id="wordpress-user_id" class="comment-meta-wordpress" value="" type="hidden">
+				<input name="wp_access_token" id="wordpress-access_token" class="comment-meta-wordpress" value="" type="hidden">
+				<p class="comment-form-posting-as pa-wordpress"><strong></strong> You are commenting using your <span class="skimlinks-unlinked">WordPress.com</span> account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout(%20'wordpress'%20);">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-twitter" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ad516503a11cd5ca435acc9bb6523536.png" alt="Twitter picture" class="no-grav" width="25">
+			</div>
+
+				<div class="comment-form-fields">
+				<input name="twitter_avatar" id="twitter-avatar" class="comment-meta-twitter" value="" type="hidden">
+				<input name="twitter_user_id" id="twitter-user_id" class="comment-meta-twitter" value="" type="hidden">
+				<input name="twitter_access_token" id="twitter-access_token" class="comment-meta-twitter" value="" type="hidden">
+				<p class="comment-form-posting-as pa-twitter"><strong></strong> You are commenting using your Twitter account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout(%20'twitter'%20);">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-facebook" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ad516503a11cd5ca435acc9bb6523536.png" alt="Facebook photo" class="no-grav" width="25">
+			</div>
+
+				<div class="comment-form-fields">
+				<input name="fb_avatar" id="facebook-avatar" class="comment-meta-facebook" value="" type="hidden">
+				<input name="fb_user_id" id="facebook-user_id" class="comment-meta-facebook" value="" type="hidden">
+				<input name="fb_access_token" id="facebook-access_token" class="comment-meta-facebook" value="" type="hidden">
+				<p class="comment-form-posting-as pa-facebook"><strong></strong> You are commenting using your Facebook account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout(%20'facebook'%20);">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+	<div id="comment-form-googleplus" class="comment-form-service">
+		<div class="comment-form-padder">
+			<div class="comment-form-avatar">
+				<img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/ad516503a11cd5ca435acc9bb6523536.png" alt="Google+ photo" class="no-grav" width="25">
+			</div>
+
+				<div class="comment-form-fields">
+				<input name="googleplus_avatar" id="googleplus-avatar" class="comment-meta-googleplus" value="" type="hidden">
+				<input name="googleplus_user_id" id="googleplus-user_id" class="comment-meta-googleplus" value="" type="hidden">
+				<input name="googleplus_access_token" id="googleplus-access_token" class="comment-meta-googleplus" value="" type="hidden">
+				<p class="comment-form-posting-as pa-googleplus"><strong></strong> You are commenting using your Google+ account. <span class="comment-form-log-out">(&nbsp;<a href="javascript:HighlanderComments.doExternalLogout(%20'googleplus'%20);">Log&nbsp;Out</a>&nbsp;/&nbsp;<a href="#" onclick="javascript:HighlanderComments.switchAccount();return false;">Change</a>&nbsp;)</span></p>
+			</div>
+	
+		</div>
+	</div>
+
+
+	<div id="comment-form-load-service" class="comment-form-service">
+		<div class="comment-form-posting-as-cancel"><a href="javascript:HighlanderComments.cancelExternalWindow();">Cancel</a></div>
+		<p>Connecting to %s</p>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+var highlander_expando_javascript = function(){
+	var input = document.createElement( 'input' ),
+	    comment = jQuery( '#comment' );
+
+	if ( 'placeholder' in input ) {
+		comment.attr( 'placeholder', jQuery( '.comment-textarea label' ).remove().text() );
+	}
+
+	// Expando Mode: start small, then auto-resize on first click + text length
+	jQuery( '#comment-form-identity' ).hide();
+	jQuery( '#comment-form-subscribe' ).hide();
+	jQuery( '#commentform .form-submit' ).hide();
+
+	comment.css( { 'height':'10px' } ).one( 'focus', function() {
+		var timer = setInterval( HighlanderComments.resizeCallback, 10 )
+		jQuery( this ).animate( { 'height': HighlanderComments.initialHeight } ).delay( 100 ).queue( function(n) { clearInterval( timer ); HighlanderComments.resizeCallback(); n(); } );
+		jQuery( '#comment-form-identity' ).slideDown();
+		jQuery( '#comment-form-subscribe' ).slideDown();
+		jQuery( '#commentform .form-submit' ).slideDown();
+	});
+}
+jQuery(document).ready( highlander_expando_javascript );
+</script>
+
+<div id="comment-form-subscribe" style="display: none;">
+	<p class="comment-subscription-form"><input name="subscribe" id="subscribe" value="subscribe" style="width: auto;" type="checkbox"> <label class="subscribe-label" id="subscribe-label" for="subscribe" style="display: inline;">Notify me of new comments via email.</label></p><p class="post-subscription-form"><input name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto;" type="checkbox"> <label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog" style="display: inline;">Notify me of new posts via email.</label></p></div>
+
+
+
+
+<p class="form-submit" style="display: none;"><input name="submit" id="comment-submit" class="submit" value="Post Comment" type="submit"> <input name="comment_post_ID" value="3719" id="comment_post_ID" type="hidden">
+<input name="comment_parent" id="comment_parent" value="0" type="hidden">
+</p><p style="display: none;"><input id="akismet_comment_nonce" name="akismet_comment_nonce" value="40e10fc327" type="hidden"></p>
+<input name="genseq" value="1482322243" type="hidden">
+<p style="display: none;"></p>				<input id="ak_js" name="ak_js" value="1482322246148" type="hidden"></form>
+					</div><!-- #respond -->
+		<div style="clear: both"></div>
+</div><!-- #comments -->
+			
+		</div><!-- #content -->
+	</div><!-- #primary -->
+
+	<div id="tertiary" class="sidebar-container" role="complementary">
+		<div class="sidebar-inner">
+			<div class="widget-area">
+								<aside id="categories-3" class="widget widget_categories"><h3 class="widget-title">Categories</h3><label class="screen-reader-text" for="cat">Categories</label><select name="cat" id="cat" class="postform">
+	<option value="-1" selected="selected">Select Category</option>
+	<option class="level-0" value="806385">alcatel-lucent&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="4011177">Ansible&nbsp;&nbsp;(8)</option>
+	<option class="level-0" value="6288649">APPC&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="1028319">Arista&nbsp;&nbsp;(5)</option>
+	<option class="level-0" value="27942">Atlas&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="144203">aws&nbsp;&nbsp;(22)</option>
+	<option class="level-0" value="55721665">bigswitch&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="214104964">boot2docker&nbsp;&nbsp;(5)</option>
+	<option class="level-0" value="811308">Broadcom&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="126244783">Ceilometer&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="4910491">Cinder&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="28532">cisco&nbsp;&nbsp;(31)</option>
+	<option class="level-0" value="69816">cloud&nbsp;&nbsp;(13)</option>
+	<option class="level-0" value="191218423">cloudnfv&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="258215565">ClusterHQ&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="1025230">CML&nbsp;&nbsp;(7)</option>
+	<option class="level-0" value="998865">CNI&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="4308">congress&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="1804072">Consul&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="182564">Containers&nbsp;&nbsp;(52)</option>
+	<option class="level-0" value="492094000">Contiv&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="2570792">CoreOS&nbsp;&nbsp;(11)</option>
+	<option class="level-0" value="234253">cumulus&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="28070474">devops&nbsp;&nbsp;(19)</option>
+	<option class="level-0" value="543227790">devopsnet&nbsp;&nbsp;(12)</option>
+	<option class="level-0" value="14224271">devstack&nbsp;&nbsp;(9)</option>
+	<option class="level-0" value="4504191">Docker&nbsp;&nbsp;(66)</option>
+	<option class="level-0" value="6920042">Eapi&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="57341408">Embrane&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="223148">EMC&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="309368">EoS&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="21638118">etcd&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="944521">ETSI&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="325557">Eucalyptus&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="81819">facebook&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="526989">Flannel&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="26033499">Flocker&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="3068589">GCE&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="741138">Glance&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="6416607">Google cloud&nbsp;&nbsp;(8)</option>
+	<option class="level-0" value="282255762">group based policy&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="3251196">Hadoop&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="127455857">Hashicorp&nbsp;&nbsp;(6)</option>
+	<option class="level-0" value="43536">Heat&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="549669">Helium&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="22518">hp&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="32744">ibm&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="473921542">ipvlan&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="351789">Jenkins&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="24962259">Jinja2&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="72721">json&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="51978">juniper&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="176642">Juno&nbsp;&nbsp;(6)</option>
+	<option class="level-0" value="287611252">Kitematic&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="46713213">Kubernetes&nbsp;&nbsp;(8)</option>
+	<option class="level-0" value="351280663">Libnetwork&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="29436291">LXC&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="78738616">macvlan&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="495422">Magnum&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="214778192">Mantl&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="813935">meraki&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="669602">Mesos&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="36244842">Metacloud&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="86833954">Mininet&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="102206">namespaces&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="46697">NAS&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="341859877">ncclient&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="62715">nec&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="422290">net-tools&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="56136333">Netconf&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="1281413">neutron&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="22008">nexus&nbsp;&nbsp;(8)</option>
+	<option class="level-0" value="1865555">NFV&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="170356">Nova&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="253524727">nxapi&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="122141">OCI&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="96234514">onepk&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="4484015">onos&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="54734553">opencompute&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="306359149">openconfig&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="160748673">Opendaylight&nbsp;&nbsp;(17)</option>
+	<option class="level-0" value="10640881">Openflow&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="335677445">OpenNSL&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="13108840">openstack&nbsp;&nbsp;(23)</option>
+	<option class="level-0" value="40069832">opflex&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="282633866">opnfv&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="448419">orchestration&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="349423778">Ostanito&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="56761">overture&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="112800022">ovsdb&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="60486">Packer&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="129827">Packet&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="8427230">paramiko&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="50074991">pica8&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="638742">Postman&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="196">Programming&nbsp;&nbsp;(11)</option>
+	<option class="level-0" value="354323312">pycsco&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="354323862">Pyeapi&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="832">python&nbsp;&nbsp;(11)</option>
+	<option class="level-0" value="320212">rackspace&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="61831991">Raspberrypi&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="72331">redhat&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="15314">REST&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="5713907">rightscale&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="1318665">Rkt&nbsp;&nbsp;(6)</option>
+	<option class="level-0" value="85247986">runc&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="128761">SAN&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="271299">sdn&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="801">Security&nbsp;&nbsp;(5)</option>
+	<option class="level-0" value="15998088">Service Discovery&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="8791">SOAP&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="290248056">Socketplane&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="10346">SQL&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="85946">Swarm&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="596263">Swift&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="225126372">sysdig&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="3008880">Tail-f&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="3021235">Terraform&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="83046">Toolbox&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="6365106">Tutum&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="884003">UCS&nbsp;&nbsp;(3)</option>
+	<option class="level-0" value="666241">vagrant&nbsp;&nbsp;(7)</option>
+	<option class="level-0" value="130260">vault&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="20381299">vEoS&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="7904102">VIRL&nbsp;&nbsp;(8)</option>
+	<option class="level-0" value="989685">Virtualbox&nbsp;&nbsp;(5)</option>
+	<option class="level-0" value="40559">virtualization&nbsp;&nbsp;(5)</option>
+	<option class="level-0" value="38600">vmware&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="1179607">VMWare Player&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="189734">Weave&nbsp;&nbsp;(1)</option>
+	<option class="level-0" value="1265990">whitebox&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="6852">xml&nbsp;&nbsp;(4)</option>
+	<option class="level-0" value="550844">yaml&nbsp;&nbsp;(2)</option>
+	<option class="level-0" value="54873">Yang&nbsp;&nbsp;(4)</option>
+</select>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+	var dropdown = document.getElementById( "cat" );
+	function onCatChange() {
+		if ( dropdown.options[ dropdown.selectedIndex ].value > 0 ) {
+			location.href = "https://sreeninet.wordpress.com/?cat=" + dropdown.options[ dropdown.selectedIndex ].value;
+		}
+	}
+	dropdown.onchange = onCatChange;
+})();
+/* ]]> */
+</script>
+
+</aside><aside id="text-3" class="widget widget_text"><h3 class="widget-title">Mastering CoreOS book</h3>			<div class="textwidget">My book "Mastering CoreOS" got published on February 27, 2016. The book is available for ordering now from <a href="http://bit.ly/1R5OMDU">publisher website, </a> <a href="http://www.amazon.com/Mastering-CoreOS-Sreenivas-Makam-ebook/dp/B01AI0NKRQ">Amazon US</a> , <a href="http://www.amazon.in/Mastering-CoreOS-Sreenivas-Makam-ebook/dp/B01AI0NKRQ">Amazon India</a> and <a href="https://www.safaribooksonline.com/library/view/mastering-coreos/9781785288128/index.html">Safari books</a>. Motivation for this book can be found <a href="https://sreeninet.wordpress.com/2016/01/23/preview-launch-of-my-book-mastering-coreos/">here</a>. </div>
+		</aside><aside id="follow_button_widget-2" class="widget widget_follow_button_widget">
+		<iframe src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/index.html" scrolling="no" width="100%" height="20" frameborder="0"></iframe>
+		<script type="text/javascript">(function(d){var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');p.type = 'text/javascript';p.async = true;p.src = '//widgets.wp.com/platform.js';f.parentNode.insertBefore(p,f);}(document));</script>
+
+		</aside><aside id="top-posts-2" class="widget widget_top-posts"><h3 class="widget-title">Top Posts &amp; Pages</h3><ul>				<li>
+										<a href="https://sreeninet.wordpress.com/2016/04/17/service-discovery-with-consul/" class="bump-view" data-bump-view="tp">
+						Service Discovery with Consul					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2016/05/29/macvlan-and-ipvlan/" class="bump-view" data-bump-view="tp">
+						Macvlan and IPvlan basics					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2016/07/29/service-discovery-and-load-balancing-internals-in-docker-1-12/" class="bump-view" data-bump-view="tp">
+						Service Discovery and Load balancing Internals in Docker 1.12					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2016/07/14/comparing-swarm-swarmkit-and-swarm-mode/" class="bump-view" data-bump-view="tp">
+						Comparing Swarm, Swarmkit and Swarm Mode					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2015/04/24/ostinato-traffic-generator/" class="bump-view" data-bump-view="tp">
+						Ostinato Traffic generator					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2015/04/04/connecting-virl-cml-networks-to-outside-world/" class="bump-view" data-bump-view="tp">
+						Connecting VIRL, CML networks to outside world					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2015/06/14/openstack-and-docker-part-1/" class="bump-view" data-bump-view="tp">
+						Openstack and Docker - Part 1					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2014/06/28/netconf-and-yang/" class="bump-view" data-bump-view="tp">
+						Netconf and Yang					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2016/02/21/docker-on-raspberry-pi/" class="bump-view" data-bump-view="tp">
+						Docker on Raspberry Pi					</a>
+									</li>
+							<li>
+										<a href="https://sreeninet.wordpress.com/2016/05/29/docker-macvlan-and-ipvlan-network-plugins/" class="bump-view" data-bump-view="tp">
+						Docker macvlan and ipvlan network plugins					</a>
+									</li>
+			</ul></aside>		<aside id="recent-posts-2" class="widget widget_recent_entries">		<h3 class="widget-title">Recent Posts</h3>		<ul>
+					<li>
+				<a href="https://sreeninet.wordpress.com/2016/11/06/devops-in-networking-presentation/">Devops in Networking&nbsp;presentation</a>
+						</li>
+					<li>
+				<a href="https://sreeninet.wordpress.com/2016/10/01/vault-use-cases/">Vault – Use&nbsp;cases</a>
+						</li>
+					<li>
+				<a href="https://sreeninet.wordpress.com/2016/10/01/vault-overview/">Vault Overview</a>
+						</li>
+					<li>
+				<a href="https://sreeninet.wordpress.com/2016/09/03/docker-for-aws-deployment-options/">Docker for AWS – Deployment&nbsp;options</a>
+						</li>
+					<li>
+				<a href="https://sreeninet.wordpress.com/2016/09/03/aws-ecs-docker-container-service/">AWS ECS – Docker Container&nbsp;service</a>
+						</li>
+				</ul>
+		</aside>		<aside id="archives-3" class="widget widget_archive"><h3 class="widget-title">Archives</h3>		<label class="screen-reader-text" for="archives-dropdown-3">Archives</label>
+		<select id="archives-dropdown-3" name="archive-dropdown" onchange="document.location.href=this.options[this.selectedIndex].value;">
+			
+			<option value="" selected="selected">Select Month</option>
+				<option value="https://sreeninet.wordpress.com/2016/11/"> November 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/10/"> October 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/09/"> September 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/07/"> July 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/06/"> June 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/05/"> May 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/04/"> April 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/03/"> March 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/02/"> February 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2016/01/"> January 2016 </option>
+	<option value="https://sreeninet.wordpress.com/2015/12/"> December 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/08/"> August 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/07/"> July 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/06/"> June 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/05/"> May 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/04/"> April 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/03/"> March 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/02/"> February 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2015/01/"> January 2015 </option>
+	<option value="https://sreeninet.wordpress.com/2014/12/"> December 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/11/"> November 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/10/"> October 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/09/"> September 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/08/"> August 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/07/"> July 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/06/"> June 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/05/"> May 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/04/"> April 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/03/"> March 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/02/"> February 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2014/01/"> January 2014 </option>
+	<option value="https://sreeninet.wordpress.com/2013/12/"> December 2013 </option>
+
+		</select>
+		</aside><aside id="text-4" class="widget widget_text">			<div class="textwidget"><iframe id="twitter-widget-0" scrolling="no" allowtransparency="true" class="twitter-follow-button twitter-follow-button-rendered" style="position: static; visibility: visible; width: 122px; height: 20px;" title="Twitter Follow Button" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/follow_button.html" data-screen-name="srmakam" frameborder="0"></iframe></div>
+		</aside>			</div><!-- .widget-area -->
+		</div><!-- .sidebar-inner -->
+	</div><!-- #tertiary -->
+
+		</div><!-- #main -->
+		<footer id="colophon" class="site-footer" role="contentinfo">
+			
+			<div class="site-info">
+								<a href="https://wordpress.com/?ref=footer_website">Create a free website or blog at WordPress.com.</a>
+			</div><!-- .site-info -->
+		</footer><!-- #colophon -->
+	</div><!-- #page -->
+
+	<!--  -->
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/gprofiles.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/wpgroho.js"></script>
+
+	<script>
+		//initialize and attach hovercards to all gravatars
+		jQuery( document ).ready( function( $ ) {
+
+			if (typeof Gravatar === "undefined"){
+				return;
+			}
+
+			if ( typeof Gravatar.init !== "function" ) {
+				return;
+			}			
+
+			Gravatar.profile_cb = function( hash, id ) {
+				WPGroHo.syncProfileData( hash, id );
+			};
+			Gravatar.my_hash = WPGroHo.my_hash;
+			Gravatar.init( 'body', '#wp-admin-bar-my-account' );
+		});
+	</script>
+
+		<div style="display:none">
+	<div class="grofile-hash-map-72435d9b8ae037db81a17bd9a3a5e07f">
+	</div>
+	<div class="grofile-hash-map-27f449c8f412ee8b419399a6f64ac3d8">
+	</div>
+	<div class="grofile-hash-map-fb594684036f4e9ff301dd12cc31f000">
+	</div>
+	</div>
+<script type="text/javascript">
+/* <![CDATA[ */
+var HighlanderComments = {"loggingInText":"Logging In\u2026","submittingText":"Posting Comment\u2026","postCommentText":"Post Comment","connectingToText":"Connecting to %s","commentingAsText":"%1$s: You are commenting using your %2$s account.","logoutText":"Log Out","loginText":"Log In","connectURL":"https:\/\/sreeninet.wordpress.com\/public.api\/connect\/?action=request","logoutURL":"https:\/\/sreeninet.wordpress.com\/wp-login.php?action=logout&_wpnonce=fd54ff1b61","homeURL":"https:\/\/sreeninet.wordpress.com\/","postID":"3719","gravDefault":"identicon","enterACommentError":"Please enter a comment","enterEmailError":"Please enter your email address here","invalidEmailError":"Invalid email address","enterAuthorError":"Please enter your name here","gravatarFromEmail":"This picture will show whenever you leave a comment. Click to customize it.","logInToExternalAccount":"Log in to use details from one of these accounts.","change":"Change","changeAccount":"Change Account","comment_registration":"","userIsLoggedIn":"","isJetpack":"0","text_direction":"ltr"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a_002"></script>
+
+	<div id="carousel-reblog-box">
+		<form action="" name="carousel-reblog">
+			<textarea id="carousel-reblog-content" name="carousel-reblog-content" placeholder="Add your thoughts here... (optional)"></textarea>
+			<label for="carousel-reblog-to-blog-id" id="carousel-reblog-lblogid">Post to</label>
+			<select name="carousel-reblog-to-blog-id" id="carousel-reblog-to-blog-id">
+						</select>
+
+			<div class="submit">
+				<span class="canceltext"><a href="" class="cancel">Cancel</a></span>
+				<input name="carousel-reblog-submit" class="button" id="carousel-reblog-submit" value="Reblog Post" type="submit">
+				<input id="carousel-reblog-blog-id" value="59544823" type="hidden">
+				<input id="carousel-reblog-blog-url" value="https://sreeninet.wordpress.com" type="hidden">
+				<input id="carousel-reblog-blog-title" value="Sreenivas Makam's Blog" type="hidden">
+				<input id="carousel-reblog-post-url" value="" type="hidden">
+				<input id="carousel-reblog-post-title" value="" type="hidden">
+			</div>
+
+			<input id="_wpnonce" name="_wpnonce" value="af5be52f13" type="hidden"><input name="_wp_http_referer" value="/2016/04/17/service-discovery-with-consul/" type="hidden">		</form>
+
+		<div class="arrow"></div>
+	</div>
+
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/sreeninet.wordpress.com\/2016\/04\/17\/service-discovery-with-consul\/":3719};
+	</script>
+		<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-twitter' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-facebook' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-google-plus-1' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcomgoogle-plus-1', 'menubar=1,resizable=1,width=480,height=550' );
+				return false;
+			});
+		});
+		</script>
+			
+		<script type="text/javascript">
+			var windowOpen;
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-pocket' ).on( 'click', function() {
+				if ( 'undefined' !== typeof windowOpen ){ // If there's another sharing window open, close it.
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery(this).attr( 'href' ), 'wpcompocket', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+		});
+		</script>
+		<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/form.js"></script>
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/widgets.js"></script>
+<link rel="stylesheet" id="all-css-0-3" href="3.installation-docker-Consul-Production-Ubuntu-14.04_files/jetpack-carousel.css" type="text/css" media="all">
+<!--[if lte IE 8]>
+<link rel='stylesheet' id='jetpack-carousel-ie8fix-css'  href='https://s1.wp.com/wp-content/mu-plugins/carousel/jetpack-carousel-ie8fix.css?m=1412618825h&#038;ver=20121024' type='text/css' media='all' />
+<![endif]-->
+<script type="text/javascript">
+/* <![CDATA[ */
+var actionbardata = {"siteID":"59544823","siteName":"Sreenivas Makam's Blog","siteURL":"http:\/\/sreeninet.wordpress.com","icon":"<img alt='' src='https:\/\/s1.wp.com\/i\/void.gif' class='avatar avatar-36' height='36' width='36' \/>","canManageOptions":"","canCustomizeSite":"","isFollowing":"","themeSlug":"pub\/twentythirteen","signupURL":"https:\/\/wordpress.com\/start\/","loginURL":"https:\/\/sreeninet.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F","themeURL":"https:\/\/wordpress.com\/themes\/twentythirteen\/","xhrURL":"https:\/\/sreeninet.wordpress.com\/wp-admin\/admin-ajax.php","nonce":"e268c841ea","isSingular":"1","isFolded":"","isLoggedIn":"","isMobile":"","subscribeNonce":"<input type=\"hidden\" id=\"_wpnonce\" name=\"_wpnonce\" value=\"563e7417bf\" \/>","referer":"https:\/\/sreeninet.wordpress.com\/2016\/04\/17\/service-discovery-with-consul\/","canFollow":"1","statusMessage":"","customizeLink":"https:\/\/sreeninet.wordpress.com\/wp-admin\/customize.php?url=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F","postID":"3719","shortlink":"http:\/\/wp.me\/p41Qkn-XZ","canEditPost":"","editLink":"https:\/\/wordpress.com\/post\/sreeninet.wordpress.com\/3719","i18n":{"view":"View Site","follow":"Follow","following":"Following","edit":"Edit","login":"Log In","signup":"Sign Up","customize":"Customize","report":"Report this content","themeInfo":"Get theme: Twenty Thirteen","shortlink":"Copy shortlink","copied":"Copied","followedText":"New posts from this site will now appear in your <a href=\"https:\/\/wordpress.com\/\">Reader<\/a>","foldBar":"Collapse this bar","unfoldBar":"Expand this bar","editFollows":"Manage Sites I Follow","editSubs":"Manage Subscriptions","viewReader":"View Site in the Reader","subscribe":"Sign me up","enterEmail":"Enter your email address","followers":"Join 104 other followers","alreadyUser":"Already have a WordPress.com account? <a href=\"https:\/\/sreeninet.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F\">Log in now.<\/a>"}};
+/* ]]> */
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var jetpackCarouselStrings = {"widths":[370,700,1000,1200,1400,2000],"is_logged_in":"","lang":"en","ajaxurl":"https:\/\/sreeninet.wordpress.com\/wp-admin\/admin-ajax.php","nonce":"a600473c54","display_exif":"1","display_geo":"1","single_image_gallery":"1","single_image_gallery_media_file":"","background_color":"black","comment":"Comment","post_comment":"Post Comment","write_comment":"Write a Comment...","loading_comments":"Loading Comments...","download_original":"View full size <span class=\"photo-size\">{0}<span class=\"photo-size-times\">\u00d7<\/span>{1}<\/span>","no_comment_text":"Please be sure to submit some text with your comment.","no_comment_email":"Please provide an email address to comment.","no_comment_author":"Please provide your name to comment.","comment_post_error":"Sorry, but there was an error posting your comment. Please try again later.","comment_approved":"Your comment was approved.","comment_unapproved":"Your comment is in moderation.","camera":"Camera","aperture":"Aperture","shutter_speed":"Shutter Speed","focal_length":"Focal Length","comment_registration":"0","require_name_email":"1","login_url":"https:\/\/sreeninet.wordpress.com\/wp-login.php?redirect_to=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F","blog_id":"59544823","local_comments_commenting_as":"<fieldset><label for=\"email\">Email (Required)<\/label> <input type=\"text\" name=\"email\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-email-field\" \/><\/fieldset><fieldset><label for=\"author\">Name (Required)<\/label> <input type=\"text\" name=\"author\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-author-field\" \/><\/fieldset><fieldset><label for=\"url\">Website<\/label> <input type=\"text\" name=\"url\" class=\"jp-carousel-comment-form-field jp-carousel-comment-form-text-field\" id=\"jp-carousel-comment-form-url-field\" \/><\/fieldset>","reblog":"Reblog","reblogged":"Reblogged","reblog_add_thoughts":"Add your thoughts here... (optional)","reblogging":"Reblogging...","post_reblog":"Post Reblog","stats_query_args":"blog=59544823&v=wpcom&tz=0&user_id=0&subd=sreeninet","is_public":"1","reblog_enabled":""};
+/* ]]> */
+</script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var sharing_js_options = {"lang":"en","counts":"1"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/a"></script><div id="actionbar" class="actnbr-pub-twentythirteen actnbr-has-follow"><ul><li class="actnbr-btn actnbr-hidden"> 			    	<a class="actnbr-action actnbr-actn-follow" href=""><svg class="gridicon gridicon__follow" height="24px" width="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M23 16v2h-3v3h-2v-3h-3v-2h3v-3h2v3h3zM20 2v9h-4v3h-3v4H4c-1.1 0-2-.9-2-2V2h18zM8 13v-1H4v1h4zm3-3H4v1h7v-1zm0-2H4v1h7V8zm7-4H4v2h14V4z"></path></g></svg><span>Follow</span></a> 			    	<div class="actnbr-popover tip tip-top-left actnbr-notice"> 			    		<div class="tip-arrow"></div> 			    		<div class="tip-inner actnbr-follow-bubble"></div> 			    	</div> 			    </li><li class="actnbr-ellipsis actnbr-hidden"> 			  <svg class="gridicon gridicon__ellipsis" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><circle cx="5" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle></g></svg> 			  <div class="actnbr-popover tip tip-top-left actnbr-more"> 			  	<div class="tip-arrow"></div> 			  	<div class="tip-inner"> 				  <ul> 				    <li class="actnbr-sitename actnbr-hidden"><a href="http://sreeninet.wordpress.com/"><img alt="" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/void.gif" class="avatar avatar-36" width="36" height="36"> Sreenivas Makam's Blog</a></li> 				   	<li class="actnbr-folded-customize actnbr-hidden"><a href="https://sreeninet.wordpress.com/wp-admin/customize.php?url=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F"><svg class="gridicon gridicon__customize" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M2 6c0-1.505.78-3.08 2-4 0 .845.69 2 2 2 1.657 0 3 1.343 3 3 0 .386-.08.752-.212 1.09.74.594 1.476 1.19 2.19 1.81L8.9 11.98c-.62-.716-1.214-1.454-1.807-2.192C6.753 9.92 6.387 10 6 10c-2.21 0-4-1.79-4-4zm12.152 6.848l1.34-1.34c.607.304 1.283.492 2.008.492 2.485 0 4.5-2.015 4.5-4.5 0-.725-.188-1.4-.493-2.007L18 9l-2-2 3.507-3.507C18.9 3.188 18.225 3 17.5 3 15.015 3 13 5.015 13 7.5c0 .725.188 1.4.493 2.007L3 20l2 2 6.848-6.848c1.885 1.928 3.874 3.753 5.977 5.45l1.425 1.148 1.5-1.5-1.15-1.425c-1.695-2.103-3.52-4.092-5.448-5.977z" data-reactid=".2.1.1:0.1b.0"></path></g></svg><span>Customize<span></span></span></a></li> 				    <li class="actnbr-folded-follow actnbr-hidden"><a class="actnbr-action actnbr-actn-follow" href=""><svg class="gridicon gridicon__follow" height="24px" width="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M23 16v2h-3v3h-2v-3h-3v-2h3v-3h2v3h3zM20 2v9h-4v3h-3v4H4c-1.1 0-2-.9-2-2V2h18zM8 13v-1H4v1h4zm3-3H4v1h7v-1zm0-2H4v1h7V8zm7-4H4v2h14V4z"></path></g></svg><span>Follow</span></a></li> 						<li class="actnbr-signup actnbr-hidden"><a href="https://wordpress.com/start/">Sign Up</a></li> 				    <li class="actnbr-login actnbr-hidden"><a href="https://sreeninet.wordpress.com/wp-login.php?redirect_to=https%3A%2F%2Fsreeninet.wordpress.com%2F2016%2F04%2F17%2Fservice-discovery-with-consul%2F">Log In</a></li> 				     				    <li class="actnbr-shortlink actnbr-hidden"><a href="http://wp.me/p41Qkn-XZ">Copy shortlink</a></li> 				     				     				     				    <li class="actnbr-subs actnbr-hidden"><a href="https://subscribe.wordpress.com/">Manage Subscriptions</a></li> 				    <li class="actnbr-fold actnbr-hidden"><a href="">Collapse this bar</a></li> 			      </ul> 			    </div> 		      </div> 		    </li> 	      </ul></div>
+<script type="text/javascript">
+// <![CDATA[
+(function() {
+try{
+  if ( window.external &&'msIsSiteMode' in window.external) {
+    if (window.external.msIsSiteMode()) {
+      var jl = document.createElement('script');
+      jl.type='text/javascript';
+      jl.async=true;
+      jl.src='/wp-content/plugins/ie-sitemode/custom-jumplist.php';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(jl, s);
+    }
+  }
+}catch(e){}
+})();
+// ]]>
+</script>	<script type="text/javascript">
+	var skimlinks_pub_id = "725X584219"
+	var skimlinks_sitename = "sreeninet.wordpress.com";
+	</script>
+	<script type="text/javascript" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/725X1342.js"></script>		<iframe src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/master.html" scrolling="no" id="likes-master" name="likes-master" style="display:none;"></iframe>
+		<div id="likes-other-gravatars"><div class="likes-text"><span>%d</span> bloggers like this:</div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+		<script>
+			var _comscore = _comscore || [];
+			_comscore.push({
+				c1: "2",
+				c2: "7518284"
+			});
+			(function() {
+				var s = document.createElement("script"),
+					el = document.getElementsByTagName("script")[0];
+				s.async = true;
+				s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+				el.parentNode.insertBefore(s, el);
+			})();
+		</script>
+		<noscript>
+			<p class="robots-nocontent"><img src="https://sb.scorecardresearch.com/p?c1=2&c2=7518284&c3=&c4=&c5=&c6=&c15=&cv=2.0&cj=1" alt="" style="display:none;" width="1" height="1" /></p>
+		</noscript><script src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/w.js" type="text/javascript" async="" defer="defer"></script>
+<script type="text/javascript">
+_tkq = window._tkq || [];
+_stq = window._stq || [];
+_tkq.push(['storeContext', {'blog_id':'59544823','blog_tz':'0','user_lang':'en','blog_lang':'en','user_id':'0'}]);
+_stq.push(['view', {'blog':'59544823','v':'wpcom','tz':'0','user_id':'0','post':'3719','subd':'sreeninet'}]);
+_stq.push(['extra', {'crypt':'UE5XaGUuOTlwaD85flAmcm1mcmZsaDhkV11YdT1UeVRla1NLdXYlUnJLd195UG5zank9ZGJRXVAmc3g4V1RxfE1hTi1MWkRyN2lLaFZoUmZheHo3PzkvclV3ZzljZlpKbThMZnxGMUwyWGFVTXctPSx4ZU9ZVldDal18OGMzYTNfYkotQUR5MTAtP3olLyZifCVTRmk/ZUp1WkhIb1RTSzhpblk4XV9daVNteFV0dUsyWjBlb0FsVU5obCxWQlM5UHJuZ1JMenhSU1RwQlN1TmIsdjUyNzdReEU9Uit3NnRLa3lJaEU4JVVNTE1uWD1xX2xiaDBpSFBOYVJDV2NlR0pyaWdQYzhIaVFLN0YxM08zQSxaaEl5OHw/UiZtfDlmTm9hZ2E0MA=='}]);
+_stq.push([ 'clickTrackerInit', '59544823', '3719' ]);
+	</script>
+<noscript><img src="https://pixel.wp.com/b.gif?v=noscript" style="height:0px;width:0px;overflow:hidden" alt="" /></noscript>
+<script>
+if ( 'object' === typeof wpcom_mobile_user_agent_info ) {
+
+	wpcom_mobile_user_agent_info.init();
+	var mobileStatsQueryString = "";
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedPlatformName )
+		mobileStatsQueryString += "&x_" + 'mobile_platforms' + '=' + wpcom_mobile_user_agent_info.matchedPlatformName;
+	
+	if( false !== wpcom_mobile_user_agent_info.matchedUserAgentName )
+		mobileStatsQueryString += "&x_" + 'mobile_devices' + '=' + wpcom_mobile_user_agent_info.matchedUserAgentName;
+	
+	if( wpcom_mobile_user_agent_info.isIPad() )
+		mobileStatsQueryString += "&x_" + 'ipad_views' + '=' + 'views';
+
+	if( "" != mobileStatsQueryString ) {
+		new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + mobileStatsQueryString + '&baba=' + Math.random();
+	}
+	
+}
+</script>
+<div id="sharing_email" style="display: none;">
+		<form action="/2016/04/17/service-discovery-with-consul/" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input name="target_email" id="target_email" type="email">
+
+			
+				<label for="source_name">Your Name</label>
+				<input name="source_name" id="source_name" type="text">
+
+				<label for="source_email">Your Email Address</label>
+				<input name="source_email" id="source_email" type="email">
+
+						<input id="jetpack-source_f_name" name="source_f_name" class="input" size="25" autocomplete="off" type="text">
+			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
+			<div class="recaptcha" id="sharing_recaptcha"></div><input name="recaptcha_public_key" id="recaptcha_public_key" value="6LcYW8MSAAAAADBAuEH9yaPcF7lWh11Iq62ZKtoo" type="hidden">
+			<img style="float: right; display: none" class="loading" src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/loading.gif" alt="loading" width="16" height="16">
+			<input value="Send Email" class="sharing_send" type="submit">
+			<a rel="nofollow" href="#cancel" class="sharing_cancel">Cancel</a>
+
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div><iframe id="rufous-sandbox" scrolling="no" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: medium none;" title="Twitter analytics iframe" frameborder="0"></iframe><img src="3.installation-docker-Consul-Production-Ubuntu-14.04_files/g.gif" alt=":)" id="wpstats"></body></html>

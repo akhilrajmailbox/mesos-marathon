@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)http://jlordiales.me/2015/02/03/registrator/#advertise -->
+<html class=" js no-touch cssanimations csstransitions" lang="en"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Automatic container registration with Consul and Registrator – Development the way it should be</title>
+<meta name="description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta name="keywords" content="Docker, Consul, Registrator">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://jlordiales.me/images/">
+<meta name="twitter:title" content="Automatic container registration with Consul and Registrator">
+<meta name="twitter:description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta name="twitter:creator" content="@jlordiales">
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Automatic container registration with Consul and Registrator">
+<meta property="og:description" content="Random thoughts and learnings from an agile developer. Mostly a self-learning journey, hopefully helping other people along the way.
+">
+<meta property="og:url" content="http://jlordiales.me/2015/02/03/registrator">
+<meta property="og:site_name" content="Development the way it should be">
+
+
+
+
+
+<link rel="canonical" href="http://jlordiales.me/2015/02/03/registrator">
+<link href="http://jlordiales.me/feed.xml" type="application/atom+xml" rel="alternate" title="Development the way it should be Feed">
+<link rel="author" href="https://google.com/+JoseLuisOrdialesCoscia?rel=author">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="./Automatic container registration with Consul and Registrator – Development the way it should be_files/main.min.css">
+<!-- Webfonts -->
+<link href="./Automatic container registration with Consul and Registrator – Development the way it should be_files/css" rel="stylesheet" type="text/css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<div class="fit-vids-style">­<style>               .fluid-width-video-wrapper {                 width: 100%;                              position: relative;                       padding: 0;                            }                                                                                   .fluid-width-video-wrapper iframe,        .fluid-width-video-wrapper object,        .fluid-width-video-wrapper embed {           position: absolute;                       top: 0;                                   left: 0;                                  width: 100%;                              height: 100%;                          }                                       </style></div><script type="text/javascript" async="" src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/linkid.js"></script><script async="" src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/analytics.js"></script><script src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="http://jlordiales.me/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="http://jlordiales.me/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="http://jlordiales.me/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://jlordiales.me/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://jlordiales.me/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://jlordiales.me/images/apple-touch-icon-144x144-precomposed.png">
+
+
+
+<script type="text/javascript" async="" src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/embed.js"></script><script async="" type="text/javascript" src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/count.js"></script><script src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/alfie.f51946af45e0b561c60f768335c9eb79.js" async="" charset="UTF-8"></script></head>
+
+<body id="post">
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<nav id="dl-menu" class="dl-menuwrapper" role="navigation">
+	<button class="dl-trigger">Open Menu</button>
+	<ul class="dl-menu">
+		<li><a href="http://jlordiales.me/">Home</a></li>
+		<li>
+			<a href="http://jlordiales.me/2015/02/03/registrator/#">About</a>
+			<ul class="dl-submenu"><li class="dl-back"><a href="http://jlordiales.me/2015/02/03/registrator/#">back</a></li>
+				<li>
+					<img src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/avatar.jpg" alt="Jose Luis Ordiales photo" class="author-photo">
+					<h4>Jose Luis Ordiales</h4>
+					<p>Professional software developer and scientist. Naturally curious and critical thinker</p>
+				</li>
+				<li><a href="http://jlordiales.me/about/">Learn More</a></li>
+				<li>
+					<a href="mailto:jlordiales@gmail.com"><i class="fa fa-envelope"></i> Email</a>
+				</li>
+				<li>
+					<a href="http://twitter.com/jlordiales"><i class="fa fa-twitter"></i> Twitter</a>
+				</li>
+				
+				<li>
+					<a href="https://google.com/+JoseLuisOrdialesCoscia"><i class="fa fa-google-plus"></i> Google+</a>
+				</li>
+				<li>
+					<a href="http://linkedin.com/in/jordiales"><i class="fa fa-linkedin"></i> LinkedIn</a>
+				</li>
+				<li>
+					<a href="http://github.com/jlordiales"><i class="fa fa-github"></i> GitHub</a>
+				</li>
+				
+				
+				
+				
+			</ul><!-- /.dl-submenu -->
+		</li>
+		<li>
+			<a href="http://jlordiales.me/2015/02/03/registrator/#">Posts</a>
+			<ul class="dl-submenu"><li class="dl-back"><a href="http://jlordiales.me/2015/02/03/registrator/#">back</a></li>
+				<li><a href="http://jlordiales.me/posts/">All Posts</a></li>
+				<li><a href="http://jlordiales.me/tags/">All Tags</a></li>
+			</ul>
+		</li>
+		
+	</ul><!-- /.dl-menu -->
+</nav><!-- /.dl-menuwrapper -->
+
+
+
+
+<div id="main" role="main">
+  <article class="hentry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        
+          <h1 class="entry-title"><a href="http://jlordiales.me/2015/02/03/registrator" rel="bookmark" title="Automatic container registration with Consul and Registrator">Automatic container registration with Consul and Registrator</a></h1>
+        
+        <h2>February 03, 2015</h2>
+        
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>In the <a href="http://jlordiales.me/2015/01/23/docker-consul">previous post</a> we talked about
+Consul and how it can help us towards a highly available and efficient service
+discovery. We saw how to run a Consul cluster, register services, query through
+its HTTP API as well as its DNS interface and use the distributed key/value
+store.  One thing we missed though was how to register the different services we
+run as docker containers with the Cluster. In this post I’m going to talk about
+<a href="https://github.com/progrium/registrator">Registrator</a>, an amazing tool that we
+can run as a docker container whose responsibility is to make sure that new
+containers are registered and deregistered automatically from our service
+discovery tool.</p>
+
+<h1 id="introduction">Introduction</h1>
+<p>We’ve seen how to run a Consul cluster and we’ve also seen how to register
+services in that cluster. With this in place we could, in principle, start
+running other Docker containers with our services and register those containers
+with Consul.
+However, who should be responsible for registering those new containers? </p>
+
+<p>You could let each container know how to register itself. There are some
+problems with this approach. First, you give up one of the main benefits of
+using containers: portability. If the logic of how the container needs to join
+the cluster is inside of it then suddenly you can not run that same container if
+you decide to use a different service discovery mechanism or if you decide to
+use no service discovery at all.  Another potential issue is that containers are
+supposed to do just one thing and do that well. The container that runs your
+user service should not care about how that service will be discovered by
+others.  The last problem is that you will not always be in control of all the
+containers you use. One of the strong points of Docker is the huge amount of
+already dockerized applications and services available in their
+<a href="https://hub.docker.com/">registry</a>. Those containers will have no idea about
+your Consul cluster.</p>
+
+<h1 id="registrator">Registrator</h1>
+<p>To solve these problems meet
+<a href="https://github.com/progrium/registrator">registrator</a>. It is designed to be run
+as an independent Docker container. It will sit there quietly, watching for new
+containers that are started on the same host where it is currently running,
+extracting information from them and then registering those containers with your
+service discovery solution. It will also watch for containers that are stopped
+(or simply die) and will deregister them.
+Additionally, it supports pluggable service discovery mechanisms so you are not
+restricted to any particular solution. </p>
+
+<p>Lets quickly see how we can run registrator together with our Consul cluster. </p>
+
+<h2 id="setting-up-our-hosts">Setting up our hosts</h2>
+<p>So far we have always run our Consul cluster and all our services in just one
+host (the boot2docker VM). In this post I’ll try to simulate a more
+“production-like” environment were we might have several hosts, each running one
+or more docker containers with our services and each running a Consul agent.</p>
+
+<p>In order to do this, we’ll use Vagrant to create 3 CoreOS VMS running
+locally.
+The Vagrantfile will look like this:</p>
+
+<div class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">Vagrant</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="no">VAGRANTFILE_API_VERSION</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="s2">"yungsang/coreos"</span>
+  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="s2">"private_network"</span><span class="p">,</span> <span class="ss">type</span><span class="p">:</span> <span class="s2">"dhcp"</span>
+
+  <span class="n">number_of_instances</span> <span class="o">=</span> <span class="mi">3</span>
+  <span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="n">.number_of_instances</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">instance_number</span><span class="o">|</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">define</span> <span class="s2">"host-</span><span class="si">#{</span><span class="n">instance_number</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span> <span class="o">|</span><span class="n">host</span><span class="o">|</span>
+      <span class="n">host</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">hostname</span> <span class="o">=</span> <span class="s2">"host-</span><span class="si">#{</span><span class="n">instance_number</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+
+<p>After you save the Vagrantfile you can start the 3 VMs with <code>vagrant up</code>.  It
+might take a while the first time while it downloads the CoreOS image. At this
+point you should be able to see the 3 VMs running:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>vagrant status
+
+Current machine states:
+
+host-1             running <span class="o">(</span>virtualbox<span class="o">)</span>
+host-2             running <span class="o">(</span>virtualbox<span class="o">)</span>
+host-3             running <span class="o">(</span>virtualbox<span class="o">)</span>
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. For more information about a specific
+VM, run vagrant status NAME.</code></pre></div>
+
+<p>We’ll now ssh into the first host and check that docker is installed and running
+(which happens by default when you use the CoreOS image):</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>vagrant ssh host-1
+
+host-1<span class="nv">$ </span>docker info
+Containers: 0
+Images: 0
+Storage Driver: btrfs
+Execution Driver: native-0.2
+Kernel Version: 3.17.2
+Operating System: CoreOS 494.5.0</code></pre></div>
+
+<p>Similarly for the second host:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>vagrant ssh host-2
+
+host-2<span class="nv">$ </span>docker info
+Containers: 0
+Images: 0
+Storage Driver: btrfs
+Execution Driver: native-0.2
+Kernel Version: 3.17.2
+Operating System: CoreOS 494.5.0</code></pre></div>
+
+<p>And the third:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>vagrant ssh host-3
+
+host-3<span class="nv">$ </span>docker info
+Containers: 0
+Images: 0
+Storage Driver: btrfs
+Execution Driver: native-0.2
+Kernel Version: 3.17.2
+Operating System: CoreOS 494.5.0</code></pre></div>
+
+<p>Now, before we start running all our different containers I wanted to show how
+our hosts look like from a networking point of view. Notice that we specified a
+“private_network” interface for our VMs in our Vagrantfile. This basically means
+that our VMs will be able to communicate with each other as if they were inside
+the same local network. We can see this if we check the network configuration on
+each one:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>ifconfig enp0s8 <span class="p">|</span> grep <span class="s1">'inet '</span> <span class="p">|</span> awk <span class="s1">'{ print $2 }'</span>
+
+172.28.128.3</code></pre></div>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-2<span class="nv">$ </span>ifconfig enp0s8 <span class="p">|</span> grep <span class="s1">'inet '</span> <span class="p">|</span> awk <span class="s1">'{ print $2 }'</span>
+
+172.28.128.4</code></pre></div>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span>ifconfig enp0s8 <span class="p">|</span> grep <span class="s1">'inet '</span> <span class="p">|</span> awk <span class="s1">'{ print $2 }'</span>
+
+172.28.128.5</code></pre></div>
+
+<p>Each VM has other network adapters, but for now we’ll focus on this particular
+one. We can see that all 3 machines are part of the 172.28.128.0/24 network. On
+a production setup the different machines are probably not going to be on the
+same private network but we can still achieve this using virtual networks most
+of the time (VPC on AWS for instance). This is usually a very good idea because
+the public facing IP shoud be firewalled but we don’t need that while we
+communicate between our internal services.</p>
+
+<h2 id="starting-the-consul-cluster">Starting the Consul cluster</h2>
+<p>The first thing we’ll do is to start our Consul cluster. We are going to use a 3
+node cluster, similarly to how we did it in our <a href="http://jlordiales.me/2015/01/23/docker-consul">previous post</a>.
+I’ll show the full docker run commands here, but don’t run those yet. I’ll show
+a more concise form later on:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>docker run -d -h node1 -v /mnt:/data <span class="se">\</span>
+-p 172.28.128.3:8300:8300 <span class="se">\</span>
+-p 172.28.128.3:8301:8301 <span class="se">\</span>
+-p 172.28.128.3:8301:8301/udp <span class="se">\</span>
+-p 172.28.128.3:8302:8302 <span class="se">\</span>
+-p 172.28.128.3:8302:8302/udp <span class="se">\</span>
+-p 172.28.128.3:8400:8400 <span class="se">\</span>
+-p 172.28.128.3:8500:8500 <span class="se">\</span>
+-p 172.17.42.1:53:53/udp <span class="se">\</span>
+progrium/consul -server -advertise 172.28.128.3 -bootstrap-expect 3</code></pre></div>
+
+<p>In this docker run command, we are binding all Consul’s internal ports to the
+private IP address of our first host, except for the DNS port (53) which is
+exposed only on the <code>docker0</code> interface (172.17.42.1 by default).
+The reason why we use the docker bridge interface for the DNS server is that we
+want all the containers running on the same host to query this DNS interface,
+but we don’t need anyone from outside doing the same. Since each host will be
+running a Consul agent, each container can query its own host.
+We also added the <code>-advertise</code> flag to tell Consul that it should use the
+host’s IP instead of the docker container’s IP.</p>
+
+<p>On the second host, we’d run the same thing, but passing a <code>-join</code> to the first
+node’s IP:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-2<span class="nv">$ </span>docker run -d -h node2 -v /mnt:/data <span class="se">\</span>
+-p 172.28.128.4:8300:8300 <span class="se">\</span>
+-p 172.28.128.4:8301:8301 <span class="se">\</span>
+-p 172.28.128.4:8301:8301/udp <span class="se">\</span>
+-p 172.28.128.4:8302:8302 <span class="se">\</span>
+-p 172.28.128.4:8302:8302/udp <span class="se">\</span>
+-p 172.28.128.4:8400:8400 <span class="se">\</span>
+-p 172.28.128.4:8500:8500 <span class="se">\</span>
+-p 172.17.42.1:53:53/udp <span class="se">\</span>
+progrium/consul -server -advertise 172.28.128.4 -join 172.28.128.3</code></pre></div>
+
+<p>Same for the third one:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span>docker run -d -h node3 -v /mnt:/data <span class="se">\</span>
+-p 172.28.128.5:8300:8300 <span class="se">\</span>
+-p 172.28.128.5:8301:8301 <span class="se">\</span>
+-p 172.28.128.5:8301:8301/udp <span class="se">\</span>
+-p 172.28.128.5:8302:8302 <span class="se">\</span>
+-p 172.28.128.5:8302:8302/udp <span class="se">\</span>
+-p 172.28.128.5:8400:8400 <span class="se">\</span>
+-p 172.28.128.5:8500:8500 <span class="se">\</span>
+-p 172.17.42.1:53:53/udp <span class="se">\</span>
+progrium/consul -server -advertise 172.28.128.5 -join 172.28.128.3</code></pre></div>
+
+<p>Since the docker run command for each host can be quite large and error prone to
+type in manually, the <strong>progrium/consul</strong> image comes with a convenient command
+to generate this for you. You can try this on any of the 3 hosts:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run --rm progrium/consul cmd:run 172.28.128.3 -d -v /mnt:/data
+
+<span class="nb">eval </span>docker run --name consul -h <span class="nv">$HOSTNAME</span>  <span class="se">\</span>
+-p 172.28.128.3:8300:8300   <span class="se">\</span>
+-p 172.28.128.3:8301:8301   <span class="se">\</span>
+-p 172.28.128.3:8301:8301/udp <span class="se">\</span>
+-p 172.28.128.3:8302:8302 <span class="se">\</span>
+-p 172.28.128.3:8302:8302/udp       <span class="se">\</span>
+-p 172.28.128.3:8400:8400  <span class="se">\</span>
+-p 172.28.128.3:8500:8500<span class="se">\</span>
+-p 172.17.42.1:53:53/udp <span class="se">\</span>
+-d -v /mnt:/data  progrium/consul -server -advertise 172.28.128.3 -bootstrap-expect 3</code></pre></div>
+
+<p>Note that this is the exact command we ran on our first host to bootstrap the
+cluster. You can also try the following:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker run --rm progrium/consul cmd:run 172.28.128.4:172.28.128.3 -d -v /mnt:/data
+
+<span class="nb">eval </span>docker run --name consul -h <span class="nv">$HOSTNAME</span>      <span class="se">\</span>
+-p 172.28.128.4:8300:8300 <span class="se">\</span>
+-p 172.28.128.4:8301:8301       <span class="se">\</span>
+-p 172.28.128.4:8301:8301/udp   <span class="se">\</span>
+-p 172.28.128.4:8302:8302      <span class="se">\</span>
+-p 172.28.128.4:8302:8302/udp   <span class="se">\</span>
+-p 172.28.128.4:8400:8400       <span class="se">\</span>
+-p 172.28.128.4:8500:8500       <span class="se">\</span>
+-p 172.17.42.1:53:53/udp      <span class="se">\</span>
+-d -v /mnt:/data progrium/consul -server -advertise 172.28.128.4 -join 172.28.128.3</code></pre></div>
+
+<p>Here we passed 2 IPs to the cmd:run command, first the node’s own address (the
+one that will be used for the <code>-advertise</code>) and the second the IP of one of the
+nodes that is already in the cluster (the IP in the <code>-join</code> part).
+Note also that by specifying a second IP the cmd:run command now removed the
+<code>-bootstrap-expect</code> parameter, which makes sense because otherwise each node
+would start a different cluster.</p>
+
+<p>We can use the 2 forms of the “cmd:run” command above to bootstrap our cluster with a
+lot less typing. First, stop and remove all running containers on each host with
+the following command:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>docker rm -f <span class="k">$(</span>docker ps -aq<span class="k">)</span></code></pre></div>
+
+<p>Now, on the first host:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span><span class="k">$(</span>docker run --rm progrium/consul cmd:run 172.28.128.3 -d -v /mnt:/data<span class="k">)</span></code></pre></div>
+
+<p>For the second node:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-2<span class="nv">$ </span><span class="k">$(</span>docker run --rm progrium/consul cmd:run 172.28.128.4:172.28.128.3 -d -v /mnt:/data<span class="k">)</span></code></pre></div>
+
+<p>And the third node:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span><span class="k">$(</span>docker run --rm progrium/consul cmd:run 172.28.128.5:172.28.128.3 -d -v /mnt:/data<span class="k">)</span></code></pre></div>
+
+<p>If you take a look at the logs in host-1 with <code>docker logs consul</code> you would see
+both nodes joining and finally Consul starting the cluster and setting the 3
+nodes as healthy.</p>
+
+<h2 id="working-with-registrator">Working with Registrator</h2>
+
+<p>Now that we have our Consul cluster up and running we can start the registrator container with:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span> <span class="nb">export </span><span class="nv">HOST_IP</span><span class="o">=</span><span class="k">$(</span>ifconfig enp0s8 <span class="p">|</span> grep <span class="s1">'inet '</span> <span class="p">|</span> awk <span class="s1">'{ print $2  }'</span><span class="k">)</span>
+host-1<span class="nv">$ </span> docker run -d <span class="se">\</span>
+-v /var/run/docker.sock:/tmp/docker.sock <span class="se">\</span>
+--name registrator -h registrator <span class="se">\</span>
+progrium/registrator:latest consul://<span class="nv">$HOST_IP</span>:8500</code></pre></div>
+
+<p>Notice that we are mounting our “/var/run/docker.sock” file to the container.
+This file is a <a href="http://en.wikipedia.org/wiki/Unix_domain_socket">Unix socket</a>,
+where the docker daemon listens for events. This is actually how the docker
+client (the docker command that you usually use) and the docker daemon
+communicate, through a REST API accessible from this socket. If you want to
+learn more about how you can interact with the docker daemon through this socket
+take a look
+<a href="http://blog.trifork.com/2013/12/24/docker-from-a-distance-the-remote-api/">here</a>.
+The important thing to know is that by listening on the same port as Docker,
+Registrator is able to know everything that happens with Docker on that host.</p>
+
+<p>If you check the logs of the “registrator” container you’ll see a bunch of stuff
+and a message in the end indicating that it is waiting for new events. You
+should run the same commands on the other 2 containers to start registrator on
+those.</p>
+
+<p>To summarize what we have done so far, we have 3 different hosts each running a
+Consul agent and a registrator container. The registrator instance on each host
+watches for changes in docker containers for that host and talks to the local
+Consul agent.</p>
+
+<h2 id="starting-our-containers">Starting our containers</h2>
+<p>Let’s see what happens when we run our python service from 
+<a href="http://jlordiales.me/2014/12/07/aws-docker">the first post</a> in this Docker series. 
+You can do this following the step by step guide on that post, getting the code
+from <a href="https://github.com/jlordiales/docker-python-service">this repo</a> and
+building the docker image yourself or using the image that is already on the
+public registry <code>jlordiales/python-micro-service</code>. I will go with the latter
+option here. 
+We’ll first run our python container on host-1:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>docker run -d --name service1 -P jlordiales/python-micro-service</code></pre></div>
+
+<p>Lets see what happened in our registrator container:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>docker logs registrator
+
+2015/02/02 18:05:26 registrator: added: a8dc2b849d99 registrator:service1:5000</code></pre></div>
+
+<p>Registrator saw that a new container (service1) was started, exposing port 5000
+and it registered it with our Consul cluster. 
+We’ll query our cluster now to see if the service was really added there:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>curl 172.28.128.3:8500/v1/catalog/services
+
+<span class="o">{</span>
+  <span class="s2">"consul"</span>:<span class="o">[]</span>,
+  <span class="s2">"consul-53"</span>:<span class="o">[</span><span class="s2">"udp"</span><span class="o">]</span>,
+  <span class="s2">"consul-8300"</span>:<span class="o">[]</span>,
+  <span class="s2">"consul-8301"</span>:<span class="o">[</span><span class="s2">"udp"</span><span class="o">]</span>,
+  <span class="s2">"consul-8302"</span>:<span class="o">[</span><span class="s2">"udp"</span><span class="o">]</span>,
+  <span class="s2">"consul-8400"</span>:<span class="o">[]</span>,
+  <span class="s2">"consul-8500"</span>:<span class="o">[]</span>,
+  <span class="s2">"python-micro-service"</span>:<span class="o">[]</span>
+<span class="o">}</span></code></pre></div>
+
+<p>There it is! Lets get some more details about it:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>curl 172.28.128.3:8500/v1/catalog/service/python-micro-service
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"Node"</span>:<span class="s2">"host-1"</span>,
+    <span class="s2">"Address"</span>:<span class="s2">"172.28.128.3"</span>,
+    <span class="s2">"ServiceID"</span>:<span class="s2">"registrator:service1:5000"</span>,
+    <span class="s2">"ServiceName"</span>:<span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServiceTags"</span>:null,
+    <span class="s2">"ServicePort"</span>:49154
+  <span class="o">}</span>
+<span class="o">]</span></code></pre></div>
+
+<p><a name="advertise"></a>
+One important thing to notice here, as it caused a lot of
+<a href="https://github.com/progrium/registrator/issues/68">frustration</a> to people
+before. You can see that Registrator used the IP of the host as the service IP
+rather than the IP address of the container. The reason for that is explained in
+<a href="https://github.com/bryanlarsen/registrator/commit/0182dd4bdb4cc6b98aa2b80103fd591f65132f46">this</a> 
+pull request to update the FAQ (which should be merged IMHO).</p>
+
+<p>In a nutshell, registrator will always use the IP you specified when you run
+your consul agent with the <code>-advertise</code> flag. At first, this seems wrong, 
+but it is usually what you want.
+A service in a Docker based production cluster typically has 3 IP addresses.
+The service itself is running in a Docker container, which has an IP address
+assigned by Docker. The host that it’s running on will have 3 IP addresses:
+one for the Docker network, an internal private IP address for all hosts in the
+cluster, and a public address on the Internet. Unless you’ve bridged your
+docker networks, the IP address of the service container is not accessible from
+other hosts in the cluster. Instead you use the “-P” or “-p” option to Docker
+to map the service port onto the host.  You then advertise a Host IP as the
+service IP. The public IP address should be firewalled, so you want the
+internal private IP to be advertised.</p>
+
+<p>Going back to the output of our last curl, we get the private IP of our “host-1”
+which is where our docker container is running with an exposed port (49154 in
+this case). With that information we could call our service from any other node
+in any host, as long as they are able to reach “host-1” through its private IP
+that is.</p>
+
+<p>So what would happen now if we run a second “python-micro-service” container
+from our second host?</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-2<span class="nv">$ </span>docker run -d --name service2 -P jlordiales/python-micro-service</code></pre></div>
+
+<p>As we saw on the <a href="http://jlordiales.me/2015/01/23/docker-consul">last post</a>, whenever
+we have a Consul cluster running we can query any node (client or server) and
+the response should always be the same.  Since we are running our containers in
+host-1 and host-2, lets query the Consul node on host-3:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span>curl 172.28.128.5:8500/v1/catalog/service/python-micro-service
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"Node"</span>:<span class="s2">"host-1"</span>,
+    <span class="s2">"Address"</span>:<span class="s2">"172.28.128.3"</span>,
+    <span class="s2">"ServiceID"</span>:<span class="s2">"registrator:service1:5000"</span>,
+    <span class="s2">"ServiceName"</span>:<span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServiceTags"</span>:null,
+    <span class="s2">"ServicePort"</span>:49154
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"Node"</span>:<span class="s2">"host-2"</span>,
+    <span class="s2">"Address"</span>:<span class="s2">"172.28.128.4"</span>,
+    <span class="s2">"ServiceID"</span>:<span class="s2">"registrator:service2:5000"</span>,
+    <span class="s2">"ServiceName"</span>:<span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServiceTags"</span>:null,
+    <span class="s2">"ServicePort"</span>:49153
+  <span class="o">}</span>
+<span class="o">]</span></code></pre></div>
+
+<p>We now have two containers offering the same service. Using this information we
+could call either one from host-3:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span>curl 172.28.128.3:49154
+
+Hello World from a8dc2b849d99
+
+host-3<span class="nv">$ </span>curl 172.28.128.4:49153
+
+Hello World from c9ca6addfdb0</code></pre></div>
+
+<h2 id="integrating-our-containers-with-consuls-dns">Integrating our containers with Consul’s DNS</h2>
+<p>Lets try one more thing: using Consul’s DNS interface from a different container
+to ping our service. We’ll run a simple busybox container in host-3:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span> docker run --dns 172.17.42.1 --dns 8.8.8.8 --dns-search service.consul
+--rm --name ping_test -it busybox</code></pre></div>
+
+<p>The “–dns” parameter allows us to use a custom DNS server for our container. By
+default the container will use the same DNS servers as its host. In our case we
+want it to use the docker bridge interface (172.17.42.1) first and then, if it
+can not find the host there go to Google’s DNS (8.8.8.8).
+Finally, the “dns-search” option makes it easier to query for our services. For
+instance, instead of querying for “python-micro-service.service.consul” we can
+just query for “python-micro-service”.
+Let’s try to ping our service from the new busybox container:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>ping -qc <span class="m">1</span> python-micro-service
+
+PING python-micro-service <span class="o">(</span>172.28.128.4<span class="o">)</span>: <span class="m">56</span> data bytes
+
+--- python-micro-service ping statistics ---
+<span class="m">1</span> packets transmitted, <span class="m">1</span> packets received, 0% packet loss
+round-trip min/avg/max <span class="o">=</span> 2.391/2.391/2.391 ms</code></pre></div>
+
+<p>It effectively resolved our service name to one of the hosts where it is
+currently running. If we keep running the same “ping” command multiple times we
+will eventually see that it will resolve the hostname to 172.28.128.3, which is
+the other host where our service is running.
+This is well explained in the documentation but Consul will load balance between
+all nodes running the same service as long as they are healthy. </p>
+
+<p>Of course, if we stop a running container Registrator will notice it and also
+remove the service from Consul. We can see that if we stop the container running
+in host-1:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-1<span class="nv">$ </span>docker stop service1</code></pre></div>
+
+<p>And then query again from host-3 like we did before (you can do the same from
+host-1, it doesn’t matter):</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">host-3<span class="nv">$ </span>curl 172.28.128.5:8500/v1/catalog/service/python-micro-service
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"Node"</span>:<span class="s2">"host-2"</span>,
+    <span class="s2">"Address"</span>:<span class="s2">"172.28.128.4"</span>,
+    <span class="s2">"ServiceID"</span>:<span class="s2">"registrator:service2:5000"</span>,
+    <span class="s2">"ServiceName"</span>:<span class="s2">"python-micro-service"</span>,
+    <span class="s2">"ServiceTags"</span>:null,
+    <span class="s2">"ServicePort"</span>:49153
+  <span class="o">}</span>
+<span class="o">]</span></code></pre></div>
+
+<h1 id="conclusion">Conclusion</h1>
+<p>In this post we have seen an approach that allows to have our containers
+registered with the service discovery solution of our choice without the need to
+couple both. Instead, an intermediary tool called Registrator manages this for
+all the containers running on a particular host.</p>
+
+<p>We used Vagrant to create 3 different virtual hosts all under the same private
+network. We started our 3 nodes Consul cluster, one consul container running on
+each host. We did the same thing for Registrator, one container running on each
+host pointing to its local consul container.
+Then we ran the container with our python endpoint. This container had no idea
+about Consul or registrator. We used exactly the same <code>docker run</code> command that
+we would’ve used if we were running that container alone.
+And yet registrator was notified about this new container and automatically
+registered it with the correct IP and port information on Consul. Moreover, when
+we ran another container in another host from the same docker image Consul saw
+that it was the same service and started to load balance between them.
+When we stopped our container registrator also saw that and automatically
+deregistered it from the cluster.</p>
+
+<p>This is amazing because we can keep our containers completely ignorant about how
+they will be discovered or any other piece of infrastructure information. We can
+keep them portable and we move the logic of registration to a separate component
+running in a separate container.</p>
+
+<p>The capability to run multiple containers of the same service and have Consul
+automatically load balancing between them, together with its health-checks and
+its DNS interface allow us to deploy and run really complex configurations of
+services in an extremely transparent and simplified way.</p>
+
+      <footer class="entry-meta">
+        <span class="entry-tags"><a href="http://jlordiales.me/tags/#Docker" title="Pages tagged Docker" class="tag">Docker</a><a href="http://jlordiales.me/tags/#Consul" title="Pages tagged Consul" class="tag">Consul</a><a href="http://jlordiales.me/tags/#Registrator" title="Pages tagged Registrator" class="tag">Registrator</a></span>
+        <span><a href="http://jlordiales.me/2015/02/03/registrator" rel="bookmark" title="Automatic container registration with Consul and Registrator">Automatic container registration with Consul and Registrator</a> was published on <span class="entry-date date published updated"><time datetime="2015-02-03T00:00:00-05:00">February 03, 2015</time></span></span>
+        
+        <span class="author vcard"><span class="fn"><a href="http://jlordiales.me/about/" title="About Jose Luis Ordiales">Jose Luis Ordiales</a></span></span>
+        <div class="social-share">
+          <ul class="socialcount socialcount-small inline-list">
+            <li class="facebook"><a href="https://www.facebook.com/sharer/sharer.php?u=http://jlordiales.me/2015/02/03/registrator" title="Share on Facebook"><span class="count"><i class="fa fa-facebook-square"></i> Like</span></a></li>
+            <li class="twitter"><a href="https://twitter.com/intent/tweet?text=http://jlordiales.me/2015/02/03/registrator" title="Share on Twitter"><span class="count"><i class="fa fa-twitter-square"></i> Tweet</span></a></li>
+            <li class="googleplus"><a href="https://plus.google.com/share?url=http://jlordiales.me/2015/02/03/registrator" title="Share on Google Plus"><span class="count"><i class="fa fa-google-plus-square"></i> +1</span></a></li>
+          </ul>
+        </div><!-- /.social-share -->
+      </footer>
+    </div><!-- /.entry-content -->
+    <section id="disqus_thread"><iframe id="dsq-app2" name="dsq-app2" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/saved_resource.html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 1985px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></section><!-- /#disqus_thread -->
+    
+    <div class="read-more">
+      
+        <div class="read-more-header">
+          <a href="http://jlordiales.me/2015/01/23/docker-consul" class="read-more-btn">Read More</a>
+        </div><!-- /.read-more-header -->
+        <div class="read-more-content">
+          <h3><a href="http://jlordiales.me/2015/07/12/coreos" title="Orchestrating your containers with CoreOS, an introduction">Orchestrating your containers with CoreOS, an introduction</a></h3>
+          <p>Most docker tutorials that you'll find out there (the ones in this blogincluded) will assume that you have a single host running all your...… <a href="http://jlordiales.me/2015/07/12/coreos">Continue reading</a></p>
+        </div><!-- /.read-more-content -->
+      
+      <div class="read-more-list">
+        
+          <div class="list-item">
+            <h4><a href="http://jlordiales.me/2015/04/02/boot2docker-port-forward" title="Accessing docker containers on localhost when using Boot2Docker">Accessing docker containers on localhost when using Boot2Docker</a></h4>
+            <span>Published on April 02, 2015</span>
+          </div><!-- /.list-item -->
+        
+          <div class="list-item">
+            <h4><a href="http://jlordiales.me/2015/04/01/consul-template" title="Consul Template for transparent load balancing of containers">Consul Template for transparent load balancing of containers</a></h4>
+            <span>Published on April 01, 2015</span>
+          </div><!-- /.list-item -->
+        
+      </div><!-- /.read-more-list -->
+      
+    </div><!-- /.read-more -->
+  </article>
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>© 2015 Jose Luis Ordiales. Powered by <a href="http://jekyllrb.com/">Jekyll</a> using the <a href="http://mademistakes.com/hpstr/">HPSTR Theme</a>.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="http://jlordiales.me/assets/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+<script src="./Automatic container registration with Consul and Registrator – Development the way it should be_files/scripts.min.js"></script>
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-56085926-1', 'auto');  
+  ga('require', 'linkid', 'linkid.js');
+  ga('send', 'pageview');
+</script>
+
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'jlordiales'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+<noscript>Please enable JavaScript to view the &lt;a href="http://disqus.com/?ref_noscript"&gt;comments powered by Disqus.&lt;/a&gt;</noscript>
+
+
+	        
+
+
+
+</body></html>

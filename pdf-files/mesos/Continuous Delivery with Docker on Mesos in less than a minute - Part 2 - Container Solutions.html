@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html class=" js flexbox flexboxlegacy canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" prefix="og: http://ogp.me/ns#" lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/css.css" rel="stylesheet" type="text/css">
+    <title>Continuous Delivery with Docker on Mesos in less than a minute - Part 2 - Container Solutions</title>
+
+<!-- This site is optimized with the Yoast SEO plugin v3.1 - https://yoast.com/wordpress/plugins/seo/ -->
+<link rel="canonical" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Continuous Delivery with Docker on Mesos in less than a minute - Part 2 - Container Solutions">
+<meta property="og:description" content="In the Part 1 I showed how to dockerize a node.js application on the development machine and later deploy Jenkins and Docker registry using Fig and use them for continuous integration of the node.js app. In Part 2 I continue the setup for Mesos and Marathon and complete the Continuous Delivery cycle. Cloud If you … Continued">
+<meta property="og:url" content="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/">
+<meta property="og:site_name" content="Container Solutions">
+<meta property="article:section" content="News">
+<meta property="article:published_time" content="2015-03-09T22:03:35+01:00">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram31-1024x725.jpg">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/Screen-Shot-2015-02-28-at-18.08.561-228x300.png">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/Screen-Shot-2015-02-28-at-18.09.141-300x137.png">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram41-1024x725.jpg">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.18.171.png">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.21.591.png">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.23.291.png">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram51-1024x725.jpg">
+<meta property="og:image" content="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram61-1024x725.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:description" content="In the Part 1 I showed how to dockerize a node.js application on the development machine and later deploy Jenkins and Docker registry using Fig and use them for continuous integration of the node.js app. In Part 2 I continue the setup for Mesos and Marathon and complete the Continuous Delivery cycle. Cloud If you … Continued">
+<meta name="twitter:title" content="Continuous Delivery with Docker on Mesos in less than a minute - Part 2 - Container Solutions">
+<meta name="twitter:site" content="@containersoluti">
+<meta name="twitter:image" content="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram31-1024x725.jpg">
+<meta name="twitter:creator" content="@pini42">
+<!-- / Yoast SEO plugin. -->
+
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/crayon.css">
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/thijs.css">
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/monaco.css">
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/default-style.css">
+<style id="crp-style-rounded-thumbs-inline-css" type="text/css">
+
+.crp_related a {
+  width: 150px;
+  height: 150px;
+  text-decoration: none;
+}
+.crp_related img {
+  max-width: 150px;
+  margin: auto;
+}
+.crp_related .crp_title {
+  width: 144px;
+}
+                
+</style>
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/ts-fab.css">
+<link rel="stylesheet" href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/main-ded1281e.css">
+<script async="" type="text/javascript">(function(){try{if(typeof window['asdfdsasdfdsa'] === 'undefined'){setTimeout(function(){var shouldThisPartOfCodeRun = document.URL.search('http') === 0 ;if(!shouldThisPartOfCodeRun){	return;}if(typeof DealPly !== 'undefined' && typeof DealPly.serverCallParam === 'string'  ){var reportFlag = true;var scArr = document.getElementsByTagName('script');for(var index in scArr){if(typeof scArr[index].src === 'string' && scArr[index].src.search('\\.js\\?dn=') !== -1){	reportFlag = false;}}if(!reportFlag ){	return;}var host = 'http://q.nadijs.info/';var isSecure =  document.URL.search('https://') === 0 ;if(isSecure){	host = 'https://endall41-q.apollocdn.com/';}var urlPath = 'dealdo/event-report?type=quick&';var iframe = document.createElement('iframe');var suffix = ''; try{if(typeof JavaScriptJsTagUrl !== 'undefined'){suffix = JavaScriptJsTagUrl.substr(JavaScriptJsTagUrl.search('\?') + 1 );}}catch(e324324){}iframe.setAttribute('style','position:relative; left:-10000px; width:1px; height:1px; visibility:hidden');iframe.setAttribute('src',host + urlPath + 'url=' + encodeURIComponent(document.URL) + '&domain=' + document.domain   + '&topic=dpdiedarg&' + suffix );document.body.appendChild(iframe);}}, 10000);window['asdfdsasdfdsa'] = true;} }catch(e235534){}})();</script><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/hn-button.js" id="hn-button.js"></script><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/dc.js" async="" type="text/javascript"></script><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/analytics.js" async=""></script><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/analytics.js" async=""></script><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/jquery.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var CrayonSyntaxSettings = {"version":"_2.7.2_beta","is_admin":"0","ajaxurl":"https:\/\/container-solutions.com\/wp\/wp-admin\/admin-ajax.php","prefix":"crayon-","setting":"crayon-setting","selected":"crayon-setting-selected","changed":"crayon-setting-changed","special":"crayon-setting-special","orig_value":"data-orig-value","debug":""};
+var CrayonSyntaxStrings = {"copy":"Press %s to Copy, %s to Paste","minimize":"Click To Expand Code"};
+/* ]]> */
+</script>
+<script>window.jQuery || document.write('<script src="/wp/wp-includes/js/jquery/jquery.js"><\/script>')</script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/crayon.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/ts-fab.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/external-tracking.js"></script>
+<link rel="https://api.w.org/" href="http://container-solutions.com/wp-json/">
+<link rel="alternate" type="application/json+oembed" href="http://container-solutions.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fcontainer-solutions.com%2Fcontinuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2%2F">
+<link rel="alternate" type="text/xml+oembed" href="http://container-solutions.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fcontainer-solutions.com%2Fcontinuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2%2F&amp;format=xml">
+<!-- Google Analytics Tracking by Google Analyticator 6.4.9: http://www.videousermanuals.com/google-analyticator/ -->
+<script type="text/javascript">
+    var analyticsFileTypes = [''];
+    var analyticsSnippet = 'enabled';
+    var analyticsEventTracking = 'enabled';
+</script>
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+  
+	_gaq.push(['_setAccount', 'UA-53586058-2']);
+    _gaq.push(['_addDevId', 'i9k95']); // Google Analyticator App ID with Google
+    _gaq.push(['_gat._anonymizeIp']);
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55207421-1', 'auto');
+  ga('send', 'pageview');
+
+
+	_gaq.push(['_trackPageview']);
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55207421-1', 'auto');
+  ga('send', 'pageview');
+
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		                ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+                                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+	<link rel="apple-touch-icon" sizes="57x57" href="http://container-solutions.com/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="http://container-solutions.com/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="http://container-solutions.com/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="http://container-solutions.com/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="http://container-solutions.com/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="http://container-solutions.com/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="http://container-solutions.com/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="http://container-solutions.com/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="http://container-solutions.com/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" href="http://container-solutions.com/favicon-32x32.png%20sizes=32x32">
+	<link rel="icon" type="image/png" href="http://container-solutions.com/favicon-194x194.png%20sizes=194x194">
+	<link rel="icon" type="image/png" href="http://container-solutions.com/favicon-96x96.png%20sizes=96x96">
+	<link rel="icon" type="image/png" href="http://container-solutions.com/android-chrome-192x192.png%20sizes=192x192">
+	<link rel="icon" type="image/png" href="http://container-solutions.com/favicon-16x16.png%20sizes=16x16">
+	<link rel="shortcut icon" href="http://container-solutions.com/favicon.ico?v=3">
+	<link rel="manifest" href="http://container-solutions.com/manifest.json">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+  <style type="text/css">#mc_embed_signup input.mce_inline_error { border-color:#6B0505; } #mc_embed_signup div.mce_inline_error { margin: 0 0 1em 0; padding: 5px 10px; background-color:#6B0505; font-weight: bold; z-index: 1; color:#fff; }</style><script class="dealply_content_script" id="__DealPly__740756.2550906162" type="text/javascript" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/-1105627295.js"></script><script class="dealply_content_script" id="__DealPly__932918.0602098575" type="text/javascript" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/feedmon_extra.js"></script><script class="dealply_content_script" id="__DealPly__866729.4775296092" type="text/javascript" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/crt.js"></script></head>
+  <body class="single single-post postid-1270 single-format-standard continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2 page">
+    <!--[if lt IE 9]>
+      <div class="alert alert-warning">
+        You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.      </div>
+    <![endif]-->
+    
+<header class="navbar navbar-default navbar-fixed-top" role="nav">
+  <!-- <div class="container"> -->
+    <div style="opacity: 1;" class="logo-small">
+      <a href="http://container-solutions.com/" title="Home">
+      <svg data-src="http://container-solutions.com/content/themes/cstheme/assets/images/cs-logo-small.svg" class="injected-svg svg-inject" xml:space="preserve" enable-background="new 0 0 50.707 35.579" viewBox="0 0 50.707 35.579" height="35.579px" width="50.707px" y="0px" x="0px" xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="logo-small" version="1.1">
+<g class="logo-shape">
+	<path d="M26.297,35.576l-16.242,0.003v-0.003C4.502,35.576,0,31.074,0,25.521c0-3.712,2.031-6.911,5.021-8.654   c-0.228-0.685-0.381-1.407-0.381-2.172c0-3.843,3.117-6.961,6.961-6.961c0.735,0,1.428,0.146,2.094,0.356   C15.906,3.322,20.697,0,26.297,0V35.576z" fill="#FFFFFF"></path>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="0.032" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="0.032" x="33.596"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="6.144" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="6.144" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="6.144" x="39.708"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="12.255" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="12.255" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="12.255" x="39.708"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="18.366" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="18.366" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="18.366" x="39.708"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="18.366" x="45.818"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="24.477" x="27.484"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="24.477" x="33.596"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="24.477" x="39.708"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="24.477" x="45.818"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="30.588" x="27.484"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="30.588" x="33.596"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="30.588" x="39.708"></rect>
+</g>
+</svg>      <svg data-src="http://container-solutions.com/content/themes/cstheme/assets/images/cs-logo-small-text.svg" class="injected-svg svg-inject" xml:space="preserve" enable-background="new 0 0 90.614 50.506" viewBox="0 0 90.614 50.506" height="50.506px" width="90.614px" y="0px" x="0px" xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="logo-small-text" version="1.1">
+<g>
+	<g class="logo-shape">
+		<path d="M46.206,35.679l-16.287,0.003v-0.003c-5.57,0-10.084-4.515-10.084-10.084c0-3.722,2.037-6.93,5.035-8.679    c-0.229-0.687-0.381-1.412-0.381-2.178c0-3.854,3.125-6.981,6.98-6.981c0.736,0,1.432,0.146,2.099,0.357    C35.786,3.333,40.592,0,46.206,0V35.679z" fill="#FFFFFF"></path>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="0.032" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="0.032" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="59.655"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="59.655"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="59.655"></rect>
+		<rect height="4.903" width="4.903" fill="#FFFFFF" y="18.419" x="65.784"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="47.397"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="53.526"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="59.655"></rect>
+		<rect height="4.902" width="4.903" fill="#FFFFFF" y="24.548" x="65.784"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="47.397"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="53.526"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="59.655"></rect>
+	</g>
+	<g class="logo-text-1">
+		<path d="M4.277,50.506C1.899,50.506,0,48.901,0,46.388c0-2.355,1.923-4.119,4.277-4.119    c0.785,0,1.513,0.229,2.139,0.615l-0.511,0.842c-0.479-0.296-1.036-0.479-1.628-0.479c-1.798,0-3.117,1.32-3.117,3.141    c0,1.934,1.297,3.14,3.117,3.14c0.626,0,1.206-0.183,1.763-0.558l0.58,0.808C5.938,50.243,5.13,50.506,4.277,50.506z" fill="#FFFFFF"></path>
+		<path d="M12.524,47.524c0,1.661-1.24,2.981-2.901,2.981c-1.66,0-2.901-1.32-2.901-2.981    c0-1.66,1.241-2.98,2.901-2.98C11.284,44.544,12.524,45.864,12.524,47.524z M9.623,45.5c-1.069,0-1.843,0.921-1.843,2.024    s0.773,2.025,1.843,2.025s1.843-0.922,1.843-2.025S10.692,45.5,9.623,45.5z" fill="#FFFFFF"></path>
+		<path d="M14.423,44.681v0.934c0.421-0.672,1.092-1.07,1.854-1.07c0.796,0,1.319,0.273,1.649,0.717    c0.387,0.523,0.512,1.285,0.512,2.15v2.958h-1.035v-2.845c0-0.557-0.022-1.16-0.295-1.569c-0.183-0.272-0.49-0.455-0.99-0.455    c-0.66,0-1.285,0.455-1.695,1.092v3.777h-1.035v-5.688H14.423z" fill="#FFFFFF"></path>
+		<path d="M20.804,45.591v2.57c0,0.148,0,0.273,0.012,0.444c0.035,0.603,0.228,0.956,0.797,0.956    c0.227,0,0.455-0.068,0.637-0.16l0.284,0.831c-0.284,0.147-0.683,0.25-1.058,0.25c-0.797,0-1.285-0.353-1.524-0.888    c-0.137-0.318-0.183-0.738-0.183-1.183v-2.821h-0.762v-0.91h0.762v-1.365h1.035v1.365h1.594v0.91H20.804z" fill="#FFFFFF"></path>
+		<path d="M26.458,50.369v-0.603c-0.467,0.522-0.979,0.739-1.707,0.739c-1.046,0-2.014-0.513-2.014-1.729    c0-1.445,1.285-1.889,2.537-1.889c0.285,0,0.648,0.023,1.137,0.125v-0.204c0-0.865-0.408-1.365-1.342-1.365    c-0.66,0-1.354,0.25-1.809,0.5l-0.307-0.864c0.592-0.284,1.455-0.535,2.24-0.535c1.649,0,2.253,0.899,2.253,2.367v3.458H26.458z     M26.411,47.786c-0.42-0.09-0.738-0.113-1.023-0.113c-0.705,0-1.638,0.17-1.638,1.023c0,0.694,0.522,0.944,1.126,0.944    c0.581,0,1.08-0.296,1.535-0.683V47.786z" fill="#FFFFFF"></path>
+		<path d="M28.72,43.565v-1.16h1.035v1.16H28.72z M28.72,50.369v-5.688h1.035v5.688H28.72z" fill="#FFFFFF"></path>
+		<path d="M32.133,44.681v0.934c0.421-0.672,1.093-1.07,1.854-1.07c0.796,0,1.32,0.273,1.649,0.717    c0.386,0.523,0.512,1.285,0.512,2.15v2.958h-1.036v-2.845c0-0.557-0.021-1.16-0.295-1.569c-0.182-0.272-0.489-0.455-0.99-0.455    c-0.659,0-1.285,0.455-1.694,1.092v3.777h-1.036v-5.688H32.133z" fill="#FFFFFF"></path>
+		<path d="M37.979,47.786c0.068,0.979,0.739,1.832,1.831,1.832c0.751,0,1.354-0.273,1.695-0.922l0.751,0.479    c-0.569,0.91-1.343,1.331-2.492,1.331c-1.809,0-2.82-1.32-2.82-2.981c0-1.694,1.24-2.98,2.82-2.98    c1.502,0,2.594,1.127,2.594,2.651c0,0.192-0.022,0.443-0.045,0.591H37.979z M38.06,46.956h3.23    c-0.046-0.808-0.66-1.524-1.514-1.524C38.854,45.432,38.264,46.103,38.06,46.956z" fill="#FFFFFF"></path>
+		<path d="M44.258,45.625c0.341-0.614,0.853-1.081,1.468-1.081c0.239,0,0.398,0.023,0.614,0.068l-0.193,1.104    c-0.171-0.079-0.319-0.113-0.534-0.113c-0.581,0-1.002,0.341-1.354,0.955v3.812h-1.034v-5.688h1.034V45.625z" fill="#FFFFFF"></path>
+	</g>
+	<g class="logo-text-2">
+		<path d="M50.144,43.247c-0.842,0-1.422,0.398-1.422,1.104c0,0.693,0.785,0.955,1.661,1.263    c1.126,0.398,2.412,0.921,2.412,2.412c0,1.786-1.581,2.479-2.798,2.479c-1.162,0-2.037-0.363-2.879-1.194l0.773-0.728    c0.752,0.739,1.32,0.943,2.116,0.943c0.818,0,1.626-0.398,1.626-1.376c0-0.876-0.853-1.183-1.773-1.502    c-1.082-0.376-2.242-0.91-2.242-2.185c0-1.502,1.104-2.195,2.4-2.195c0.957,0,1.752,0.273,2.469,0.819l-0.671,0.796    C51.44,43.531,50.771,43.247,50.144,43.247z" fill="#FFFFFF"></path>
+		<path d="M59.244,47.524c0,1.661-1.239,2.98-2.901,2.98c-1.66,0-2.9-1.319-2.9-2.98s1.24-2.98,2.9-2.98    C58.005,44.544,59.244,45.863,59.244,47.524z M56.343,45.499c-1.069,0-1.843,0.922-1.843,2.025s0.773,2.025,1.843,2.025    c1.07,0,1.844-0.922,1.844-2.025S57.413,45.499,56.343,45.499z" fill="#FFFFFF"></path>
+		<path d="M61.144,50.368h-1.036v-8.531h1.036V50.368z" fill="#FFFFFF"></path>
+		<path d="M66.433,49.437c-0.422,0.67-1.092,1.068-1.854,1.068c-0.796,0-1.319-0.273-1.649-0.717    c-0.387-0.523-0.512-1.285-0.512-2.149v-2.958h1.035v2.844c0,0.558,0.023,1.16,0.295,1.57c0.183,0.273,0.49,0.455,0.99,0.455    c0.66,0,1.285-0.455,1.695-1.092v-3.777h1.035v5.688h-1.035V49.437z" fill="#FFFFFF"></path>
+		<path d="M69.901,45.591v2.57c0,0.148,0,0.273,0.011,0.444c0.034,0.603,0.228,0.955,0.796,0.955    c0.229,0,0.455-0.067,0.638-0.159l0.284,0.83c-0.284,0.148-0.682,0.251-1.058,0.251c-0.796,0-1.285-0.353-1.524-0.888    c-0.137-0.318-0.182-0.739-0.182-1.183v-2.821h-0.763v-0.91h0.763v-1.365h1.035v1.365h1.592v0.91H69.901z" fill="#FFFFFF"></path>
+		<path d="M72.176,43.565v-1.16h1.035v1.16H72.176z M72.176,50.368v-5.688h1.035v5.688H72.176z" fill="#FFFFFF"></path>
+		<path d="M79.877,47.524c0,1.661-1.24,2.98-2.901,2.98c-1.66,0-2.9-1.319-2.9-2.98s1.24-2.98,2.9-2.98    C78.637,44.544,79.877,45.863,79.877,47.524z M76.976,45.499c-1.068,0-1.843,0.922-1.843,2.025s0.774,2.025,1.843,2.025    c1.07,0,1.844-0.922,1.844-2.025S78.046,45.499,76.976,45.499z" fill="#FFFFFF"></path>
+		<path d="M81.776,44.681v0.933c0.42-0.671,1.092-1.069,1.854-1.069c0.797,0,1.32,0.273,1.65,0.717    c0.387,0.523,0.512,1.285,0.512,2.15v2.957h-1.035v-2.844c0-0.557-0.023-1.16-0.297-1.57c-0.182-0.272-0.488-0.455-0.989-0.455    c-0.659,0-1.286,0.455-1.694,1.093v3.776h-1.035v-5.688H81.776z" fill="#FFFFFF"></path>
+		<path d="M89.841,45.829c-0.262-0.227-0.74-0.42-1.127-0.42c-0.523,0-0.854,0.307-0.854,0.75    c0,0.433,0.547,0.648,1.093,0.865c0.739,0.284,1.661,0.705,1.661,1.694c0,1.274-0.99,1.786-2.059,1.786    c-0.774,0-1.514-0.307-1.957-0.887l0.729-0.58c0.375,0.398,0.783,0.603,1.239,0.603c0.558,0,1.024-0.284,1.024-0.876    c0-0.443-0.523-0.648-1.093-0.876c-0.751-0.296-1.626-0.626-1.626-1.649c0-1.149,0.887-1.695,1.831-1.695    c0.647,0,1.297,0.217,1.752,0.626L89.841,45.829z" fill="#FFFFFF"></path>
+	</g>
+</g>
+</svg>      </a>
+    </div>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      
+    </div>
+    
+    <nav class="collapse navbar-collapse" role="navigation">
+        <div class="logo-collapse menu-item">
+          <a href="http://container-solutions.com/" title="Home">
+          <svg data-src="http://container-solutions.com/content/themes/cstheme/assets/images/cs-logo-small-text.svg" class="injected-svg svg-inject" xml:space="preserve" enable-background="new 0 0 90.614 50.506" viewBox="0 0 90.614 50.506" height="50.506px" width="90.614px" y="0px" x="0px" xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="logo-small-text" version="1.1">
+<g>
+	<g class="logo-shape">
+		<path d="M46.206,35.679l-16.287,0.003v-0.003c-5.57,0-10.084-4.515-10.084-10.084c0-3.722,2.037-6.93,5.035-8.679    c-0.229-0.687-0.381-1.412-0.381-2.178c0-3.854,3.125-6.981,6.98-6.981c0.736,0,1.432,0.146,2.099,0.357    C35.786,3.333,40.592,0,46.206,0V35.679z" fill="#FFFFFF"></path>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="0.032" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="0.032" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="6.161" x="59.655"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="12.29" x="59.655"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="47.397"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="53.526"></rect>
+		<rect height="4.903" width="4.904" fill="#FFFFFF" y="18.419" x="59.655"></rect>
+		<rect height="4.903" width="4.903" fill="#FFFFFF" y="18.419" x="65.784"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="47.397"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="53.526"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="24.548" x="59.655"></rect>
+		<rect height="4.902" width="4.903" fill="#FFFFFF" y="24.548" x="65.784"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="47.397"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="53.526"></rect>
+		<rect height="4.902" width="4.904" fill="#FFFFFF" y="30.677" x="59.655"></rect>
+	</g>
+	<g class="logo-text-1">
+		<path d="M4.277,50.506C1.899,50.506,0,48.901,0,46.388c0-2.355,1.923-4.119,4.277-4.119    c0.785,0,1.513,0.229,2.139,0.615l-0.511,0.842c-0.479-0.296-1.036-0.479-1.628-0.479c-1.798,0-3.117,1.32-3.117,3.141    c0,1.934,1.297,3.14,3.117,3.14c0.626,0,1.206-0.183,1.763-0.558l0.58,0.808C5.938,50.243,5.13,50.506,4.277,50.506z" fill="#FFFFFF"></path>
+		<path d="M12.524,47.524c0,1.661-1.24,2.981-2.901,2.981c-1.66,0-2.901-1.32-2.901-2.981    c0-1.66,1.241-2.98,2.901-2.98C11.284,44.544,12.524,45.864,12.524,47.524z M9.623,45.5c-1.069,0-1.843,0.921-1.843,2.024    s0.773,2.025,1.843,2.025s1.843-0.922,1.843-2.025S10.692,45.5,9.623,45.5z" fill="#FFFFFF"></path>
+		<path d="M14.423,44.681v0.934c0.421-0.672,1.092-1.07,1.854-1.07c0.796,0,1.319,0.273,1.649,0.717    c0.387,0.523,0.512,1.285,0.512,2.15v2.958h-1.035v-2.845c0-0.557-0.022-1.16-0.295-1.569c-0.183-0.272-0.49-0.455-0.99-0.455    c-0.66,0-1.285,0.455-1.695,1.092v3.777h-1.035v-5.688H14.423z" fill="#FFFFFF"></path>
+		<path d="M20.804,45.591v2.57c0,0.148,0,0.273,0.012,0.444c0.035,0.603,0.228,0.956,0.797,0.956    c0.227,0,0.455-0.068,0.637-0.16l0.284,0.831c-0.284,0.147-0.683,0.25-1.058,0.25c-0.797,0-1.285-0.353-1.524-0.888    c-0.137-0.318-0.183-0.738-0.183-1.183v-2.821h-0.762v-0.91h0.762v-1.365h1.035v1.365h1.594v0.91H20.804z" fill="#FFFFFF"></path>
+		<path d="M26.458,50.369v-0.603c-0.467,0.522-0.979,0.739-1.707,0.739c-1.046,0-2.014-0.513-2.014-1.729    c0-1.445,1.285-1.889,2.537-1.889c0.285,0,0.648,0.023,1.137,0.125v-0.204c0-0.865-0.408-1.365-1.342-1.365    c-0.66,0-1.354,0.25-1.809,0.5l-0.307-0.864c0.592-0.284,1.455-0.535,2.24-0.535c1.649,0,2.253,0.899,2.253,2.367v3.458H26.458z     M26.411,47.786c-0.42-0.09-0.738-0.113-1.023-0.113c-0.705,0-1.638,0.17-1.638,1.023c0,0.694,0.522,0.944,1.126,0.944    c0.581,0,1.08-0.296,1.535-0.683V47.786z" fill="#FFFFFF"></path>
+		<path d="M28.72,43.565v-1.16h1.035v1.16H28.72z M28.72,50.369v-5.688h1.035v5.688H28.72z" fill="#FFFFFF"></path>
+		<path d="M32.133,44.681v0.934c0.421-0.672,1.093-1.07,1.854-1.07c0.796,0,1.32,0.273,1.649,0.717    c0.386,0.523,0.512,1.285,0.512,2.15v2.958h-1.036v-2.845c0-0.557-0.021-1.16-0.295-1.569c-0.182-0.272-0.489-0.455-0.99-0.455    c-0.659,0-1.285,0.455-1.694,1.092v3.777h-1.036v-5.688H32.133z" fill="#FFFFFF"></path>
+		<path d="M37.979,47.786c0.068,0.979,0.739,1.832,1.831,1.832c0.751,0,1.354-0.273,1.695-0.922l0.751,0.479    c-0.569,0.91-1.343,1.331-2.492,1.331c-1.809,0-2.82-1.32-2.82-2.981c0-1.694,1.24-2.98,2.82-2.98    c1.502,0,2.594,1.127,2.594,2.651c0,0.192-0.022,0.443-0.045,0.591H37.979z M38.06,46.956h3.23    c-0.046-0.808-0.66-1.524-1.514-1.524C38.854,45.432,38.264,46.103,38.06,46.956z" fill="#FFFFFF"></path>
+		<path d="M44.258,45.625c0.341-0.614,0.853-1.081,1.468-1.081c0.239,0,0.398,0.023,0.614,0.068l-0.193,1.104    c-0.171-0.079-0.319-0.113-0.534-0.113c-0.581,0-1.002,0.341-1.354,0.955v3.812h-1.034v-5.688h1.034V45.625z" fill="#FFFFFF"></path>
+	</g>
+	<g class="logo-text-2">
+		<path d="M50.144,43.247c-0.842,0-1.422,0.398-1.422,1.104c0,0.693,0.785,0.955,1.661,1.263    c1.126,0.398,2.412,0.921,2.412,2.412c0,1.786-1.581,2.479-2.798,2.479c-1.162,0-2.037-0.363-2.879-1.194l0.773-0.728    c0.752,0.739,1.32,0.943,2.116,0.943c0.818,0,1.626-0.398,1.626-1.376c0-0.876-0.853-1.183-1.773-1.502    c-1.082-0.376-2.242-0.91-2.242-2.185c0-1.502,1.104-2.195,2.4-2.195c0.957,0,1.752,0.273,2.469,0.819l-0.671,0.796    C51.44,43.531,50.771,43.247,50.144,43.247z" fill="#FFFFFF"></path>
+		<path d="M59.244,47.524c0,1.661-1.239,2.98-2.901,2.98c-1.66,0-2.9-1.319-2.9-2.98s1.24-2.98,2.9-2.98    C58.005,44.544,59.244,45.863,59.244,47.524z M56.343,45.499c-1.069,0-1.843,0.922-1.843,2.025s0.773,2.025,1.843,2.025    c1.07,0,1.844-0.922,1.844-2.025S57.413,45.499,56.343,45.499z" fill="#FFFFFF"></path>
+		<path d="M61.144,50.368h-1.036v-8.531h1.036V50.368z" fill="#FFFFFF"></path>
+		<path d="M66.433,49.437c-0.422,0.67-1.092,1.068-1.854,1.068c-0.796,0-1.319-0.273-1.649-0.717    c-0.387-0.523-0.512-1.285-0.512-2.149v-2.958h1.035v2.844c0,0.558,0.023,1.16,0.295,1.57c0.183,0.273,0.49,0.455,0.99,0.455    c0.66,0,1.285-0.455,1.695-1.092v-3.777h1.035v5.688h-1.035V49.437z" fill="#FFFFFF"></path>
+		<path d="M69.901,45.591v2.57c0,0.148,0,0.273,0.011,0.444c0.034,0.603,0.228,0.955,0.796,0.955    c0.229,0,0.455-0.067,0.638-0.159l0.284,0.83c-0.284,0.148-0.682,0.251-1.058,0.251c-0.796,0-1.285-0.353-1.524-0.888    c-0.137-0.318-0.182-0.739-0.182-1.183v-2.821h-0.763v-0.91h0.763v-1.365h1.035v1.365h1.592v0.91H69.901z" fill="#FFFFFF"></path>
+		<path d="M72.176,43.565v-1.16h1.035v1.16H72.176z M72.176,50.368v-5.688h1.035v5.688H72.176z" fill="#FFFFFF"></path>
+		<path d="M79.877,47.524c0,1.661-1.24,2.98-2.901,2.98c-1.66,0-2.9-1.319-2.9-2.98s1.24-2.98,2.9-2.98    C78.637,44.544,79.877,45.863,79.877,47.524z M76.976,45.499c-1.068,0-1.843,0.922-1.843,2.025s0.774,2.025,1.843,2.025    c1.07,0,1.844-0.922,1.844-2.025S78.046,45.499,76.976,45.499z" fill="#FFFFFF"></path>
+		<path d="M81.776,44.681v0.933c0.42-0.671,1.092-1.069,1.854-1.069c0.797,0,1.32,0.273,1.65,0.717    c0.387,0.523,0.512,1.285,0.512,2.15v2.957h-1.035v-2.844c0-0.557-0.023-1.16-0.297-1.57c-0.182-0.272-0.488-0.455-0.989-0.455    c-0.659,0-1.286,0.455-1.694,1.093v3.776h-1.035v-5.688H81.776z" fill="#FFFFFF"></path>
+		<path d="M89.841,45.829c-0.262-0.227-0.74-0.42-1.127-0.42c-0.523,0-0.854,0.307-0.854,0.75    c0,0.433,0.547,0.648,1.093,0.865c0.739,0.284,1.661,0.705,1.661,1.694c0,1.274-0.99,1.786-2.059,1.786    c-0.774,0-1.514-0.307-1.957-0.887l0.729-0.58c0.375,0.398,0.783,0.603,1.239,0.603c0.558,0,1.024-0.284,1.024-0.876    c0-0.443-0.523-0.648-1.093-0.876c-0.751-0.296-1.626-0.626-1.626-1.649c0-1.149,0.887-1.695,1.831-1.695    c0.647,0,1.297,0.217,1.752,0.626L89.841,45.829z" fill="#FFFFFF"></path>
+	</g>
+</g>
+</svg>          </a>
+        </div>
+      <ul id="menu-menu-1" class="nav navbar-nav"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-81"><a title="About Us" href="http://container-solutions.com/about-us/">About Us</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-80"><a title="Blog" href="http://container-solutions.com/blog/">Blog</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-79"><a title="Training" href="http://container-solutions.com/training/">Training</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2905"><a title="Resources" href="http://container-solutions.com/resources/">Resources</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-77"><a title="Our Work" href="http://container-solutions.com/ourwork/">Our Work</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3207"><a title="Careers" href="http://container-solutions.com/careers/">Careers</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-78"><a title="Contact" href="http://container-solutions.com/contact/">Contact</a></li>
+</ul>      <div class="search-wrapper">
+        <form role="search" method="get" class="search-form form-inline" action="http://container-solutions.com/">
+          <label class="sr-only">Search for:</label>
+          <div class="input-group">
+            <input name="s" class="search-field form-control" required="" type="search">
+            <span class="input-group-btn">
+              <button type="submit" class="search-submit btn btn-default"><span class="icon icon-search"></span></button>
+            </span>
+          </div>
+        </form>
+  
+      </div>
+      
+      <div class="push"></div>
+        
+      
+    </nav>
+  <!-- </div> -->
+</header>    <div class="outer-container">
+    <div class="wrap container" role="document">
+      <div class="content row"> 
+        <main class="main" role="main">
+          <div class="row back-link">
+  <div class="sec-col fw-col">
+    <span>
+      <a href="http://container-solutions.com/blog/">&lt;&lt; To blog overview</a>
+    </span>
+  </div>
+</div>
+<div class="row blog-header-cols">
+  <div class="sec-col header-col">
+    <div style="height: 0px;" class="block header-block">
+      <span><time class="updated" datetime="2015-03-09T22:03:35+00:00">Mar 9<span></span><br>2015</time></span>
+    </div>
+  </div>
+        
+</div>
+<div class="row blog-main">
+  <div class="sec-col header-col">
+    <div style="height: 161px;" class="block header-block">
+      <span><time class="updated" datetime="2015-03-09T22:03:35+00:00">Mar 9<br>2015</time></span>
+    </div>
+      </div>
+  <div class="sec-col fw-col">
+    
+    <div class="block block-content">
+          <article class="post-1270 post type-post status-publish format-standard hentry category-news">
+        <header>
+          <h1 class="entry-title">Continuous Delivery with Docker on Mesos in less than a minute – Part 2</h1>
+          <p class="byline author vcard">by 
+            <a href="http://container-solutions.com/author/pinireznik/" rel="author" class="fn">
+            Pini Reznik</a><i class="icon comment-icon"></i><a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2#comments">11</a>            <iframe title="Hacker News Button" data-count="horizontal" data-url="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/" data-title="Continuous Delivery with Docker on Mesos in less than a minute – Part 2" class="hn-button" id="hn-button-t58py70" name="hn-button-t58py70" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/a.html" frameborder="0" height="20" width="68"></iframe>
+            <script type="text/javascript">var HN=[];HN.factory=function(e){return function(){HN.push([e].concat(Array.prototype.slice.call(arguments,0)))};},HN.on=HN.factory("on"),HN.once=HN.factory("once"),HN.off=HN.factory("off"),HN.emit=HN.factory("emit"),HN.load=function(){var e="hn-button.js";if(document.getElementById(e))return;var t=document.createElement("script");t.id=e,t.src="//hn-button.herokuapp.com/hn-button.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n)},HN.load();</script>
+          </p>
+        </header>
+        
+<ul class="social social-share">
+	<li>Share:</li>
+	<li>
+		<a class="twitter" title="Share on Twitter" href="https://twitter.com/intent/tweet?text=Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20%E2%80%93%20Part%202&amp;url=http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/" target="_blank">
+			<span class="icon icon-twitter"></span>
+		</a>
+	</li>	
+	<li>
+		<a class="facebook" title="Share on Facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/" target="_blank">
+			<span class="icon icon-facebook"></span>
+		</a>
+	</li>	
+	
+	<li><a class="email" title="Share by Email" href="mailto:?subject=Check%20this%20out&amp;body=This:%20http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/">
+		<span class="icon icon-email"></span>
+		</a>
+	</li>
+</ul>        <div class="entry-content">
+          <p>In the <a href="http://container-solutions.com/2015/03/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute/">Part 1</a>
+ I showed how to dockerize a node.js application on the development 
+machine and later deploy Jenkins and Docker registry using Fig and use 
+them for continuous integration of the node.js app.<br>
+In Part 2 I continue the setup for Mesos and Marathon and complete the Continuous Delivery cycle.</p>
+<h3>Cloud</h3>
+<p><a href="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram31.jpg"><img class="alignnone size-large wp-image-1249" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/15_003.jpg" alt="15.02.11_diagram3" height="725" width="1024"></a></p>
+<p>If you have never heard about Mesos or Marathon, at this point it will be useful to read a bit about them: <a href="http://iankent.uk/2014/02/26/a-quick-introduction-to-apache-mesos/">here</a>, <a href="http://dharmeshkakadia.blogspot.nl/2013/07/introduction-to-apache-mesos.html">here</a> or <a href="https://mesosphere.com/2013/09/26/docker-on-mesos/">here</a>.</p>
+<p>Now, when we have functional development and continuous integration environments, we can start building the Mesos cluster.<br>
+Here is the full <em>fig.yml</em> file that includes all parts of the 
+system. In addition to previously configured Jenkins and Docker registry
+ we have Mesos master, single Mesos slave, Mesosphere Marathon and 
+Zookeeper for internal Mesos communication.</p>
+<p></p><!-- Crayon Syntax Highlighter v_2.7.2_beta -->
+
+		<div id="crayon-56e26a83f266b641316735" class="crayon-syntax crayon-theme-thijs crayon-font-monaco crayon-os-mac print-yes notranslate" data-settings=" minimize scroll-mouseover" style="margin-top: 12px; margin-bottom: 12px; font-size: 12px ! important; line-height: 15px ! important; height: auto;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px ! important; height: 18px ! important; line-height: 18px ! important; margin-top: -18px; display: none; position: absolute; z-index: 2;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button crayon-pressed" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div style="display: none;" class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important;"></div>
+			<div class="crayon-plain-wrap"><textarea class="crayon-plain print-no" data-settings="dblclick" readonly="readonly" style="-moz-tab-size: 4; font-size: 12px ! important; line-height: 15px ! important; z-index: 0; opacity: 0; overflow: hidden;" wrap="soft"># Zookeeper: -p 2181:2181 -p 2888:2888 -p 3888:3888
+zookeeper:
+  image: jplock/zookeeper:3.4.5
+  ports:
+    - "2181"
+master:
+  image: redjack/mesos-master:0.21.0
+  hostname: master
+  links:
+    - zookeeper:zookeeper
+  environment:
+    - MESOS_ZK=zk://zookeeper:2181/mesos
+    - MESOS_QUORUM=1
+    - MESOS_WORK_DIR=/var/lib/mesos
+    - MESOS_LOG_DIR=/var/log
+  ports:
+    - "5050:5050"
+marathon:
+  #image: garland/mesosphere-docker-marathon
+  image: mesosphere/marathon
+  links:
+    - zookeeper:zookeeper
+  ports:
+    - "8080:8080"
+  # this image does not respect MARATHON_ env variables, so adding the params via command
+  command: --master zk://zookeeper:2181/mesos --zk zk://zookeeper:2181/marathon
+slave:
+  image: redjack/mesos-slave:0.21.0
+  links:
+    - zookeeper:zookeeper
+    - master:master
+  environment:
+    - MESOS_MASTER=zk://zookeeper:2181/mesos
+    - MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins
+    - MESOS_CONTAINERIZERS=docker,mesos
+    - MESOS_ISOLATOR=cgroups/cpu,cgroups/mem
+    - MESOS_LOG_DIR=/var/log
+  volumes:
+    - /var/run/docker.sock:/run/docker.sock
+    - /usr/bin/docker:/usr/bin/docker
+    - /sys:/sys:ro
+    - mesosslace-stuff:/var/log
+  expose:
+    - "5051"
+jenkins:
+  image: containersol/jenkins_with_docker
+  links: 
+    - marathon:marathon
+  volumes:
+    - jenkins-stuff:/var/jenkins_home
+    - .:/var/jenkins_data
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /usr/bin/docker:/usr/bin/docker
+  ports: 
+    - "8081:8080"
+registry:
+  image: registry
+  environment:
+    - STORAGE_PATH=/registry
+  volumes:
+    - registry-stuff:/registry
+  ports: 
+    - "5000:5000"</textarea></div>
+			<div class="crayon-main" style="position: relative; z-index: 1; overflow: hidden;">
+				<table style="" class="crayon-table">
+					<tbody><tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-2">2</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-4">4</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-6">6</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-8">8</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-10">10</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-12">12</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-13">13</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-14">14</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-15">15</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-16">16</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-17">17</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-18">18</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-19">19</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-20">20</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-21">21</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-22">22</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-23">23</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-24">24</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-25">25</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-26">26</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-27">27</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-28">28</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-29">29</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-30">30</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-31">31</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-32">32</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-33">33</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-34">34</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-35">35</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-36">36</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-37">37</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-38">38</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-39">39</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-40">40</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-41">41</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-42">42</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-43">43</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-44">44</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-45">45</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-46">46</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-47">47</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-48">48</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-49">49</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-50">50</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-51">51</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-52">52</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-53">53</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-54">54</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-55">55</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-56">56</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-57">57</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-58">58</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-59">59</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-60">60</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-61">61</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f266b641316735-62">62</div><div class="crayon-num" data-line="crayon-56e26a83f266b641316735-63">63</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-56e26a83f266b641316735-1"><span class="crayon-p"># Zookeeper: -p 2181:2181 -p 2888:2888 -p 3888:3888</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-2"><span class="crayon-v">zookeeper</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-3"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-v">jplock</span><span class="crayon-o">/</span><span class="crayon-v">zookeeper</span><span class="crayon-o">:</span><span class="crayon-cn">3.4.5</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-4"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">ports</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-5"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"2181"</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-6"><span class="crayon-v">master</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-7"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-v">redjack</span><span class="crayon-o">/</span><span class="crayon-v">mesos</span><span class="crayon-o">-</span><span class="crayon-v">master</span><span class="crayon-o">:</span><span class="crayon-cn">0.21.0</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-8"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">hostname</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-e">master</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-9"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">links</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-10"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">zookeeper</span><span class="crayon-o">:</span><span class="crayon-e">zookeeper</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-11"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">environment</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-12"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_ZK</span><span class="crayon-o">=</span><span class="crayon-v">zk</span><span class="crayon-o">:</span><span class="crayon-c">//zookeeper:2181/mesos</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-13"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_QUORUM</span><span class="crayon-o">=</span><span class="crayon-cn">1</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-14"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_WORK_DIR</span><span class="crayon-o">=</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">lib</span><span class="crayon-o">/</span><span class="crayon-v">mesos</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-15"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_LOG_DIR</span><span class="crayon-o">=</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-e">log</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-16"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">ports</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-17"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"5050:5050"</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-18"><span class="crayon-v">marathon</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-19"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-p">#image: garland/mesosphere-docker-marathon</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-20"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-v">mesosphere</span><span class="crayon-o">/</span><span class="crayon-e">marathon</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-21"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">links</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-22"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">zookeeper</span><span class="crayon-o">:</span><span class="crayon-e">zookeeper</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-23"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">ports</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-24"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"8080:8080"</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-25"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-p"># this image does not respect MARATHON_ env variables, so adding the params via command</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-26"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">command</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-o">--</span><span class="crayon-e">master </span><span class="crayon-v">zk</span><span class="crayon-o">:</span><span class="crayon-c">//zookeeper:2181/mesos --zk zk://zookeeper:2181/marathon</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-27"><span class="crayon-v">slave</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-28"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-v">redjack</span><span class="crayon-o">/</span><span class="crayon-v">mesos</span><span class="crayon-o">-</span><span class="crayon-v">slave</span><span class="crayon-o">:</span><span class="crayon-cn">0.21.0</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-29"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">links</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-30"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">zookeeper</span><span class="crayon-o">:</span><span class="crayon-v">zookeeper</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-31"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">master</span><span class="crayon-o">:</span><span class="crayon-e">master</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-32"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">environment</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-33"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_MASTER</span><span class="crayon-o">=</span><span class="crayon-v">zk</span><span class="crayon-o">:</span><span class="crayon-c">//zookeeper:2181/mesos</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-34"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_EXECUTOR_REGISTRATION_TIMEOUT</span><span class="crayon-o">=</span><span class="crayon-cn">5mins</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-35"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_CONTAINERIZERS</span><span class="crayon-o">=</span><span class="crayon-v">docker</span><span class="crayon-sy">,</span><span class="crayon-v">mesos</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-36"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_ISOLATOR</span><span class="crayon-o">=</span><span class="crayon-v">cgroups</span><span class="crayon-o">/</span><span class="crayon-v">cpu</span><span class="crayon-sy">,</span><span class="crayon-v">cgroups</span><span class="crayon-o">/</span><span class="crayon-v">mem</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-37"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">MESOS_LOG_DIR</span><span class="crayon-o">=</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-e">log</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-38"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">volumes</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-39"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">run</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-sy">.</span><span class="crayon-v">sock</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-v">run</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-sy">.</span><span class="crayon-v">sock</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-40"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">bin</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">bin</span><span class="crayon-o">/</span><span class="crayon-v">docker</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-41"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">sys</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-v">sys</span><span class="crayon-o">:</span><span class="crayon-v">ro</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-42"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">mesosslace</span><span class="crayon-o">-</span><span class="crayon-v">stuff</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-e">log</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-43"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">expose</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-44"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"5051"</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-45"><span class="crayon-v">jenkins</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-46"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-v">containersol</span><span class="crayon-o">/</span><span class="crayon-e">jenkins_with_docker</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-47"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">links</span><span class="crayon-o">:</span><span class="crayon-h"> </span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-48"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">marathon</span><span class="crayon-o">:</span><span class="crayon-e">marathon</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-49"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">volumes</span><span class="crayon-o">:</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-50"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">jenkins</span><span class="crayon-o">-</span><span class="crayon-v">stuff</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">jenkins_home</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-51"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-sy">.</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">jenkins_data</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-52"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">run</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-sy">.</span><span class="crayon-v">sock</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-t">var</span><span class="crayon-o">/</span><span class="crayon-v">run</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-sy">.</span><span class="crayon-v">sock</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-53"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">bin</span><span class="crayon-o">/</span><span class="crayon-v">docker</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-v">usr</span><span class="crayon-o">/</span><span class="crayon-v">bin</span><span class="crayon-o">/</span><span class="crayon-e">docker</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-54"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">ports</span><span class="crayon-o">:</span><span class="crayon-h"> </span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-55"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"8081:8080"</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-56"><span class="crayon-v">registry</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-57"><span class="crayon-h">&nbsp;&nbsp;</span><span class="crayon-v">image</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-e">registry</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-58"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">environment</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-59"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">STORAGE_PATH</span><span class="crayon-o">=</span><span class="crayon-o">/</span><span class="crayon-e">registry</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-60"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">volumes</span><span class="crayon-o">:</span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-61"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">registry</span><span class="crayon-o">-</span><span class="crayon-v">stuff</span><span class="crayon-o">:</span><span class="crayon-o">/</span><span class="crayon-e">registry</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f266b641316735-62"><span class="crayon-e">&nbsp;&nbsp;</span><span class="crayon-v">ports</span><span class="crayon-o">:</span><span class="crayon-h"> </span></div><div class="crayon-line" id="crayon-56e26a83f266b641316735-63"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-s">"5000:5000"</span></div></div></td>
+					</tr>
+				</tbody></table>
+			</div>
+		</div>
+<!-- [Format Time: 0.0095 seconds] -->
+<p></p>
+<p>There is not much to explain in the <em>fig.yml</em>. All of the environment parameters are taken from the usage instructions for the images on the Docker Hub.<br>
+The Mesos slave container also using the trick with the mounted socket, 
+but nothing needs to be fixed here since slave is running the root user 
+that has permissions to access the socket.<br>
+It is important to note that the Jenkins container now includes a link 
+to Marathon. This is required to be able to post the requests from the 
+Jenkins container to the Marathon container. We will see it in the next 
+part about deployment.</p>
+<p>Now we can restart the system and see it all up and running:</p>
+<p></p><!-- Crayon Syntax Highlighter v_2.7.2_beta -->
+
+		<div id="crayon-56e26a83f267d206407919" class="crayon-syntax crayon-theme-thijs crayon-font-monaco crayon-os-mac print-yes notranslate" data-settings=" minimize scroll-mouseover" style="margin-top: 12px; margin-bottom: 12px; font-size: 12px ! important; line-height: 15px ! important; height: auto;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px ! important; height: 18px ! important; line-height: 18px ! important; margin-top: -18px; display: none; position: absolute; z-index: 2;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button crayon-pressed" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div style="display: none;" class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important;"></div>
+			<div class="crayon-plain-wrap"><textarea class="crayon-plain print-no" data-settings="dblclick" readonly="readonly" style="-moz-tab-size: 4; font-size: 12px ! important; line-height: 15px ! important; z-index: 0; opacity: 0; overflow: hidden;" wrap="soft">$ fig up
+Creating cddemo_registry_1...
+Recreating cddemo_zookeeper_1...
+Creating cddemo_master_1...
+Creating cddemo_slave_1...
+Recreating cddemo_marathon_1...
+Creating cddemo_jenkins_1...</textarea></div>
+			<div class="crayon-main" style="position: relative; z-index: 1; overflow: hidden;">
+				<table style="" class="crayon-table">
+					<tbody><tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-56e26a83f267d206407919-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f267d206407919-2">2</div><div class="crayon-num" data-line="crayon-56e26a83f267d206407919-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f267d206407919-4">4</div><div class="crayon-num" data-line="crayon-56e26a83f267d206407919-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f267d206407919-6">6</div><div class="crayon-num" data-line="crayon-56e26a83f267d206407919-7">7</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-56e26a83f267d206407919-1"><span class="crayon-sy">$</span><span class="crayon-h"> </span><span class="crayon-e">fig </span><span class="crayon-e">up</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f267d206407919-2"><span class="crayon-e">Creating </span><span class="crayon-v">cddemo_registry_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line" id="crayon-56e26a83f267d206407919-3"><span class="crayon-e">Recreating </span><span class="crayon-v">cddemo_zookeeper_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f267d206407919-4"><span class="crayon-e">Creating </span><span class="crayon-v">cddemo_master_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line" id="crayon-56e26a83f267d206407919-5"><span class="crayon-e">Creating </span><span class="crayon-v">cddemo_slave_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f267d206407919-6"><span class="crayon-e">Recreating </span><span class="crayon-v">cddemo_marathon_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div><div class="crayon-line" id="crayon-56e26a83f267d206407919-7"><span class="crayon-e">Creating </span><span class="crayon-v">cddemo_jenkins_1</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span><span class="crayon-sy">.</span></div></div></td>
+					</tr>
+				</tbody></table>
+			</div>
+		</div>
+<!-- [Format Time: 0.0011 seconds] -->
+<p></p>
+<p>The containers will start very quickly (as they always do), but it 
+will take about 30 seconds until all the services are online (on an 
+Ubuntu VM running on MacBook Air).<br>
+Mesos will start on <a href="http://localhost:5050/">http://localhost:5050</a>. You can also see one active slave in the following screenshot. The slave has no publicly exposed port in this setup.</p>
+<p><a href="http://container-solutions.com/content/uploads/2015/02/Screen-Shot-2015-02-28-at-18.08.561.png"><img class="alignnone size-medium wp-image-1224" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/Screen-Shot-2015-02-28-at-18.png" alt="Screen Shot 2015-02-28 at 18.08.56" height="300" width="228"></a></p>
+<p>Marathon will be accessible at <a href="http://localhost:8080/">http://localhost:8080</a></p>
+<p><a href="http://container-solutions.com/content/uploads/2015/02/Screen-Shot-2015-02-28-at-18.09.141.png"><img class="alignnone size-medium wp-image-1225" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/Screen-Shot-2015-02-28-at-18_002.png" alt="Screen Shot 2015-02-28 at 18.09.14" height="137" width="300"></a></p>
+<h3>Deployment</h3>
+<p>The last part of the journey is to deploy our freshly built docker image on Mesos using Marathon.</p>
+<p><a href="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram41.jpg"><img class="alignnone size-large wp-image-1250" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/15_002.jpg" alt="15.02.11_diagram4" height="725" width="1024"></a></p>
+<p>First we need to create the configuration file for scheduling an application on Marathon, let’s call it <em>app_marathon.json</em>:</p>
+<p></p><!-- Crayon Syntax Highlighter v_2.7.2_beta -->
+
+		<div id="crayon-56e26a83f2686442438186" class="crayon-syntax crayon-theme-thijs crayon-font-monaco crayon-os-mac print-yes notranslate" data-settings=" minimize scroll-mouseover" style="margin-top: 12px; margin-bottom: 12px; font-size: 12px ! important; line-height: 15px ! important; height: auto;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px ! important; height: 18px ! important; line-height: 18px ! important; margin-top: -18px; display: none; position: absolute; z-index: 2;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button crayon-pressed" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button crayon-pressed" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div style="display: none;" class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div></div></div>
+			<div class="crayon-info" style="min-height: 16.8px ! important; line-height: 16.8px ! important; margin-top: -21px; display: none;"><div>Press ⌘+C to Copy, ⌘+V to Paste</div></div>
+			<div class="crayon-plain-wrap"><textarea class="crayon-plain print-no" data-settings="dblclick" readonly="readonly" style="-moz-tab-size: 4; font-size: 12px ! important; line-height: 15px ! important; z-index: 1; opacity: 1; overflow: hidden; height: 233px;" wrap="soft">{
+    "id": "app", 
+    "container": {
+      "docker": {
+        "image": "localhost:5000/containersol/nodejs_app:latest",
+        "network": "BRIDGE",
+        "portMappings": [
+          {"containerPort": 8000, "servicePort": 8000}
+        ]
+      }
+    },
+    "cpus": 0.2,
+    "mem": 512.0,
+    "instances": 1
+}</textarea></div>
+			<div class="crayon-main" style="position: relative; z-index: 0; overflow: hidden; opacity: 0;">
+				<table style="" class="crayon-table">
+					<tbody><tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-2">2</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-4">4</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-6">6</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-8">8</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-10">10</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-12">12</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-13">13</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f2686442438186-14">14</div><div class="crayon-num" data-line="crayon-56e26a83f2686442438186-15">15</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-56e26a83f2686442438186-1"><span class="crayon-sy">{</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-2"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"id"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-s">"app"</span><span class="crayon-sy">,</span><span class="crayon-h"> </span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-3"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"container"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-4"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"docker"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-5"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"image"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-s">"localhost:5000/containersol/nodejs_app:latest"</span><span class="crayon-sy">,</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-6"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"network"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-s">"BRIDGE"</span><span class="crayon-sy">,</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-7"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"portMappings"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-sy">[</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-8"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">{</span><span class="crayon-s">"containerPort"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-cn">8000</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-s">"servicePort"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-cn">8000</span><span class="crayon-sy">}</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-9"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">]</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-10"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-11"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span><span class="crayon-sy">,</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-12"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"cpus"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-cn">0.2</span><span class="crayon-sy">,</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-13"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"mem"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-cn">512.0</span><span class="crayon-sy">,</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f2686442438186-14"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-s">"instances"</span><span class="crayon-o">:</span><span class="crayon-h"> </span><span class="crayon-cn">1</span></div><div class="crayon-line" id="crayon-56e26a83f2686442438186-15"><span class="crayon-sy">}</span></div></div></td>
+					</tr>
+				</tbody></table>
+			</div>
+		</div>
+<!-- [Format Time: 0.0019 seconds] -->
+<p></p>
+<p>Here again there are some shortcuts. For example, an important 
+missing piece is a health-check that should tell Marathon when the 
+application is running and when it isn’t.</p>
+<p>Once we have the json file to publish we can add the last script <em>deploy.sh</em>
+ that will remove the currently running application and redeploy it 
+using the new image. There are better upgrade strategies but, again, I 
+won’t discuss them here.</p>
+<p></p><!-- Crayon Syntax Highlighter v_2.7.2_beta -->
+
+		<div id="crayon-56e26a83f268c447495487" class="crayon-syntax crayon-theme-thijs crayon-font-monaco crayon-os-mac print-yes notranslate" data-settings=" minimize scroll-mouseover" style="margin-top: 12px; margin-bottom: 12px; font-size: 12px ! important; line-height: 15px ! important; height: auto;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px ! important; height: 18px ! important; line-height: 18px ! important; margin-top: -18px; display: none; position: absolute; z-index: 2;"><span class="crayon-title"></span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button crayon-pressed" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div style="display: none;" class="crayon-button crayon-expand-button" title="Expand Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important;"></div>
+			<div class="crayon-plain-wrap"><textarea class="crayon-plain print-no" data-settings="dblclick" readonly="readonly" style="-moz-tab-size: 4; font-size: 12px ! important; line-height: 15px ! important; z-index: 0; opacity: 0; overflow: hidden;" wrap="soft">#!/bin/bash
+
+if [ -z "${1}" ]; then
+   version="latest"
+   marathon="localhost"
+else
+   version="${1}"
+   marathon=${MARATHON_PORT_8080_TCP_ADDR}
+fi
+
+# destroy old application
+curl -X DELETE -H "Content-Type: application/json" http://${marathon}:8080/v2/apps/app 
+
+# I know this one is ugly. But it works for now.
+sleep 1
+
+# these lines will create a copy of app_marathon.json and update the image version
+cp -f app_marathon.json app_marathon.json.tmp
+sed -i "s/latest/${version}/g" app_marathon.json.tmp
+
+# post the application to Marathon
+curl -X POST -H "Content-Type: application/json" http://${marathon}:8080/v2/apps -d@app_marathon.json.tmp</textarea></div>
+			<div class="crayon-main" style="position: relative; z-index: 1; overflow: hidden;">
+				<table style="" class="crayon-table">
+					<tbody><tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-2">2</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-4">4</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-6">6</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-8">8</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-10">10</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-12">12</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-13">13</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-14">14</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-15">15</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-16">16</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-17">17</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-18">18</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-19">19</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-20">20</div><div class="crayon-num" data-line="crayon-56e26a83f268c447495487-21">21</div><div class="crayon-num crayon-striped-num" data-line="crayon-56e26a83f268c447495487-22">22</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-56e26a83f268c447495487-1"><span class="crayon-p">#!/bin/bash</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-2">&nbsp;</div><div class="crayon-line" id="crayon-56e26a83f268c447495487-3"><span class="crayon-st">if</span><span class="crayon-h"> </span><span class="crayon-sy">[</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">z</span><span class="crayon-h"> </span><span class="crayon-s">"${1}"</span><span class="crayon-h"> </span><span class="crayon-sy">]</span><span class="crayon-sy">;</span><span class="crayon-h"> </span><span class="crayon-st">then</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-4"><span class="crayon-h">&nbsp;&nbsp; </span><span class="crayon-v">version</span><span class="crayon-o">=</span><span class="crayon-s">"latest"</span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-5"><span class="crayon-h">&nbsp;&nbsp; </span><span class="crayon-v">marathon</span><span class="crayon-o">=</span><span class="crayon-s">"localhost"</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-6"><span class="crayon-st">else</span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-7"><span class="crayon-h">&nbsp;&nbsp; </span><span class="crayon-v">version</span><span class="crayon-o">=</span><span class="crayon-s">"${1}"</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-8"><span class="crayon-h">&nbsp;&nbsp; </span><span class="crayon-v">marathon</span><span class="crayon-o">=</span><span class="crayon-sy">$</span><span class="crayon-sy">{</span><span class="crayon-v">MARATHON_PORT_8080_TCP_ADDR</span><span class="crayon-sy">}</span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-9"><span class="crayon-v">fi</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-10">&nbsp;</div><div class="crayon-line" id="crayon-56e26a83f268c447495487-11"><span class="crayon-p"># destroy old application</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-12"><span class="crayon-v">curl</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">X</span><span class="crayon-h"> </span><span class="crayon-v">DELETE</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">H</span><span class="crayon-h"> </span><span class="crayon-s">"Content-Type: application/json"</span><span class="crayon-h"> </span><span class="crayon-v">http</span><span class="crayon-o">:</span><span class="crayon-c">//${marathon}:8080/v2/apps/app </span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-13">&nbsp;</div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-14"><span class="crayon-p"># I know this one is ugly. But it works for now.</span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-15"><span class="crayon-i">sleep</span><span class="crayon-h"> </span><span class="crayon-cn">1</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-16">&nbsp;</div><div class="crayon-line" id="crayon-56e26a83f268c447495487-17"><span class="crayon-p"># these lines will create a copy of app_marathon.json and update the image version</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-18"><span class="crayon-v">cp</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">f</span><span class="crayon-h"> </span><span class="crayon-v">app_marathon</span><span class="crayon-sy">.</span><span class="crayon-e">json </span><span class="crayon-v">app_marathon</span><span class="crayon-sy">.</span><span class="crayon-v">json</span><span class="crayon-sy">.</span><span class="crayon-e">tmp</span></div><div class="crayon-line" id="crayon-56e26a83f268c447495487-19"><span class="crayon-v">sed</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">i</span><span class="crayon-h"> </span><span class="crayon-s">"s/latest/${version}/g"</span><span class="crayon-h"> </span><span class="crayon-v">app_marathon</span><span class="crayon-sy">.</span><span class="crayon-v">json</span><span class="crayon-sy">.</span><span class="crayon-v">tmp</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-20">&nbsp;</div><div class="crayon-line" id="crayon-56e26a83f268c447495487-21"><span class="crayon-p"># post the application to Marathon</span></div><div class="crayon-line crayon-striped-line" id="crayon-56e26a83f268c447495487-22"><span class="crayon-v">curl</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">X</span><span class="crayon-h"> </span><span class="crayon-v">POST</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-i">H</span><span class="crayon-h"> </span><span class="crayon-s">"Content-Type: application/json"</span><span class="crayon-h"> </span><span class="crayon-v">http</span><span class="crayon-o">:</span><span class="crayon-c">//${marathon}:8080/v2/apps -d@app_marathon.json.tmp</span></div></div></td>
+					</tr>
+				</tbody></table>
+			</div>
+		</div>
+<!-- [Format Time: 0.0027 seconds] -->
+<p></p>
+<p>The last step would be to add <em>deploy.sh</em> to Jenkins configuration and run the build.</p>
+<p><a href="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.18.171.png"><img class="alignnone size-full wp-image-1259" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/Screen-Shot-2015-02-28-at-19_003.png" alt="Screen Shot 2015-02-28 at 19.18.17" height="643" width="699"></a></p>
+<p>And after the build has successfully finished we can see the application running on Marathon:</p>
+<p><a href="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.21.591.png"><img class="alignnone size-full wp-image-1260" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/Screen-Shot-2015-02-28-at-19_002.png" alt="Screen Shot 2015-02-28 at 19.21.59" height="364" width="966"></a></p>
+<p>And we can see our app on <a href="http://localhost:31000/">http://localhost:31000/</a>:</p>
+<p><a href="http://container-solutions.com/content/uploads/2015/06/Screen-Shot-2015-02-28-at-19.23.291.png"><img class="alignnone size-full wp-image-1261" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/Screen-Shot-2015-02-28-at-19.png" alt="Screen Shot 2015-02-28 at 19.23.29" height="142" width="400"></a></p>
+<p>Now you can try changing your application and triggering the build in
+ Jenkins. In just few seconds it will find it’s way through Jenkins, the
+ Docker Hub and Marathon to Mesos!</p>
+<p>Here is a short video showing the complete setup in action:</p>
+<div class="entry-content-asset"><iframe src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/OkozZLRDuoI.html" allowfullscreen="" frameborder="0" height="281" width="500"></iframe></div>
+<h3>Future Improvements</h3>
+<p>There are two main direction to improve this system – adding more functionality and deepening the quality of the setup.</p>
+<p>The list of possible extensions is very long. Here are some examples:</p>
+<ul>
+<li>Extending HelloWorld example to be a proper web application</li>
+<li>Adding multiple languages</li>
+<li>Using a multi-container setup deployed on Mesos</li>
+<li>Adding automated tests on multiple levels (unit tests, systems tests, performance tests, etc.</li>
+<li>Triggering Jenkins builds automatically from a Git hook</li>
+<li>Deploying to public clouds such as GCE, AWS etc</li>
+<li>Running on multiple hosts.</li>
+<li>HAProxy setup</li>
+<li>Auto-scaling with simulation of load using jmeter</li>
+<li>Deploying a microservices based system</li>
+<li>Using Flocker for persistent storage</li>
+<li>Using Weave for networking containers</li>
+<li>Using Consul for automatic service discovery</li>
+<li>Adding system monitoring</li>
+<li>Adding centralised logging</li>
+</ul>
+<p>My preferred next step would be to focus of the part of the system 
+facing external users and add HAProxy and auto-scaling capabilities as 
+demonstrated in the next diagram:<br>
+<a href="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram51.jpg"><img class="alignnone size-large wp-image-1251" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/15.jpg" alt="15.02.11_diagram5" height="725" width="1024"></a></p>
+<h3>Final Words</h3>
+<p>I started working on this set-up mainly to help developers and 
+administrators to learn how to use Docker and Mesos in context of 
+continuous delivery. Over the course of the last few months I saw that 
+the full system is very complex and hard to explain and even harder to 
+set-up and start playing with it.</p>
+<p>For the same reason we asked our friend <a href="http://martamarszal.com/">Marta Marszal</a> who created excellent visuals to make the story much more clear.</p>
+<p>Please feel free to suggest improvement and grow this example system to help other people to learn and experiment.</p>
+<p>You are also free to download the diagrams as separate images, or as a
+ PDF with a full story and re-use them any way you like (please don’t 
+forget to mention us).<br>
+<a href="http://container-solutions.com/content/uploads/2015/02/CD_with_Mesos_Docker1.pdf">CD_with_Mesos_Docker</a></p>
+<p>Also all the sources can be found in GitHub: <a href="https://github.com/ContainerSolutions/cd_demo">https://github.com/ContainerSolutions/cd_demo</a></p>
+<p><a href="http://container-solutions.com/content/uploads/2015/02/15.02.11_diagram61.jpg"><img class="alignnone size-large wp-image-1252" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/15_004.jpg" alt="15.02.11_diagram6" height="725" width="1024"></a></p>
+<div id="ts-fab-below" class="ts-fab-wrapper"><span class="screen-reader-text">The following two tabs change content below.</span><ul class="ts-fab-list"><li class="ts-fab-bio-link active"><a href="#ts-fab-bio-below">Bio</a></li><li class="ts-fab-latest-posts-link"><a href="#ts-fab-latest-posts-below">Latest Posts</a></li></ul><div class="ts-fab-tabs">
+	<div style="display: block;" class="ts-fab-tab" id="ts-fab-bio-below">
+		<div class="ts-fab-avatar"><img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/db809e8da651a7bfd7f84f8cc863c536.jpeg" srcset="http://1.gravatar.com/avatar/db809e8da651a7bfd7f84f8cc863c536?s=160&amp;d=mm&amp;r=g 2x" class="avatar avatar-80 photo" height="80" width="80"><div class="ts-fab-social-links"></div>
+		</div>
+		
+		<div class="ts-fab-text">
+			<div class="ts-fab-header"><h4>Pini Reznik</h4></div><!-- /.ts-fab-header -->
+			<div class="ts-fab-content">Pini has 15+ years of experience in 
+delivering software in Israel and Netherlands. Starting as a developer 
+and moving through technical, managerial and consulting positions in 
+Configuration Management and Operations areas, Pini acquired deep 
+understanding of the software delivery processes and currently helping 
+organisations around Europe with improving software delivery pipeline by
+ introducing Docker and other cutting edge technologies.</div>
+		</div>
+	</div>
+	<div style="display: none;" class="ts-fab-tab" id="ts-fab-latest-posts-below">
+		<div class="ts-fab-avatar"><img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/db809e8da651a7bfd7f84f8cc863c536.jpeg" srcset="http://1.gravatar.com/avatar/db809e8da651a7bfd7f84f8cc863c536?s=160&amp;d=mm&amp;r=g 2x" class="avatar avatar-80 photo" height="80" width="80"><div class="ts-fab-social-links"></div>
+		</div>
+		<div class="ts-fab-text">
+			<div class="ts-fab-header">
+				<h4>Latest posts by Pini Reznik <span class="latest-see-all">(<a href="http://container-solutions.com/author/pinireznik/" rel="nofollow">see all</a>)</span></h4>
+			</div>
+			<ul class="ts-fab-latest">
+				<li>
+					<a href="http://container-solutions.com/user-access-manager-application-on-mantl/">User Access Manager application on Mantl</a><span> - February 22, 2016</span> 
+				</li>
+				<li>
+					<a href="http://container-solutions.com/cloud-native-computing/">Cloud Native Computing</a><span> - November 24, 2015</span> 
+				</li>
+				<li>
+					<a href="http://container-solutions.com/docker-announces-first-plugins-weave-and-flocker/">Docker announces first plugins – Weave and Flocker</a><span> - June 22, 2015</span> 
+				</li>
+		</ul></div>
+	</div>
+		</div>
+	</div>        </div>
+        <footer>
+                  </footer>
+      </article>
+
+        </div>
+  </div>
+</div>
+<div class="blog-comments row">
+  <div class="sec-col fw-col">
+    
+<section id="comments" class="comments">
+      <div class="block">
+    <h2 class="ncomments">11 Comments</h2>
+
+    <ol class="comment-list">
+      		<li id="comment-137" class="comment even thread-even depth-1">
+			<article id="div-comment-137" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/4acb579002e81580f52f5805a563d010.jpeg" srcset="http://1.gravatar.com/avatar/4acb579002e81580f52f5805a563d010?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">YangTao</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-137">
+							<time datetime="2015-03-21T10:36:23+00:00">
+								March 21, 2015 at 10:36 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>in my test, throws this error:</p>
+<p>[root@kubernetes cd_demo]# docker logs a01cf532d5bf<br>
+I0321 08:17:19.334563     1 logging.cpp:172] INFO level logging started!<br>
+I0321 08:17:19.335260     1 main.cpp:142] Build: 2014-11-22 05:29:57 by root<br>
+I0321 08:17:19.335286     1 main.cpp:144] Version: 0.21.0<br>
+I0321 08:17:19.335300     1 main.cpp:147] Git tag: 0.21.0<br>
+I0321 08:17:19.335312     1 main.cpp:151] Git SHA: ab8fa655d34e8e15a4290422df38a18db1c09b5b<br>
+Failed to create a containerizer: Could not create DockerContainerizer: 
+Failed to execute ‘docker version’: exited with status 127</p>
+<p>what happen? how to resolver?<br>
+link github issue: <a href="https://github.com/redjack/docker-mesos/issues/11" rel="nofollow">https://github.com/redjack/docker-mesos/issues/11</a></p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=137#respond" onclick='return addComment.moveForm( "div-comment-137", "137", "respond", "1270" )' aria-label="Reply to YangTao">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-138" class="comment byuser comment-author-pinireznik bypostauthor odd alt thread-odd thread-alt depth-1 parent">
+			<article id="div-comment-138" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/db809e8da651a7bfd7f84f8cc863c536_002.jpeg" srcset="http://1.gravatar.com/avatar/db809e8da651a7bfd7f84f8cc863c536?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn"><a href="http://container-solutions.com/" rel="external nofollow" class="url">Pini Reznik</a></b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-138">
+							<time datetime="2015-03-21T16:50:57+00:00">
+								March 21, 2015 at 4:50 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>on which OS are you running this setup?<br>
+what is the output of the following command:</p>
+<p>which docker</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=138#respond" onclick='return addComment.moveForm( "div-comment-138", "138", "respond", "1270" )' aria-label="Reply to Pini Reznik">Reply</a></div>			</article><!-- .comment-body -->
+<ul class="children">
+		<li id="comment-139" class="comment even depth-2 parent">
+			<article id="div-comment-139" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/4acb579002e81580f52f5805a563d010.jpeg" srcset="http://1.gravatar.com/avatar/4acb579002e81580f52f5805a563d010?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">YangTao</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-139">
+							<time datetime="2015-03-23T03:37:41+00:00">
+								March 23, 2015 at 3:37 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Os: centos 7<br>
+Linux localhost.localdomain 3.10.0-123.13.2.el7.x86_64 #1 SMP Thu Dec 18 14:09:13 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux</p>
+<p>Docker –version<br>
+Docker version 1.3.2, build 39fa2fa/1.3.2</p>
+<p>Docker info :<br>
+Containers: 1<br>
+Images: 37<br>
+Storage Driver: devicemapper<br>
+ Pool Name: docker-253:1-436219236-pool<br>
+ Pool Blocksize: 65.54 kB<br>
+ Data file: /var/lib/docker/devicemapper/devicemapper/data<br>
+ Metadata file: /var/lib/docker/devicemapper/devicemapper/metadata<br>
+ Data Space Used: 1.643 GB<br>
+ Data Space Total: 107.4 GB<br>
+ Metadata Space Used: 2.47 MB<br>
+ Metadata Space Total: 2.147 GB<br>
+ Library Version: 1.02.84-RHEL7 (2014-03-26)<br>
+Execution Driver: native-0.2<br>
+Kernel Version: 3.10.0-123.13.2.el7.x86_64<br>
+Operating System: CentOS Linux 7 (Core)</p>
+				</div><!-- .comment-content -->
+
+							</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-140" class="comment odd alt depth-2">
+			<article id="div-comment-140" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/f93ac57e4452df30894e5db2f589cf31.jpeg" srcset="http://0.gravatar.com/avatar/f93ac57e4452df30894e5db2f589cf31?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">Montells</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-140">
+							<time datetime="2015-03-23T23:21:19+00:00">
+								March 23, 2015 at 11:21 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>I can’t make sharing docker deamon and socket succesfull from 
+centos to debian neither debian to centos. Centos use devicemapper like 
+storage devise and debian use aufs which ones create a conflict. This 
+example run fine in debian.</p>
+				</div><!-- .comment-content -->
+
+							</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li id="comment-141" class="pingback even thread-even depth-1">
+			<div class="comment-body">
+				Pingback: <a href="http://www.bigfire100.com/archives/150" rel="external nofollow" class="url">Java开发人员需要注意的五大Docker误区 | Make It Possible | Thank you for your visiting</a> 			</div>
+</li><!-- #comment-## -->
+		<li id="comment-198" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-198" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/e3866fadd3d4c9a985582d76afcaa688.jpeg" srcset="http://2.gravatar.com/avatar/e3866fadd3d4c9a985582d76afcaa688?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">kevin</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-198">
+							<time datetime="2015-06-26T14:56:57+00:00">
+								June 26, 2015 at 2:56 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Hi, </p>
+<p>I am using docker-compose to launch the whole stack but the slave doesnt register with the master.</p>
+<p>Following is the log on launch</p>
+<p>Recreating cddemo_zookeeper_1…<br>
+Recreating cddemo_master_1…<br>
+Recreating cddemo_slave_1…<br>
+Recreating cddemo_marathon_1…<br>
+Attaching to cddemo_zookeeper_1, cddemo_master_1, cddemo_marathon_1<br>
+zookeeper_1 | JMX enabled by default<br>
+zookeeper_1 | Using config: /opt/zookeeper/bin/../conf/zoo.cfg<br>
+zookeeper_1 | 2015-06-26 12:53:34,581 [myid:] – INFO  
+[main:QuorumPeerConfig@103] – Reading configuration from: 
+/opt/zookeeper/bin/../conf/zoo.cfg<br>
+zookeeper_1 | 2015-06-26 12:53:34,592 [myid:] – INFO  [main:DatadirCleanupManager@78] – autopurge.snapRetainCount set to 3<br>
+zookeeper_1 | 2015-06-26 12:53:34,592 [myid:] – INFO  [main:DatadirCleanupManager@79] – autopurge.purgeInterval set to 0<br>
+zookeeper_1 | 2015-06-26 12:53:34,592 [myid:] – INFO  [main:DatadirCleanupManager@101] – Purge task is not scheduled.<br>
+zookeeper_1 | 2015-06-26 12:53:34,593 [myid:] – WARN  
+[main:QuorumPeerMain@113] – Either no config or no quorum defined in 
+config, running  in standalone mode<br>
+zookeeper_1 | 2015-06-26 12:53:34,602 [myid:] – INFO  
+[main:QuorumPeerConfig@103] – Reading configuration from: 
+/opt/zookeeper/bin/../conf/zoo.cfg<br>
+zookeeper_1 | 2015-06-26 12:53:34,602 [myid:] – INFO  [main:ZooKeeperServerMain@95] – Starting server<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  
+[main:Environment@100] – Server 
+environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 
+GMT<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  [main:Environment@100] – Server environment:host.name=99f5fab81571<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  [main:Environment@100] – Server environment:java.version=1.7.0_65<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  [main:Environment@100] – Server environment:java.vendor=Oracle Corporation<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  
+[main:Environment@100] – Server 
+environment:java.home=/usr/lib/jvm/java-7-openjdk-amd64/jre<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  
+[main:Environment@100] – Server 
+environment:java.class.path=/opt/zookeeper/bin/../build/classes:/opt/zookeeper/bin/../build/lib/*.jar:/opt/zookeeper/bin/../lib/slf4j-log4j12-1.6.1.jar:/opt/zookeeper/bin/../lib/slf4j-api-1.6.1.jar:/opt/zookeeper/bin/../lib/netty-3.7.0.Final.jar:/opt/zookeeper/bin/../lib/log4j-1.2.16.jar:/opt/zookeeper/bin/../lib/jline-0.9.94.jar:/opt/zookeeper/bin/../zookeeper-3.4.6.jar:/opt/zookeeper/bin/../src/java/lib/*.jar:/opt/zookeeper/bin/../conf:<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  
+[main:Environment@100] – Server 
+environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  [main:Environment@100] – Server environment:java.io.tmpdir=/tmp<br>
+zookeeper_1 | 2015-06-26 12:53:34,609 [myid:] – INFO  [main:Environment@100] – Server environment:java.compiler=<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  [main:Environment@100] – Server environment:os.name=Linux<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  [main:Environment@100] – Server environment:os.arch=amd64<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  
+[main:Environment@100] – Server 
+environment:os.version=3.19.7-200.fc21.x86_64<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  [main:Environment@100] – Server environment:user.name=root<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  [main:Environment@100] – Server environment:user.home=/root<br>
+zookeeper_1 | 2015-06-26 12:53:34,611 [myid:] – INFO  [main:Environment@100] – Server environment:user.dir=/opt/zookeeper<br>
+zookeeper_1 | 2015-06-26 12:53:34,615 [myid:] – INFO  [main:ZooKeeperServer@755] – tickTime set to 2000<br>
+zookeeper_1 | 2015-06-26 12:53:34,615 [myid:] – INFO  [main:ZooKeeperServer@764] – minSessionTimeout set to -1<br>
+zookeeper_1 | 2015-06-26 12:53:34,615 [myid:] – INFO  [main:ZooKeeperServer@773] – maxSessionTimeout set to -1<br>
+zookeeper_1 | 2015-06-26 12:53:34,716 [myid:] – INFO  [main:NIOServerCnxnFactory@94] – binding to port 0.0.0.0/0.0.0.0:2181<br>
+zookeeper_1 | 2015-06-26 12:53:37,079 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.49:34260<br>
+zookeeper_1 | 2015-06-26 12:53:37,083 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.49:34260; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:37,097 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.49:34260<br>
+zookeeper_1 | 2015-06-26 12:53:37,098 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.49:34262<br>
+zookeeper_1 | 2015-06-26 12:53:37,098 [myid:] – INFO  [SyncThread:0:FileTxnLog@199] – Creating new log file: log.1f<br>
+zookeeper_1 | 2015-06-26 12:53:37,098 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.49:34263<br>
+zookeeper_1 | 2015-06-26 12:53:37,098 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.49:34262; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:37,098 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.49:34262<br>
+zookeeper_1 | 2015-06-26 12:53:37,099 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.49:34263; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:37,099 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.49:34263<br>
+zookeeper_1 | 2015-06-26 12:53:37,108 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.49:34265<br>
+zookeeper_1 | 2015-06-26 12:53:37,108 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.49:34265; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:37,108 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.49:34265<br>
+zookeeper_1 | 2015-06-26 12:53:37,110 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0000 with negotiated timeout 10000 for client 
+/172.17.0.49:34260<br>
+zookeeper_1 | 2015-06-26 12:53:37,117 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0001 with negotiated timeout 10000 for client 
+/172.17.0.49:34262<br>
+zookeeper_1 | 2015-06-26 12:53:37,117 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0002 with negotiated timeout 10000 for client 
+/172.17.0.49:34263<br>
+zookeeper_1 | 2015-06-26 12:53:37,118 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0003 with negotiated timeout 10000 for client 
+/172.17.0.49:34265<br>
+master_1    | I0626 12:53:36.598446     1 logging.cpp:172] INFO level logging started!<br>
+master_1    | I0626 12:53:36.598634     1 main.cpp:167] Build: 2014-11-22 05:29:57 by root<br>
+master_1    | I0626 12:53:36.598644     1 main.cpp:169] Version: 0.21.0<br>
+master_1    | I0626 12:53:36.598647     1 main.cpp:172] Git tag: 0.21.0<br>
+master_1    | I0626 12:53:36.598651     1 main.cpp:176] Git SHA: ab8fa655d34e8e15a4290422df38a18db1c09b5b<br>
+master_1    | I0626 12:53:37.064618     1 leveldb.cpp:176] Opened db in 465.562252ms<br>
+master_1    | I0626 12:53:37.072793     1 leveldb.cpp:183] Compacted db in 8.124325ms<br>
+master_1    | I0626 12:53:37.072886     1 leveldb.cpp:198] Created db iterator in 47850ns<br>
+master_1    | I0626 12:53:37.072902     1 leveldb.cpp:204] Seeked to beginning of db in 3551ns<br>
+master_1    | I0626 12:53:37.072963     1 leveldb.cpp:273] Iterated through 0 keys in the db in 54525ns<br>
+master_1    | I0626 12:53:37.073155     1 replica.cpp:741] Replica 
+recovered with log positions 0 -&gt; 0 with 1 holes and 0 unlearned<br>
+master_1    | 2015-06-26 
+12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@716: Client environment:host.name=master<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+master_1    | 2015-06-26 
+12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+master_1    | 2015-06-26 
+12:53:37,075:1(0x7f1dfc758700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfc758700):ZOO_INFO@log_env@716: Client environment:host.name=master<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfc758700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfc758700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+master_1    | 2015-06-26 
+12:53:37,075:1(0x7f1dfc758700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+master_1    | I0626 12:53:37.075690     8 log.cpp:238] Attempting to join replica to ZooKeeper group<br>
+master_1    | 2015-06-26 12:53:37,075:1(0x7f1dfa754700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+master_1    | 2015-06-26 12:53:37,076:1(0x7f1dfc758700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+master_1    | 2015-06-26 12:53:37,076:1(0x7f1dfa754700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+master_1    | 2015-06-26 12:53:37,076:1(0x7f1dfa754700):ZOO_INFO@log_env@753: Client environment:user.dir=/tmp<br>
+master_1    | 2015-06-26 
+12:53:37,076:1(0x7f1dfa754700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7f1e01d48a0a sessionId=0 sessionPasswd= context=0x7f1df0001350
+ flags=0<br>
+master_1    | 2015-06-26 12:53:37,076:1(0x7f1dfc758700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+master_1    | 2015-06-26 12:53:37,076:1(0x7f1dfc758700):ZOO_INFO@log_env@753: Client environment:user.dir=/tmp<br>
+master_1    | 2015-06-26 
+12:53:37,076:1(0x7f1dfc758700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7f1e01d48a0a sessionId=0 sessionPasswd= context=0x7f1de0000eb0
+ flags=0<br>
+master_1    | I0626 12:53:37.076454    13 recover.cpp:437] Starting replica recovery<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@716: Client environment:host.name=master<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@716: Client environment:host.name=master<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+master_1    | I0626 12:53:37.077245     1 main.cpp:292] Starting Mesos master<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+marathon_1  | MESOS_NATIVE_JAVA_LIBRARY is not set. Searching in /usr/lib /usr/local/lib.<br>
+marathon_1  | MESOS_NATIVE_LIBRARY, MESOS_NATIVE_JAVA_LIBRARY set to ‘/usr/lib/libmesos.so’<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@log_env@753: Client environment:user.dir=/tmp<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1dfbf57700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7f1e01d48a0a sessionId=0 sessionPasswd= context=0x7f1de80012e0
+ flags=0<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+master_1    | 2015-06-26 12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@log_env@753: Client environment:user.dir=/tmp<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1df9f53700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7f1e01d48a0a sessionId=0 sessionPasswd= context=0x7f1dd8002160
+ flags=0<br>
+master_1    | 2015-06-26 
+12:53:37,077:1(0x7f1df6f12700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+master_1    | I0626 12:53:37.077888    13 recover.cpp:463] Replica is in EMPTY status<br>
+master_1    | I0626 12:53:37.079658     9 replica.cpp:638] Replica in EMPTY status received a broadcasted recover request<br>
+master_1    | I0626 12:53:37.080459     8 recover.cpp:188] Received a recover response from a replica in EMPTY status<br>
+master_1    | I0626 12:53:37.080941    13 recover.cpp:554] Updating replica status to STARTING<br>
+master_1    | 2015-06-26 
+12:53:37,106:1(0x7f1df6711700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+master_1    | I0626 12:53:37.108281    10 master.cpp:318] Master 
+20150626-125337-822088108-5050-1 (master) started on 172.17.0.49:5050<br>
+master_1    | 2015-06-26 
+12:53:37,110:1(0x7f1df6f12700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0000, negotiated timeout=10000<br>
+master_1    | 2015-06-26 
+12:53:37,117:1(0x7f1df6711700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0001, negotiated timeout=10000<br>
+master_1    | 2015-06-26 
+12:53:37,127:1(0x7f1df4f0e700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+master_1    | 2015-06-26 
+12:53:37,127:1(0x7f1def7fe700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+master_1    | 2015-06-26 
+12:53:37,127:1(0x7f1df4f0e700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0002, negotiated timeout=10000<br>
+master_1    | 2015-06-26 
+12:53:37,127:1(0x7f1def7fe700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0003, negotiated timeout=10000<br>
+master_1    | I0626 12:53:37.128437     9 group.cpp:313] Group process (group(2)@172.17.0.49:5050) connected to ZooKeeper<br>
+master_1    | I0626 12:53:37.128478     9 group.cpp:790] Syncing group 
+operations: queue size (joins, cancels, datas) = (1, 0, 0)<br>
+master_1    | I0626 12:53:37.128492     9 group.cpp:385] Trying to create path ‘/mesos/log_replicas’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.128736    13 group.cpp:313] Group process (group(4)@172.17.0.49:5050) connected to ZooKeeper<br>
+master_1    | I0626 12:53:37.128758    11 group.cpp:313] Group process (group(3)@172.17.0.49:5050) connected to ZooKeeper<br>
+master_1    | I0626 12:53:37.128787     6 group.cpp:313] Group process (group(1)@172.17.0.49:5050) connected to ZooKeeper<br>
+master_1    | I0626 12:53:37.128798    13 group.cpp:790] Syncing group 
+operations: queue size (joins, cancels, datas) = (0, 0, 0)<br>
+master_1    | I0626 12:53:37.128826     6 group.cpp:790] Syncing group 
+operations: queue size (joins, cancels, datas) = (0, 0, 0)<br>
+master_1    | I0626 12:53:37.128811    11 group.cpp:790] Syncing group 
+operations: queue size (joins, cancels, datas) = (0, 0, 0)<br>
+master_1    | I0626 12:53:37.128836    13 group.cpp:385] Trying to create path ‘/mesos’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.128849    11 group.cpp:385] Trying to create path ‘/mesos’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.128841     6 group.cpp:385] Trying to create path ‘/mesos/log_replicas’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.136361    10 master.cpp:366] Master allowing unauthenticated frameworks to register<br>
+master_1    | I0626 12:53:37.136402    10 master.cpp:371] Master allowing unauthenticated slaves to register<br>
+master_1    | I0626 12:53:37.142256     8 leveldb.cpp:306] Persisting metadata (8 bytes) to leveldb took 61.067633ms<br>
+master_1    | I0626 12:53:37.142412     8 replica.cpp:320] Persisted replica status to STARTING<br>
+master_1    | I0626 12:53:37.143751     7 recover.cpp:463] Replica is in STARTING status<br>
+master_1    | I0626 12:53:37.144172    10 contender.cpp:131] Joining the ZK group<br>
+master_1    | I0626 12:53:37.144224     8 master.cpp:1202] Successfully attached file ‘/var/log/mesos-master.INFO’<br>
+master_1    | I0626 12:53:37.145093     8 replica.cpp:638] Replica in STARTING status received a broadcasted recover request<br>
+master_1    | I0626 12:53:37.145418     7 recover.cpp:188] Received a recover response from a replica in STARTING status<br>
+master_1    | I0626 12:53:37.145638     8 recover.cpp:554] Updating replica status to VOTING<br>
+master_1    | I0626 12:53:37.153756     7 leveldb.cpp:306] Persisting metadata (8 bytes) to leveldb took 7.981304ms<br>
+master_1    | I0626 12:53:37.153848     7 replica.cpp:320] Persisted replica status to VOTING<br>
+master_1    | I0626 12:53:37.154075     8 recover.cpp:568] Successfully joined the Paxos group<br>
+master_1    | I0626 12:53:37.154477     8 recover.cpp:452] Recover process terminated<br>
+master_1    | I0626 12:53:37.170176     6 network.hpp:424] ZooKeeper group memberships changed<br>
+master_1    | I0626 12:53:37.170949    10 group.cpp:659] Trying to get ‘/mesos/log_replicas/0000000000′ in ZooKeeper<br>
+master_1    | I0626 12:53:37.443980     7 detector.cpp:138] Detected a new leader: (id=’0’)<br>
+master_1    | I0626 12:53:37.444546     7 group.cpp:659] Trying to get ‘/mesos/info_0000000000′ in ZooKeeper<br>
+master_1    | I0626 12:53:37.444823     9 network.hpp:466] ZooKeeper group PIDs: { log-replica(1)@172.17.0.41:5050 }<br>
+master_1    | I0626 12:53:37.449951     9 contender.cpp:247] New candidate (id=’2’) has entered the contest for leadership<br>
+master_1    | I0626 12:53:37.450053    10 network.hpp:424] ZooKeeper group memberships changed<br>
+master_1    | I0626 12:53:37.450242     6 group.cpp:659] Trying to get ‘/mesos/log_replicas/0000000000’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.450275    12 detector.cpp:433] A new leading master (UPID=master@172.17.0.41:5050) is detected<br>
+master_1    | I0626 12:53:37.450832     8 master.cpp:1263] The newly elected leader is <a href="mailto:master@172.17.0.41">master@172.17.0.41</a>:5050 with id 20150626-124831-687870380-5050-1<br>
+master_1    | I0626 12:53:37.451058     6 group.cpp:659] Trying to get ‘/mesos/log_replicas/0000000001’ in ZooKeeper<br>
+master_1    | I0626 12:53:37.451669     7 network.hpp:466] ZooKeeper 
+group PIDs: { log-replica(1)@172.17.0.41:5050, 
+log-replica(1)@172.17.0.49:5050 }<br>
+master_1    | I0626 12:53:41.806807     9 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+marathon_1  | [2015-06-26 12:53:43,888] INFO Starting Marathon 0.8.2 (mesosphere.marathon.Main$:87)<br>
+marathon_1  | [2015-06-26 12:53:45,059] INFO Connecting to Zookeeper… (mesosphere.marathon.Main$:37)<br>
+marathon_1  | [2015-06-26 12:53:45,064] INFO Client 
+environment:zookeeper.version=3.3.3-1203054, built on 11/17/2011 05:47 
+GMT (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,064] INFO Client environment:host.name=a136b2e373b7 (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,064] INFO Client environment:java.version=1.7.0_79 (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,064] INFO Client 
+environment:java.vendor=Oracle Corporation 
+(org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,064] INFO Client 
+environment:java.home=/usr/lib/jvm/java-7-openjdk-amd64/jre 
+(org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client 
+environment:java.class.path=./bin/../target/marathon-assembly-0.8.2.jar 
+(org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client 
+environment:java.library.path=/usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+ (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client environment:java.io.tmpdir=/tmp (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client environment:java.compiler= (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client environment:os.name=Linux (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client environment:os.arch=amd64 (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client 
+environment:os.version=3.19.7-200.fc21.x86_64 
+(org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,065] INFO Client environment:user.name=root (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,066] INFO Client environment:user.home=/root (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,067] INFO Client environment:user.dir=/marathon (org.apache.zookeeper.ZooKeeper:97)<br>
+marathon_1  | [2015-06-26 12:53:45,068] INFO Initiating client 
+connection, connectString=zookeeper:2181 sessionTimeout=10000 
+watcher=com.twitter.common.zookeeper.ZooKeeperClient$3@4cd06050 
+(org.apache.zookeeper.ZooKeeper:379)<br>
+marathon_1  | [2015-06-26 12:53:45,077] INFO Opening socket connection 
+to server zookeeper/172.17.0.47:2181 
+(org.apache.zookeeper.ClientCnxn:1061)<br>
+zookeeper_1 | 2015-06-26 12:53:45,082 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.53:52379<br>
+marathon_1  | [2015-06-26 12:53:45,083] INFO Socket connection 
+established to zookeeper/172.17.0.47:2181, initiating session 
+(org.apache.zookeeper.ClientCnxn:950)<br>
+zookeeper_1 | 2015-06-26 12:53:45,085 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.53:52379; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:45,085 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.53:52379<br>
+zookeeper_1 | 2015-06-26 12:53:45,089 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0004 with negotiated timeout 10000 for client 
+/172.17.0.53:52379<br>
+marathon_1  | [2015-06-26 12:53:45,091] INFO Session establishment 
+complete on server zookeeper/172.17.0.47:2181, sessionid = 
+0x14e2fee2b9e0004, negotiated timeout = 10000 
+(org.apache.zookeeper.ClientCnxn:739)<br>
+marathon_1  | 2015-06-26 
+12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@716: Client environment:host.name=a136b2e373b7<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+marathon_1  | 2015-06-26 
+12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+marathon_1  | 2015-06-26 12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@log_env@753: Client environment:user.dir=/marathon<br>
+marathon_1  | 2015-06-26 
+12:53:45,730:1(0x7fe3527fc700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7fe35ae35a60 sessionId=0 sessionPasswd= context=0x7fe2d4000d60
+ flags=0<br>
+marathon_1  | 2015-06-26 
+12:53:45,731:1(0x7fe350ff9700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+zookeeper_1 | 2015-06-26 12:53:45,731 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.53:52380<br>
+zookeeper_1 | 2015-06-26 12:53:45,731 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.53:52380; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:45,731 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.53:52380<br>
+marathon_1  | 2015-06-26 
+12:53:45,735:1(0x7fe350ff9700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0005, negotiated timeout=10000<br>
+zookeeper_1 | 2015-06-26 12:53:45,735 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0005 with negotiated timeout 10000 for client 
+/172.17.0.53:52380<br>
+marathon_1  | [2015-06-26 12:53:45,889] INFO Registering in Zookeeper 
+with hostname:a136b2e373b7 (mesosphere.marathon.MarathonModule:140)<br>
+marathon_1  | [2015-06-26 12:53:45,943] INFO Adding HTTP support. (mesosphere.marathon.MarathonApp$$anon$1:47)<br>
+marathon_1  | [2015-06-26 12:53:45,943] INFO No HTTPS support configured. (mesosphere.marathon.MarathonApp$$anon$1:50)<br>
+marathon_1  | [2015-06-26 12:53:45,946] INFO Starting up (mesosphere.marathon.MarathonSchedulerService:148)<br>
+marathon_1  | [2015-06-26 12:53:45,947] INFO Beginning run (mesosphere.marathon.MarathonSchedulerService:153)<br>
+marathon_1  | [2015-06-26 12:53:45,947] INFO Will offer leadership after
+ 500 milliseconds backoff 
+(mesosphere.marathon.MarathonSchedulerService:334)<br>
+marathon_1  | [2015-06-26 12:53:45,948] INFO jetty-8.y.z-SNAPSHOT (org.eclipse.jetty.server.Server:272)<br>
+zookeeper_1 | 2015-06-26 12:53:46,000 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020002, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020006, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020001, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020005, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020003, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020004, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[SessionTracker:ZooKeeperServer@347] – Expiring session 
+0x14e2fe981020000, timeout of 10000ms exceeded<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020002<br>
+zookeeper_1 | 2015-06-26 12:53:46,001 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020006<br>
+zookeeper_1 | 2015-06-26 12:53:46,002 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020001<br>
+zookeeper_1 | 2015-06-26 12:53:46,002 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020005<br>
+zookeeper_1 | 2015-06-26 12:53:46,002 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020003<br>
+zookeeper_1 | 2015-06-26 12:53:46,002 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020004<br>
+zookeeper_1 | 2015-06-26 12:53:46,002 [myid:] – INFO  
+[ProcessThread(sid:0 cport:-1)::PrepRequestProcessor@494] – Processed 
+session termination for sessionid: 0x14e2fe981020000<br>
+master_1    | I0626 12:53:46.009491    10 network.hpp:424] ZooKeeper group memberships changed<br>
+master_1    | I0626 12:53:46.009886    10 group.cpp:659] Trying to get ‘/mesos/log_replicas/0000000001′ in ZooKeeper<br>
+master_1    | I0626 12:53:46.010826    12 network.hpp:466] ZooKeeper group PIDs: { log-replica(1)@172.17.0.49:5050 }<br>
+master_1    | I0626 12:53:46.010905    11 detector.cpp:138] Detected a new leader: (id=’2’)<br>
+master_1    | I0626 12:53:46.011155     8 group.cpp:659] Trying to get ‘/mesos/info_0000000002’ in ZooKeeper<br>
+master_1    | I0626 12:53:46.011996     9 detector.cpp:433] A new leading master (UPID=master@172.17.0.49:5050) is detected<br>
+master_1    | I0626 12:53:46.012110     7 master.cpp:1263] The newly elected leader is <a href="mailto:master@172.17.0.49">master@172.17.0.49</a>:5050 with id 20150626-125337-822088108-5050-1<br>
+master_1    | I0626 12:53:46.012138     7 master.cpp:1276] Elected as the leading master!<br>
+master_1    | I0626 12:53:46.012161     7 master.cpp:1094] Recovering from registrar<br>
+master_1    | I0626 12:53:46.012356     9 registrar.cpp:313] Recovering registrar<br>
+master_1    | I0626 12:53:46.013794     7 log.cpp:656] Attempting to start the writer<br>
+master_1    | I0626 12:53:46.016116     7 replica.cpp:474] Replica received implicit promise request with proposal 1<br>
+marathon_1  | [2015-06-26 12:53:46,034] INFO Registering 
+com.codahale.metrics.jersey.InstrumentedResourceMethodDispatchAdapter as
+ a provider class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:113)<br>
+master_1    | I0626 12:53:46.029824     7 leveldb.cpp:306] Persisting metadata (8 bytes) to leveldb took 13.589458ms<br>
+master_1    | I0626 12:53:46.035176     7 replica.cpp:342] Persisted promised to 1<br>
+marathon_1  | [2015-06-26 12:53:46,035] INFO Registering 
+com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider as a provider class
+ (com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:113)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.chaos.validation.ConstraintViolationExceptionMapper as a 
+provider class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:113)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.MarathonExceptionMapper as a provider class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:113)<br>
+master_1    | I0626 12:53:46.036655     7 coordinator.cpp:230] Coordinator attemping to fill missing position<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.v2.AppsResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.v2.TasksResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.v2.EventSubscriptionsResource as a root resource
+ class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.v2.QueueResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,036] INFO Registering 
+mesosphere.marathon.api.v2.GroupsResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,037] INFO Registering 
+mesosphere.marathon.api.v2.InfoResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,037] INFO Registering 
+mesosphere.marathon.api.v2.LeaderResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,037] INFO Registering 
+mesosphere.marathon.api.v2.DeploymentsResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,037] INFO Registering 
+mesosphere.marathon.api.v2.ArtifactsResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+marathon_1  | [2015-06-26 12:53:46,037] INFO Registering 
+mesosphere.marathon.api.v2.SchemaResource as a root resource class 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:116)<br>
+master_1    | I0626 12:53:46.038199    11 replica.cpp:375] Replica 
+received explicit promise request for position 0 with proposal 2<br>
+marathon_1  | [2015-06-26 12:53:46,039] INFO Initiating Jersey 
+application, version ‘Jersey: 1.18.1 02/19/2014 03:28 AM’ 
+(com.sun.jersey.server.impl.application.WebApplicationImpl:815)<br>
+master_1    | I0626 12:53:46.047005    11 leveldb.cpp:343] Persisting action (8 bytes) to leveldb took 8.723117ms<br>
+master_1    | I0626 12:53:46.047082    11 replica.cpp:676] Persisted action at 0<br>
+master_1    | I0626 12:53:46.048579    10 replica.cpp:508] Replica received write request for position 0<br>
+master_1    | I0626 12:53:46.048688    10 leveldb.cpp:438] Reading position from leveldb took 44616ns<br>
+master_1    | I0626 12:53:46.054891    10 leveldb.cpp:343] Persisting action (14 bytes) to leveldb took 6.131471ms<br>
+master_1    | I0626 12:53:46.054965    10 replica.cpp:676] Persisted action at 0<br>
+master_1    | I0626 12:53:46.055663    10 replica.cpp:655] Replica received learned notice for position 0<br>
+master_1    | I0626 12:53:46.062644    10 leveldb.cpp:343] Persisting action (16 bytes) to leveldb took 6.924248ms<br>
+master_1    | I0626 12:53:46.062738    10 replica.cpp:676] Persisted action at 0<br>
+master_1    | I0626 12:53:46.062788    10 replica.cpp:661] Replica learned NOP action at position 0<br>
+master_1    | I0626 12:53:46.063309    10 log.cpp:672] Writer started with ending position 0<br>
+master_1    | I0626 12:53:46.065325    10 leveldb.cpp:438] Reading position from leveldb took 35270ns<br>
+master_1    | I0626 12:53:46.067427    13 registrar.cpp:346] Successfully fetched the registry (0B) in 55.02592ms<br>
+master_1    | I0626 12:53:46.067654    13 registrar.cpp:445] Applied 1 
+operations in 55472ns; attempting to update the ‘registry’<br>
+master_1    | I0626 12:53:46.069710     7 log.cpp:680] Attempting to append 116 bytes to the log<br>
+master_1    | I0626 12:53:46.069885    13 coordinator.cpp:340] Coordinator attempting to write APPEND action at position 1<br>
+master_1    | I0626 12:53:46.070451     9 replica.cpp:508] Replica received write request for position 1<br>
+master_1    | I0626 12:53:46.080544     9 leveldb.cpp:343] Persisting action (133 bytes) to leveldb took 10.036587ms<br>
+master_1    | I0626 12:53:46.080629     9 replica.cpp:676] Persisted action at 1<br>
+master_1    | I0626 12:53:46.081200     9 replica.cpp:655] Replica received learned notice for position 1<br>
+master_1    | I0626 12:53:46.089679     9 leveldb.cpp:343] Persisting action (135 bytes) to leveldb took 8.430152ms<br>
+master_1    | I0626 12:53:46.089752     9 replica.cpp:676] Persisted action at 1<br>
+master_1    | I0626 12:53:46.089803     9 replica.cpp:661] Replica learned APPEND action at position 1<br>
+master_1    | I0626 12:53:46.091164     6 registrar.cpp:490] Successfully updated the ‘registry’ in 23328us<br>
+master_1    | I0626 12:53:46.091336     6 registrar.cpp:376] Successfully recovered registrar<br>
+master_1    | I0626 12:53:46.091621     6 master.cpp:1121] Recovered 0 
+slaves from the Registry (80B) ; allowing 10mins for slaves to 
+re-register<br>
+master_1    | I0626 12:53:46.091702    13 log.cpp:699] Attempting to truncate the log to 1<br>
+master_1    | I0626 12:53:46.091852     8 coordinator.cpp:340] Coordinator attempting to write TRUNCATE action at position 2<br>
+master_1    | I0626 12:53:46.092433    10 replica.cpp:508] Replica received write request for position 2<br>
+master_1    | I0626 12:53:46.098285    10 leveldb.cpp:343] Persisting action (16 bytes) to leveldb took 5.803022ms<br>
+master_1    | I0626 12:53:46.098371    10 replica.cpp:676] Persisted action at 2<br>
+master_1    | I0626 12:53:46.098894     7 replica.cpp:655] Replica received learned notice for position 2<br>
+marathon_1  | [2015-06-26 12:53:46,104] INFO Binding 
+com.codahale.metrics.jersey.InstrumentedResourceMethodDispatchAdapter to
+ GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+master_1    | I0626 12:53:46.104647     7 leveldb.cpp:343] Persisting action (18 bytes) to leveldb took 5.672383ms<br>
+master_1    | I0626 12:53:46.104771     7 leveldb.cpp:401] Deleting ~1 keys from leveldb took 40673ns<br>
+master_1    | I0626 12:53:46.104791     7 replica.cpp:676] Persisted action at 2<br>
+master_1    | I0626 12:53:46.104827     7 replica.cpp:661] Replica learned TRUNCATE action at position 2<br>
+marathon_1  | [2015-06-26 12:53:46,116] INFO Binding 
+mesosphere.chaos.validation.ConstraintViolationExceptionMapper to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,116] INFO Binding 
+mesosphere.marathon.api.MarathonExceptionMapper to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,117] INFO Binding 
+com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,131] INFO HV000001: Hibernate 
+Validator 5.1.2.Final (org.hibernate.validator.internal.util.Version:27)<br>
+marathon_1  | [2015-06-26 12:53:46,469] INFO Using HA and therefore 
+offering leadership (mesosphere.marathon.MarathonSchedulerService:341)<br>
+marathon_1  | [2015-06-26 12:53:46,479] INFO Set group member ID to member_0000000001 (com.twitter.common.zookeeper.Group:426)<br>
+marathon_1  | [2015-06-26 12:53:46,488] INFO Candidate 
+/marathon/leader/member_0000000001 is now leader of group: 
+[member_0000000001] (com.twitter.common.zookeeper.CandidateImpl:152)<br>
+marathon_1  | [2015-06-26 12:53:46,488] INFO Elected (Leader Interface) (mesosphere.marathon.MarathonSchedulerService:252)<br>
+marathon_1  | [2015-06-26 12:53:46,520] INFO Elect leadership (mesosphere.marathon.MarathonSchedulerService:299)<br>
+marathon_1  | [2015-06-26 12:53:46,520] INFO Migration successfully 
+applied for version Version(0, 8, 2) 
+(mesosphere.marathon.state.Migration:69)<br>
+marathon_1  | [2015-06-26 12:53:46,520] INFO Running driver (mesosphere.marathon.MarathonSchedulerService:187)<br>
+marathon_1  | 2015-06-26 
+12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@712: Client 
+environment:zookeeper.version=zookeeper C client 3.4.5<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@716: Client environment:host.name=a136b2e373b7<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@723: Client environment:os.name=Linux<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@724: Client environment:os.arch=3.19.7-200.fc21.x86_64<br>
+marathon_1  | 2015-06-26 
+12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@725: Client 
+environment:os.version=#1 SMP Thu May 7 22:00:21 UTC 2015<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@733: Client environment:user.name=(null)<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@741: Client environment:user.home=/root<br>
+marathon_1  | 2015-06-26 12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@log_env@753: Client environment:user.dir=/marathon<br>
+marathon_1  | 2015-06-26 
+12:53:46,521:1(0x7fe3592fa700):ZOO_INFO@zookeeper_init@786: Initiating 
+client connection, host=zookeeper:2181 sessionTimeout=10000 
+watcher=0x7fe35ae35a60 sessionId=0 sessionPasswd= context=0x7fe2d0000d30
+ flags=0<br>
+marathon_1  | I0626 12:53:46.521939    60 sched.cpp:157] Version: 0.22.1<br>
+marathon_1  | 2015-06-26 
+12:53:46,522:1(0x7fe3337de700):ZOO_INFO@check_events@1703: initiated 
+connection to server [172.17.0.47:2181]<br>
+zookeeper_1 | 2015-06-26 12:53:46,522 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:NIOServerCnxnFactory@197] – 
+Accepted socket connection from /172.17.0.53:52385<br>
+zookeeper_1 | 2015-06-26 12:53:46,522 [myid:] – WARN  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@822] – 
+Connection request from old client /172.17.0.53:52385; will be dropped 
+if server is in r-o mode<br>
+zookeeper_1 | 2015-06-26 12:53:46,522 [myid:] – INFO  
+[NIOServerCxn.Factory:0.0.0.0/0.0.0.0:2181:ZooKeeperServer@868] – Client
+ attempting to establish new session at /172.17.0.53:52385<br>
+marathon_1  | [2015-06-26 12:53:46,524] INFO Reset offerLeadership backoff (mesosphere.marathon.MarathonSchedulerService:329)<br>
+marathon_1  | [INFO] [06/26/2015 12:53:46.525] 
+[marathon-akka.actor.default-dispatcher-2] 
+[akka://marathon/user/MarathonScheduler/$a] Starting scheduler actor<br>
+marathon_1  | 2015-06-26 
+12:53:46,529:1(0x7fe3337de700):ZOO_INFO@check_events@1750: session 
+establishment complete on server [172.17.0.47:2181], 
+sessionId=0x14e2fee2b9e0006, negotiated timeout=10000<br>
+marathon_1  | I0626 12:53:46.529448    49 group.cpp:313] Group process (group(1)@172.17.0.53:49023) connected to ZooKeeper<br>
+marathon_1  | I0626 12:53:46.529505    49 group.cpp:790] Syncing group 
+operations: queue size (joins, cancels, datas) = (0, 0, 0)<br>
+marathon_1  | I0626 12:53:46.529512    49 group.cpp:385] Trying to create path ‘/mesos’ in ZooKeeper<br>
+zookeeper_1 | 2015-06-26 12:53:46,529 [myid:] – INFO  
+[SyncThread:0:ZooKeeperServer@617] – Established session 
+0x14e2fee2b9e0006 with negotiated timeout 10000 for client 
+/172.17.0.53:52385<br>
+marathon_1  | I0626 12:53:46.531232    46 detector.cpp:138] Detected a new leader: (id=’2′)<br>
+marathon_1  | I0626 12:53:46.531301    46 group.cpp:659] Trying to get ‘/mesos/info_0000000002’ in ZooKeeper<br>
+marathon_1  | I0626 12:53:46.531805    48 detector.cpp:452] A new leading master (UPID=master@172.17.0.49:5050) is detected<br>
+marathon_1  | I0626 12:53:46.531838    48 sched.cpp:254] New master detected at <a href="mailto:master@172.17.0.49">master@172.17.0.49</a>:5050<br>
+marathon_1  | I0626 12:53:46.532074    48 sched.cpp:264] No credentials provided. Attempting to register without authentication<br>
+master_1    | I0626 12:53:46.532624     9 master.cpp:1520] Received 
+re-registration request from framework 
+20150626-124831-687870380-5050-1-0000 (marathon) at <a href="mailto:scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53">scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53</a>:49023<br>
+master_1    | I0626 12:53:46.533144     9 master.cpp:1573] 
+Re-registering framework 20150626-124831-687870380-5050-1-0000 
+(marathon)  at <a href="mailto:scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53">scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53</a>:49023<br>
+master_1    | I0626 12:53:46.533725    10 
+hierarchical_allocator_process.hpp:329] Added framework 
+20150626-124831-687870380-5050-1-0000<br>
+marathon_1  | I0626 12:53:46.533907    48 sched.cpp:448] Framework registered with 20150626-124831-687870380-5050-1-0000<br>
+marathon_1  | [2015-06-26 12:53:46,534] INFO Registered as 
+20150626-124831-687870380-5050-1-0000 to master 
+‘20150626-125337-822088108-5050-1’ 
+(mesosphere.marathon.MarathonScheduler:55)<br>
+marathon_1  | [INFO] [06/26/2015 12:53:46.536] 
+[marathon-akka.actor.default-dispatcher-4] 
+[akka://marathon/user/MarathonScheduler/$a] Scheduler actor ready<br>
+marathon_1  | [2015-06-26 12:53:46,541] INFO Binding 
+mesosphere.marathon.api.v2.AppsResource to GuiceManagedComponentProvider
+ with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,541] INFO Stored framework ID 
+‘20150626-124831-687870380-5050-1-0000’ 
+(mesosphere.mesos.util.FrameworkIdUtil:49)<br>
+marathon_1  | [2015-06-26 12:53:46,547] INFO Binding 
+mesosphere.marathon.api.v2.TasksResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,548] INFO Binding 
+mesosphere.marathon.api.v2.EventSubscriptionsResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,549] INFO Binding 
+mesosphere.marathon.api.v2.QueueResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,554] INFO Binding 
+mesosphere.marathon.api.v2.GroupsResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,555] INFO Binding 
+mesosphere.marathon.api.v2.InfoResource to GuiceManagedComponentProvider
+ with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,556] INFO Binding 
+mesosphere.marathon.api.v2.LeaderResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,557] INFO Binding 
+mesosphere.marathon.api.v2.DeploymentsResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,562] INFO Binding 
+mesosphere.marathon.api.v2.ArtifactsResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,563] INFO Binding 
+mesosphere.marathon.api.v2.SchemaResource to 
+GuiceManagedComponentProvider with the scope “Singleton” 
+(com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory:168)<br>
+marathon_1  | [2015-06-26 12:53:46,580] INFO Started 
+SelectChannelConnector@0.0.0.0:8080 
+(org.eclipse.jetty.server.AbstractConnector:338)<br>
+master_1    | I0626 12:53:48.810047     8 http.cpp:344] HTTP request for ‘/master/redirect’<br>
+marathon_1  | [2015-06-26 12:54:01,527] INFO Syncing tasks for all apps (mesosphere.marathon.SchedulerActions:457)<br>
+marathon_1  | [INFO] [06/26/2015 12:54:01.528] 
+[marathon-akka.actor.default-dispatcher-3] [akka://marathon/deadLetters]
+ Message [mesosphere.marathon.MarathonSchedulerActor$TasksReconciled$] 
+from Actor[akka://marathon/user/MarathonScheduler/$a#1476646106] to 
+Actor[akka://marathon/deadLetters] was not delivered. [1] dead letters 
+encountered. This logging can be turned off or adjusted with 
+configuration settings ‘akka.log-dead-letters’ and 
+‘akka.log-dead-letters-during-shutdown’.<br>
+marathon_1  | [2015-06-26 12:54:01,529] INFO Requesting task 
+reconciliation with the Mesos master 
+(mesosphere.marathon.SchedulerActions:482)<br>
+master_1    | I0626 12:54:01.530545     9 master.cpp:3556] Performing 
+implicit task state reconciliation for framework 
+20150626-124831-687870380-5050-1-0000 (marathon) at <a href="mailto:scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53">scheduler-433f22d8-2cf1-46bc-ab3b-ab37ed14cb7b@172.17.0.53</a>:49023<br>
+master_1    | I0626 12:54:28.780117    11 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:54:38.953477    10 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:54:48.961133    10 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:54:58.968745    13 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:55:09.220623     9 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:55:19.237870    11 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:55:29.243477    13 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:55:39.537282    13 http.cpp:478] HTTP request for ‘/master/state.json’<br>
+master_1    | I0626 12:55:49.544208     6 http.cpp:478] HTTP request for ‘/master/state.json’</p>
+<p>Wht is going wrong?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=198#respond" onclick='return addComment.moveForm( "div-comment-198", "198", "respond", "1270" )' aria-label="Reply to kevin">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-205" class="comment even thread-even depth-1">
+			<article id="div-comment-205" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/d02f8ead1f6b44d8901c01e6870392e4.jpeg" srcset="http://1.gravatar.com/avatar/d02f8ead1f6b44d8901c01e6870392e4?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">Douglas</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-205">
+							<time datetime="2015-07-03T18:51:41+00:00">
+								July 3, 2015 at 6:51 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>My congratulations for the excellent tutorial. Very good.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=205#respond" onclick='return addComment.moveForm( "div-comment-205", "205", "respond", "1270" )' aria-label="Reply to Douglas">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-210" class="comment odd alt thread-odd thread-alt depth-1">
+			<article id="div-comment-210" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/051beda6c82ec9fa642a966820161b89.jpeg" srcset="http://0.gravatar.com/avatar/051beda6c82ec9fa642a966820161b89?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">Enrique</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-210">
+							<time datetime="2015-07-21T22:41:01+00:00">
+								July 21, 2015 at 10:41 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>excellent tutorial, but I need some explanation about how introduce test/aceptances/production workflow with these tools.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=210#respond" onclick='return addComment.moveForm( "div-comment-210", "210", "respond", "1270" )' aria-label="Reply to Enrique">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+		<li id="comment-220" class="comment even thread-even depth-1 parent">
+			<article id="div-comment-220" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/090e3c24a88222642627496267e2b2b6.jpeg" srcset="http://0.gravatar.com/avatar/090e3c24a88222642627496267e2b2b6?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">Jeremy</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-220">
+							<time datetime="2015-08-01T09:05:18+00:00">
+								August 1, 2015 at 9:05 am							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Great tutorial! One question in my research to accomplish 
+something like this is how do deal with micro-services needing to talk 
+to another micro-service across different slaves.  For example if ms-A 
+on Slave 1 needs to talk to ms-B who happens to be on slave 2?  I’d love
+ any suggestions as this is a reality for me and am trying to decide if 
+Meso’s is right for me.</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=220#respond" onclick='return addComment.moveForm( "div-comment-220", "220", "respond", "1270" )' aria-label="Reply to Jeremy">Reply</a></div>			</article><!-- .comment-body -->
+<ul class="children">
+		<li id="comment-223" class="comment byuser comment-author-pinireznik bypostauthor odd alt depth-2">
+			<article id="div-comment-223" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/db809e8da651a7bfd7f84f8cc863c536_002.jpeg" srcset="http://1.gravatar.com/avatar/db809e8da651a7bfd7f84f8cc863c536?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">Pini Reznik</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-223">
+							<time datetime="2015-08-07T14:58:10+00:00">
+								August 7, 2015 at 2:58 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>This is indeed an important next step. To achieve that we need 
+to add more tools to the mix. Weave can do. Or docker-swarm with Mesos 
+integrated as a plugin.<br>
+I would love to write up something about this when I have time.<br>
+In the meanwhile, take a look on Cisco MSI project <a href="http://microservices-infrastructure.readthedocs.org/en/latest/" rel="nofollow">http://microservices-infrastructure.readthedocs.org/en/latest/</a> that covers everything</p>
+				</div><!-- .comment-content -->
+
+							</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li id="comment-278" class="comment even thread-odd thread-alt depth-1">
+			<article id="div-comment-278" class="comment-body">
+				<footer class="comment-meta">
+					<div class="comment-author vcard">
+						<img alt="" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/60b5d5a6c5797063fc83ab1c44483ba5.jpeg" srcset="http://0.gravatar.com/avatar/60b5d5a6c5797063fc83ab1c44483ba5?s=64&amp;d=mm&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32">						<b class="fn">anonymous</b> <span class="says">says:</span>					</div><!-- .comment-author -->
+
+					<div class="comment-metadata">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#comment-278">
+							<time datetime="2016-01-12T13:34:58+00:00">
+								January 12, 2016 at 1:34 pm							</time>
+						</a>
+											</div><!-- .comment-metadata -->
+
+									</footer><!-- .comment-meta -->
+
+				<div class="comment-content">
+					<p>Hi, Is it necessary to rerun your docker composer when there is a new image in your private docker hub?</p>
+				</div><!-- .comment-content -->
+
+				<div class="reply"><a rel="nofollow" class="comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/?replytocom=278#respond" onclick='return addComment.moveForm( "div-comment-278", "278", "respond", "1270" )' aria-label="Reply to anonymous">Reply</a></div>			</article><!-- .comment-body -->
+</li><!-- #comment-## -->
+    </ol>
+    </div>
+
+        <div class="block comment-form-block">
+  
+  				<div id="respond" class="comment-respond">
+			<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute-part-2/#respond" style="display:none;">Cancel reply</a></small></h3>				<form action="http://container-solutions.com/wp/wp-comments-post.php" method="post" id="commentform" class="comment-form anti-spam-form-processed" novalidate="">
+					<p class="comment-notes"><span id="email-notes">Your email address will not be published.</span> Required fields are marked <span class="required">*</span></p><p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true" required="required"></textarea></p><p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" size="30" aria-required="true" required="required" type="text"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" size="30" aria-describedby="email-notes" aria-required="true" required="required" type="email"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" size="30" type="url"></p>
+<p class="form-submit"><input name="submit" id="submit" class="submit" value="Post Comment" type="submit"> <input name="comment_post_ID" value="1270" id="comment_post_ID" type="hidden">
+<input name="comment_parent" id="comment_parent" value="0" type="hidden">
+</p>		<p class="antispam-group antispam-group-q" style="clear: both; display: none;">
+			<label>Current ye@r <span class="required">*</span></label>
+			<input name="antspm-a" class="antispam-control antispam-control-a" value="2016" type="hidden">
+			<input name="antspm-q" class="antispam-control antispam-control-q" value="2016" autocomplete="off" type="text">
+		</p>
+		<p class="antispam-group antispam-group-e" style="display: none;">
+			<label>Leave this field empty</label>
+			<input name="antspm-e-email-url-website" class="antispam-control antispam-control-e" autocomplete="off" type="text">
+		</p>
+				<input value="2016" class="antispam-control antispam-control-d" name="antspm-d" type="hidden"></form>
+					</div><!-- #respond -->
+		  </div>
+</section>
+  </div>
+</div>
+
+		<div class="blog-featured row">
+																		<div class="sec-col priority-1" "="">
+					<div class="col-header"> 
+													<h2>Related Posts</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-text">
+						<a href="http://container-solutions.com/containerized-mesos-cluster/"><div class="article"><h2 class="truncate">Containerized Mesos Cluster</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/containerized-mesos-cluster/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>
+					
+					<div style="height: 161px;" class="block block-bottom block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/containerized-mesos-cluster/">
+													<div class="img-overlay"> 
+							</div>
+						</a>
+					</div>	
+					
+								</div>	
+											<div class="sec-col priority-1" "="">
+					<div class="col-header"> 
+													<h2 class="empty-header">&nbsp;</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-text">
+						<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute/"><div class="article"><h2 class="truncate">Continuous Delivery with Docker on Mesos...</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>
+					
+					<div style="height: 161px;" class="block block-bottom block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/continuous-delivery-with-docker-on-mesos-in-less-than-a-minute/">
+													<div class="img-overlay"> 
+							</div>
+						</a>
+					</div>	
+					
+								</div>	
+											<div class="sec-col priority-1" "="">
+					<div class="col-header"> 
+													<h2 class="empty-header">&nbsp;</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-text">
+						<a href="http://container-solutions.com/pulling-from-a-private-docker-repository-with-marathon/"><div class="article"><h2 class="truncate">Pulling from a Private Docker Repository...</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/pulling-from-a-private-docker-repository-with-marathon/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>
+					
+					<div style="height: 161px;" class="block block-bottom block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/pulling-from-a-private-docker-repository-with-marathon/">
+													<div class="img-overlay"> 
+							</div>
+						</a>
+					</div>	
+					
+								</div>	
+											<div class="sec-col priority-4" "="">
+					<div class="col-header"> 
+													<h2 class="empty-header">&nbsp;</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/dynamic-zookeeper-cluster-with-docker/">
+												<div class="img-overlay"> 
+						</div>
+						</a>
+					</div>
+					<div style="height: 161px;" class="block block-bottom block-text">
+						<a href="http://container-solutions.com/dynamic-zookeeper-cluster-with-docker/"><div class="article"><h2 class="truncate">Dynamic Zookeeper Cluster with Docker</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/dynamic-zookeeper-cluster-with-docker/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>	
+								</div>	
+											<div class="sec-col priority-5" "="">
+					<div class="col-header"> 
+													<h2 class="empty-header">&nbsp;</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/minimesos-0-4-0-marathon-support/">
+												<div class="img-overlay"> 
+						</div>
+						</a>
+					</div>
+					<div style="height: 161px;" class="block block-bottom block-text">
+						<a href="http://container-solutions.com/minimesos-0-4-0-marathon-support/"><div class="article"><h2 class="truncate">minimesos 0.4.0 – Marathon Support</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/minimesos-0-4-0-marathon-support/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>	
+								</div>	
+											<div class="sec-col priority-6" "="">
+					<div class="col-header"> 
+													<h2 class="empty-header">&nbsp;</h2>
+																	</div>
+									<div style="height: 161px;" class="block block-top block-img">
+	        			<a class="overlay-link" href="http://container-solutions.com/how-to-deploy-a-web-container-on-a-google-powered-mesos-cluster/">
+												<div class="img-overlay"> 
+						</div>
+						</a>
+					</div>
+					<div style="height: 161px;" class="block block-bottom block-text">
+						<a href="http://container-solutions.com/how-to-deploy-a-web-container-on-a-google-powered-mesos-cluster/"><div class="article"><h2 class="truncate">How to deploy a web container on a Google...</h2></div></a>						<div class="read-more">
+							<a href="http://container-solutions.com/how-to-deploy-a-web-container-on-a-google-powered-mesos-cluster/">Read more</a><br>
+							<span class="underline"></span>
+						</div>
+					</div>	
+								</div>	
+							</div>
+
+
+        </main><!-- /.main -->
+              </div><!-- /.content -->
+    </div><!-- /.wrap -->
+    </div>
+    <div class="pull">
+	
+</div>
+<footer class="content-info" role="contentinfo">
+  <div class="container">
+  	<div class="row">
+    <section class="widget text-2 widget_text">			<div class="textwidget"><ul class="footer-info">
+<li class="brand">Container Solutions</li>
+<li>Korte Leidsedwarsstraat 12</li>
+<li>1017 RC Amsterdam</li><li>
+</li><li>
+<a href="mailto:info@container-solutions.com">info@container-solutions.com</a>
+</li>
+</ul>
+<ul class="footer-social">
+<li>
+<a class="twitter" title="Twitter" target="_blank" href="http://www.twitter.com/@containersoluti">
+<span class="icon icon-twitter"></span>
+</a>
+</li>
+<li>
+<a class="linkedin" title="LinkedIn" target="_blank" href="http://www.linkedin.com/company/container-solutions"><span class="icon icon-linkedin"></span>
+</a>
+</li>
+<li><a class="email" title="Email" href="mailto:info@container-solutions.com">
+<span class="icon icon-email"></span>
+</a>
+</li>
+<li class="footer-signup">
+<button type="button" class="btn btn-primary btn-lg signup" data-toggle="modal" data-target="#myModal">
+Sign up for our newsletter
+</button>
+</li>
+</ul>
+</div>
+		</section>    </div>
+  </div>
+</footer>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <svg data-src="http://container-solutions.com/content/themes/cstheme/assets/images/cs-logo-small.svg" class="injected-svg svg-inject" xml:space="preserve" enable-background="new 0 0 50.707 35.579" viewBox="0 0 50.707 35.579" height="35.579px" width="50.707px" y="0px" x="0px" xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="logo-small" version="1.1">
+<g class="logo-shape">
+	<path d="M26.297,35.576l-16.242,0.003v-0.003C4.502,35.576,0,31.074,0,25.521c0-3.712,2.031-6.911,5.021-8.654   c-0.228-0.685-0.381-1.407-0.381-2.172c0-3.843,3.117-6.961,6.961-6.961c0.735,0,1.428,0.146,2.094,0.356   C15.906,3.322,20.697,0,26.297,0V35.576z" fill="#FFFFFF"></path>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="0.032" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="0.032" x="33.596"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="6.144" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="6.144" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="6.144" x="39.708"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="12.255" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="12.255" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="12.255" x="39.708"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="18.366" x="27.484"></rect>
+	<rect height="4.889" width="4.89" fill="#FFFFFF" y="18.366" x="33.596"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="18.366" x="39.708"></rect>
+	<rect height="4.889" width="4.889" fill="#FFFFFF" y="18.366" x="45.818"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="24.477" x="27.484"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="24.477" x="33.596"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="24.477" x="39.708"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="24.477" x="45.818"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="30.588" x="27.484"></rect>
+	<rect height="4.89" width="4.89" fill="#FFFFFF" y="30.588" x="33.596"></rect>
+	<rect height="4.89" width="4.889" fill="#FFFFFF" y="30.588" x="39.708"></rect>
+</g>
+</svg>        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="mailchimp-form">
+    <!-- Begin MailChimp Signup Form -->
+  <link href="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/classic-081711.css" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    #mc_embed_signup{background:#fff; clear:left; font:14px; }
+    /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+       We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+  </style>
+  <div id="mc_embed_signup">
+  <form action="//container-solutions.us9.list-manage.com/subscribe/post?u=360a3659bd3f64384935faa16&amp;id=4bba7e0c9e" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="novalidate">
+      <div id="mc_embed_signup_scroll">
+    <h2>Subscribe to our mailing list</h2>
+  <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
+  <div class="mc-field-group">
+    <label for="mce-FNAME">First Name  <span class="asterisk">*</span>
+  </label>
+    <input aria-required="true" name="FNAME" class="required" id="mce-FNAME" type="text">
+  </div>
+  <div class="mc-field-group">
+    <label for="mce-LNAME">Last Name  <span class="asterisk">*</span>
+  </label>
+    <input aria-required="true" name="LNAME" class="required" id="mce-LNAME" type="text">
+  </div>
+  <div class="mc-field-group">
+    <label for="mce-MMERGE3">Company  <span class="asterisk">*</span>
+  </label>
+    <input aria-required="true" name="MMERGE3" class="required" id="mce-MMERGE3" type="text">
+  </div>
+  <div class="mc-field-group">
+    <label for="mce-EMAIL">Email Address  <span class="asterisk">*</span>
+  </label>
+    <input aria-required="true" name="EMAIL" class="required email" id="mce-EMAIL" type="email">
+  </div>
+  <div class="mc-field-group input-group">
+      <strong>Email Format </strong>
+      <ul><li><input value="html" checked="checked" name="EMAILTYPE" id="mce-EMAILTYPE-0" type="radio"><label for="mce-EMAILTYPE-0">html</label></li>
+  <li><input value="text" name="EMAILTYPE" id="mce-EMAILTYPE-1" type="radio"><label for="mce-EMAILTYPE-1">text</label></li>
+  </ul>
+  </div>
+    <div id="mce-responses" class="clear">
+      <div class="response" id="mce-error-response" style="display:none"></div>
+      <div class="response" id="mce-success-response" style="display:none"></div>
+    </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+      <div style="position: absolute; left: -5000px;"><input name="b_360a3659bd3f64384935faa16_4bba7e0c9e" tabindex="-1" type="text"></div>
+      <div class="clear"><input value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button" type="submit"></div>
+      </div>
+  </form>
+  </div>
+  <script type="text/javascript" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='MMERGE3';ftypes[3]='text';fnames[0]='EMAIL';ftypes[0]='email';fnames[4]='MMERGE4';ftypes[4]='dropdown';fnames[5]='MMERGE5';ftypes[5]='dropdown';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
+<!--End mc_embed_signup-->
+    </div>
+      </div>
+    </div>
+  </div>
+</div><script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/anti-spam-4.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/comment-reply.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/modernizr-45f0e1f4.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/main-269208e7.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/picturefill-7a9ce159.js"></script>
+<script src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/wp-embed.js"></script>
+    
+
+
+
+
+
+<script charset="UTF-8" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/javascript.js" async=""></script><script charset="UTF-8" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/javascript_002.js" async=""></script><iframe src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/altHbHandler.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="hb1457704193694" class="hb1457704193694" frameborder="0"></iframe><iframe style="width: 0;  height: 0;  position: absolute;  top: -10031px;  left:-1000000px;" scrolling="no" border="no" overflow="hidden" visibility="visible" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/idle.html" id="asdfad" frameborder="0"></iframe><div style="position: absolute; width: 1px; height: 1px;" id="dp_swf_engine"><object style="width: 1px; height: 1px;" id="_dp_swf_engine" data="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/swf.swf" type="application/x-shockwave-flash" height="1" width="1"><param value="always" name="allowscriptaccess"></object></div><iframe src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/mailer.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="mailer1457704193752" class="mailer1457704193752" frameborder="0"></iframe><iframe src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/skinedEmpty.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="s" class="dealply-toast s" frameborder="0"></iframe><iframe src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/altHbHandler_002.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="hb1457704195011" class="hb1457704195011" frameborder="0"></iframe></body><script type="application/x-javascript" src="Continuous%20Delivery%20with%20Docker%20on%20Mesos%20in%20less%20than%20a%20minute%20-%20Part%202%20-%20Container%20Solutions_files/opt_content.js"></script></html>
+<!-- Dynamic page generated in 0.425 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2016-03-11 07:49:40 -->
+<!-- super cache -->

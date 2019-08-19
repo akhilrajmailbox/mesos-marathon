@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="google" value="notranslate"> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title></title>
+<link href="index_player_data/css.css" rel="stylesheet" type="text/css">
+<link href="index_player_data/techsmith-smart-player.css" rel="stylesheet" type="text/css">
+
+<style>
+html, body {
+	background-color: #1a1a1a;
+}
+</style>
+<script src="index_player_data/techsmith-smart-player.js"></script></head>
+<body>
+   <div style="background-color: rgb(0, 0, 0);" id="tscVideoContent"><div id="videoWrapper" class="videoDimensions hide">
+   <div id="videoDiv"></div>
+   <div id="caption" class="hide"><p></p></div>
+   <div id="youtubePointerEventWorkaround" class="hide"></div>
+   <div id="hotspots" class="hide">
+      <img class="hotspots_mapimg" hidefocus="true" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QUZFRTQ3RTgzQjlFMTFFMUE1QzU4ODA1ODE4NzA1RTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QUZFRTQ3RTkzQjlFMTFFMUE1QzU4ODA1ODE4NzA1RTIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBRkVFNDdFNjNCOUUxMUUxQTVDNTg4MDU4MTg3MDVFMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBRkVFNDdFNzNCOUUxMUUxQTVDNTg4MDU4MTg3MDVFMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuQAJiQAAAAXSURBVHjaYvz//z8DOmBiwAIoFAQIMAA2UAMHLJ+dVwAAAABJRU5ErkJggg%3D%3D" usemap="#hotspots">
+      <map name="hotspots"></map>
+   </div>
+   <div id="videoSidebar">
+      <div id="videoSidebarHead">
+         <h6 class="video_title"></h6>
+         <div id="searchArea">
+            <input id="searchBox" value="Search…">
+            <button id="clearSearchButton" name="ClearSearch" type="button" title="Clear Search"><span class="sr-only">Clear Search</span></button>
+         </div>
+         <div id="fsSearchAlert" class="search_disabled_message">
+            <p>Search is disabled in fullscreen mode.</p>
+         </div>
+      </div>
+      <div style="top: 0px;" id="videoSidebarContentWrapper">
+         <div id="videoSidebarContent">
+            <ol id="tableOfContentsList">
+            </ol>
+         </div>
+      </div>
+   </div>
+   <div id="controls" class="spritesheet sprite_repeat control_backdrop">
+      <div class="controls_left">
+         <button id="rewind" type="button" name="Rewind" class="spritesheet rewind_button_normal control_button" title="Rewind"><span class="sr-only">Rewind</span></button>
+         <button id="play" type="button" name="Play" class="spritesheet play_button_normal control_button" title="Play"><span class="sr-only">Play</span></button>
+         <button id="previous" type="button" name="Previous" class="spritesheet previous_button_disabled control_button hide" title="Previous"><span class="sr-only">Previous</span></button>
+         <button id="next" type="button" name="Next" class="spritesheet next_button_normal control_button hide" title="Next"><span class="sr-only">Next</span></button>
+      </div>
+      <div class="controls_right">
+         <div class="volume_wrapper">
+             <button id="volume" type="button" name="Volume" class="spritesheet volume_button_normal control_button" title="Volume"><span class="sr-only">Volume</span></button>
+             <div id="volume_slider_container" class="spritesheet volumebar_backdrop hide">
+                <div id="volume_slider_vertical"></div>
+             </div>
+         </div>
+         <button id="closedCaptionButton" name="ClosedCaption" type="button" class="spritesheet closed_caption_off_button_normal control_button hide" title="Closed Caption"><span class="sr-only">Closed Caption</span></button>
+         <button id="tocButton" name="TableOfContents" type="button" class="spritesheet toc_button_normal control_button" title="Table of Contents"><span class="sr-only">Table of Contents</span></button>
+         <button id="settingsButton" name="Settings" type="button" class="spritesheet settings_off_button_normal control_button" title="Player Settings"><span class="sr-only">Player Settings</span></button>
+         <button id="fullscreen_enter_button" name="FullScreen" type="button" class="spritesheet fullscreen_enter_button_normal control_button" title="Full Screen"><span class="sr-only">Full Screen</span></button>
+      </div>
+      <div id="progress">
+         <div id="play_time"><span id="current_time_display">00:00</span> / <span id="duration_display">00:00</span></div>
+         <div class="spritesheet seperator"></div>
+         <div id="progress_box">
+            <div id="progress_scrubbar_track_left" class="spritesheet scrubbar_track_left"></div>
+            <div id="progress_scrubbar_track_right" class="spritesheet scrubbar_track_right"></div>
+            <div id="progress_scrubbar_track">
+               <div class="spritesheet sprite_repeat scrubbar_track"></div>
+               <div id="load_progress" class="spritesheet sprite_repeat scrubbar_loaded_track"></div>
+               <div id="play_progress" class="spritesheet sprite_repeat scrubbar_played_track">
+                  <div id="scrubbar_scrubber" class="spritesheet scrubbar_scrubber_normal"></div>
+               </div>
+               <canvas id="markers"></canvas>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<div id="alertDialog"></div>
+<div id="screenText"></div>
+<div id="speechText"></div>
+<a style="background-image: url(&quot;FirstFrame.png&quot;);" id="videoClickToPlayLink">
+   <div id="videoClickToPlay" class="spritesheet play_button_overlay_normal"></div>
+</a>
+<a id="videoClickToReplayLink" style="background-image: url(&quot;FirstFrame.png&quot;); display: none;">
+   <div id="videoClickToReplay" class="spritesheet replay_button_overlay_normal"></div>
+</a>
+</div>
+<script type="text/javascript" src="index_player_data/config_xml.js"></script>
+<script type="text/javascript">
+   (function (window) {
+    function setup(TSC) {
+    TSC.playerConfiguration.setFlashPlayerSwf("tsc_player.swf");
+    TSC.playerConfiguration.addMediaSrc("Mesos-Intro-Lecture-12.mp4");
+    TSC.playerConfiguration.setXMPSrc("xmpFile.xml");
+    TSC.localizationStrings.setLanguage(TSC.languageCodes.ENGLISH);
+    
+    TSC.playerConfiguration.setPosterImageSrc("FirstFrame.png")
+    
+    TSC.mediaPlayer.init("#tscVideoContent");
+    }
+    
+    function loadScript(e,t){if(!e||!(typeof e==="string")){return}var n=document.createElement("script");if(typeof document.attachEvent==="object"){n.onreadystatechange=function(){if(n.readyState==="complete"||n.readyState==="loaded"){if(t){t()}}}}else{n.onload=function(){if(t){t()}}}n.src=e;document.getElementsByTagName("head")[0].appendChild(n)}
+    
+    loadScript('scripts/techsmith-smart-player.min.js', function() {
+               setup(window["TSC"]);
+               });
+    }(window));
+   </script>
+
+</body></html>

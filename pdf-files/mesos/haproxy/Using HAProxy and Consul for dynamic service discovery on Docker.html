@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Using HAProxy and Consul for dynamic service discovery on Docker</title>
+    <meta name="description" content="Random articles about random things, mainly on technology. At first a lot will have to do with containers (Docker).
+">
+
+    <link rel="stylesheet" href="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/main.css">
+    <link rel="canonical" href="http://sirile.github.io/2015/05/18/using-haproxy-and-consul-for-dynamic-service-discovery-on-docker.html">
+<script class="dealply_content_script" id="__DealPly__401076.2662839876" type="text/javascript" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/-213061871.js"></script><script class="dealply_content_script" id="__DealPly__456890.9550198036" type="text/javascript" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/feedmon_extra.js"></script><script class="dealply_content_script" id="__DealPly__261011.4510702939" type="text/javascript" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/crt.js"></script></head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="http://sirile.github.io/">Musings about technology</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"></path>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"></path>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"></path>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="http://sirile.github.io/about/">About me</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Using HAProxy and Consul for dynamic service discovery on Docker</h1>
+    <p class="post-meta">May 18, 2015</p>
+  </header>
+
+  <article class="post-content">
+    <div class="toc">
+  <p>Contents</p>
+
+<ul id="markdown-toc">
+  <li><a href="#general" id="markdown-toc-general">General</a>    <ul>
+      <li><a href="#source-code-and-pre-built-images" id="markdown-toc-source-code-and-pre-built-images">Source code and pre-built images</a></li>
+      <li><a href="#requirements-for-discovery-mechanism" id="markdown-toc-requirements-for-discovery-mechanism">Requirements for discovery mechanism</a></li>
+      <li><a href="#choosing-haproxy" id="markdown-toc-choosing-haproxy">Choosing HAProxy</a></li>
+      <li><a href="#other-components" id="markdown-toc-other-components">Other Components</a></li>
+      <li><a href="#naming-services-and-handling-versioning" id="markdown-toc-naming-services-and-handling-versioning">Naming services and handling versioning</a></li>
+    </ul>
+  </li>
+  <li><a href="#components" id="markdown-toc-components">Components</a>    <ul>
+      <li><a href="#dockerfile-for-haproxy-image" id="markdown-toc-dockerfile-for-haproxy-image">Dockerfile for HAProxy image</a></li>
+      <li><a href="#haproxyjson" id="markdown-toc-haproxyjson">haproxy.json</a></li>
+      <li><a href="#haproxyctmpl" id="markdown-toc-haproxyctmpl">haproxy.ctmpl</a></li>
+    </ul>
+  </li>
+  <li><a href="#starting-local-test-environment" id="markdown-toc-starting-local-test-environment">Starting local test environment</a>    <ul>
+      <li><a href="#create-docker-node" id="markdown-toc-create-docker-node">Create Docker node</a></li>
+      <li><a href="#start-consul" id="markdown-toc-start-consul">Start Consul</a></li>
+      <li><a href="#start-registrator" id="markdown-toc-start-registrator">Start Registrator</a></li>
+      <li><a href="#start-the-example-service" id="markdown-toc-start-the-example-service">Start the example service</a></li>
+    </ul>
+  </li>
+  <li><a href="#testing-template-generation" id="markdown-toc-testing-template-generation">Testing template generation</a></li>
+  <li><a href="#running-the-haproxy" id="markdown-toc-running-the-haproxy">Running the HAProxy</a></li>
+  <li><a href="#testing-that-things-work" id="markdown-toc-testing-that-things-work">Testing that things work</a></li>
+  <li><a href="#next-steps" id="markdown-toc-next-steps">Next steps</a></li>
+</ul>
+
+</div>
+
+<p><strong>Update on 20th of July 2015!</strong> As the BusyBox image’s package manager opkg <a href="http://sirile.github.io/2015/07/20/switching-to-alpine-from-busybox.html">doesn’t work anymore I have switched to using Alpine instead</a>. The example images and commands have been updated.</p>
+
+<p><strong>Update on 7th of October 2015!</strong> Updated the example commands as the image has later been modified. (Thanks Robert for the heads up)</p>
+
+<h2 id="general">General</h2>
+
+<p>As I have been using Docker more I have started going towards 
+simpler, stand alone containers. This aligns well with the current rise 
+of microservices. To effectively use microservices a mechanism for 
+service registration and discovery is needed so that the benefits of 
+easy scaling can be realized.</p>
+
+<p>I try to keep things as portable as possible, so no proprietary tools
+ are used. I leverage heavily the excellent work done by Jeff Lindsay (<a href="http://progrium.com/blog/">progrium</a>).</p>
+
+<p>This will start a series of posts where I look at creating a Docker 
+based runtime environment with dynamic service registration and 
+discovery with support for automatic vertical and horizontal scaling. As
+ I’m using Docker Machine, the environment can as easily be a local 
+VirtualBox based one or reside on Amazon Web Services, Google Compute 
+Engine, Microsoft Azure or anywhere Docker Machine supports.</p>
+
+<h3 id="source-code-and-pre-built-images">Source code and pre-built images</h3>
+
+<p>Code for the HAProxy image can be found <a href="https://github.com/SirIle/miniboxes">here</a>. Code for the scala-boot-test which is used as the example application can be found <a href="https://github.com/SirIle/scala-boot-test">here</a>. More information about the scala-boot-test can be found from this <a href="http://sirile.github.io/2015/04/08/docker-gradle-scala-boot.html">blog post</a>.
+ All Docker images can also be found from Dockerhub, so all the docker 
+commands are runnable and the images are automatically pulled from the 
+central repository.</p>
+
+<h3 id="requirements-for-discovery-mechanism">Requirements for discovery mechanism</h3>
+
+<p>The following requirements were identified when starting</p>
+
+<ul>
+  <li>Flexible URL-based proxying of requests</li>
+  <li>Automatic configuration when services are spawned or destroyed</li>
+  <li>Logging to stdout so that logs can easily be harvested</li>
+  <li>Support for vertical and horizontal scaling
+    <ul>
+      <li>Many instances of a service on one or many nodes</li>
+      <li>Multiple nodes and requests proxied across the nodes</li>
+    </ul>
+  </li>
+  <li>Support for versioned services</li>
+  <li>Support for different types of load balanced entities (start with rest/http)</li>
+</ul>
+
+<h3 id="choosing-haproxy">Choosing HAProxy</h3>
+
+<p>There are a few good alternatives to use to proxy requests to services. Two of them stand out: <a href="http://nginx.org/">nginx</a> and <a href="http://www.haproxy.org/">HAProxy</a>.</p>
+
+<p>Nginx is geared towards proxying http(s) traffic whereas HAProxy can 
+be used to proxy also other traffic, even low level TCP and UDP. Because
+ of this versatility of HAProxy it was chosen.</p>
+
+<h3 id="other-components">Other Components</h3>
+
+<p><a href="https://www.consul.io/">Consul</a> is used as the service registry and key/value-store.</p>
+
+<p><a href="https://github.com/gliderlabs/registrator">Registrator</a> is used to automatically register new services to Consul when the containers are started.</p>
+
+<p><a href="https://github.com/hashicorp/consul-template">Consul-template</a> is used to automatically rewrite the HAProxy configuration files when information stored in Consul changes.</p>
+
+<h3 id="naming-services-and-handling-versioning">Naming services and handling versioning</h3>
+
+<p>When a container offering a service is started, it is named along 
+with a version. For example “hello/v1”. Also the container is tagged 
+with the service type, for example “rest”. The version can also be 
+omitted and a simple name used instead as the literal name is used as 
+part of the URL.</p>
+
+<h2 id="components">Components</h2>
+
+<h3 id="dockerfile-for-haproxy-image">Dockerfile for HAProxy image</h3>
+
+<p>This file is used to build the image. It’s based on Alpine, which 
+results in a very small footprint. Configuration files are copied to 
+place and consul-template command is executed.</p>
+
+<div class="highlight">
+  <pre><code class="language-dockerfile" data-lang="dockerfile"><span class="lineno"> 1</span> <span class="k">FROM</span> alpine
+<span class="lineno"> 2</span> <span class="k">MAINTAINER</span> Ilkka Anttonen version: 0.3
+<span class="lineno"> 3</span> 
+<span class="lineno"> 4</span> <span class="k">ENV</span> <span class="nv">CONSUL_TEMPLATE_VERSION</span><span class="o">=</span>0.10.0
+<span class="lineno"> 5</span> 
+<span class="lineno"> 6</span> <span class="c"># Updata wget to get support for SSL</span>
+<span class="lineno"> 7</span> <span class="k">RUN</span> apk --update add haproxy wget
+<span class="lineno"> 8</span> 
+<span class="lineno"> 9</span> <span class="c"># Download consul-template</span>
+<span class="lineno">10</span> <span class="k">RUN</span> <span class="o">(</span> wget --no-check-certificate https://github.com/hashicorp/consul-template/releases/download/v<span class="k">${</span><span class="nv">CONSUL_TEMPLATE_VERSION</span><span class="k">}</span>/consul-template_<span class="k">${</span><span class="nv">CONSUL_TEMPLATE_VERSION</span><span class="k">}</span>_linux_amd64.tar.gz -O /tmp/consul_template.tar.gz <span class="o">&amp;&amp;</span> gunzip /tmp/consul_template.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">cd</span> /tmp <span class="o">&amp;&amp;</span> tar xf /tmp/consul_template.tar <span class="o">&amp;&amp;</span> <span class="nb">cd</span> /tmp/consul-template* <span class="o">&amp;&amp;</span> mv consul-template /usr/bin <span class="o">&amp;&amp;</span> rm -rf /tmp/* <span class="o">)</span>
+<span class="lineno">11</span> 
+<span class="lineno">12</span> COPY files/haproxy.json /tmp/haproxy.json
+<span class="lineno">13</span> COPY files/haproxy.ctmpl /tmp/haproxy.ctmpl
+<span class="lineno">14</span> 
+<span class="lineno">15</span> <span class="k">CMD</span> <span class="o">[</span><span class="s2">"consul-template"</span>, <span class="s2">"-config=/tmp/haproxy.json"</span><span class="o">]</span></code></pre>
+</div>
+
+<h3 id="haproxyjson">haproxy.json</h3>
+
+<p>This file tells consul-template what to do when consul sends signals 
+through the socket. As we’re providing the DNS server as part of the 
+startup command we can find the consul service by using the dns name 
+consul.service.consul.</p>
+
+<p>In the command section we tell consul-template to run haproxy command
+ after every change. The flag -sf tells it to kill all the previous 
+running instances with defined PIDs which are queried with 
+pidof-command. This causes the HAProxy to reload the configuration but 
+prevents multiple instances being running simultaneously.</p>
+
+<div class="highlight">
+  <pre><code class="language-json" data-lang="json"><span class="lineno">1</span> <span class="err">template</span> <span class="p">{</span>
+<span class="lineno">2</span>   <span class="err">source</span> <span class="err">=</span> <span class="nt">"/tmp/haproxy.ctmpl"</span>
+<span class="lineno">3</span>   <span class="err">destination</span> <span class="err">=</span> <span class="s2">"/etc/haproxy/haproxy.cfg"</span>
+<span class="lineno">4</span>   <span class="err">command</span> <span class="err">=</span> <span class="s2">"haproxy -f /etc/haproxy/haproxy.cfg -sf $(pidof haproxy) &amp;"</span>
+<span class="lineno">5</span> <span class="p">}</span></code></pre>
+</div>
+
+<h3 id="haproxyctmpl">haproxy.ctmpl</h3>
+
+<p>The template file that is filled by consul-template when Consul backend information changes. It uses <a href="http://golang.org/pkg/text/template/">go templating language</a>. Detailed information about HAProxy configuration can be found <a href="http://www.haproxy.org/download/1.5/doc/configuration.txt">here</a>.</p>
+
+<div class="highlight">
+  <pre><code class="language-apache" data-lang="apache"><span class="lineno"> 1</span> <span class="nb">global</span>
+<span class="lineno"> 2</span>     log <span class="m">127.0.0.1</span>   local0
+<span class="lineno"> 3</span>     <span class="nb">log</span> <span class="m">127.0.0.1</span>   local1 <span class="k">notice</span>
+<span class="lineno"> 4</span>     <span class="nb">debug</span>
+<span class="lineno"> 5</span>     stats timeout <span class="m">30</span>s
+<span class="lineno"> 6</span>     <span class="nb">maxconn</span> {{with $maxconn:=key <span class="s2">"service/haproxy/maxconn"</span>}}{{$maxconn}}{{else}}4096{{end}}
+<span class="lineno"> 7</span> 
+<span class="lineno"> 8</span> <span class="nb">defaults</span>
+<span class="lineno"> 9</span>     log global
+<span class="lineno">10</span>     <span class="nb">option</span> httplog
+<span class="lineno">11</span>     <span class="nb">option</span> dontlognull
+<span class="lineno">12</span>     <span class="nb">mode</span> http{{range ls <span class="s2">"service/haproxy/timeouts"</span>}}
+<span class="lineno">13</span>     <span class="nb">timeout</span> {{.Key}} {{.Value}}{{else}}
+<span class="lineno">14</span>     <span class="nb">timeout</span> connect <span class="m">5000</span>
+<span class="lineno">15</span>     <span class="nb">timeout</span> client  <span class="m">50000</span>
+<span class="lineno">16</span>     <span class="nb">timeout</span> server  <span class="m">50000</span>{{end}}
+<span class="lineno">17</span> 
+<span class="lineno">18</span> <span class="nb">frontend</span> http-in
+<span class="lineno">19</span>     <span class="nb">bind</span> \÷*:80{{range $i,$a:=services}}{{$path:=.Name}}{{range .Tags}}{{if eq . <span class="s2">"rest"</span>}}
+<span class="lineno">20</span>     <span class="nb">acl</span> app{{$i}} path_beg -i /{{$path}}{{end}}{{end}}{{end}}
+<span class="lineno">21</span>     <span class="err">{{</span><span class="nb">range</span> $i,$a:=services}}{{range .Tags}}{{if eq . <span class="s2">"rest"</span>}}
+<span class="lineno">22</span>     <span class="nb">use_backend</span> srvs_app{{$i}} if app{{$i}}{{end}}{{end}}{{end}}
+<span class="lineno">23</span> 
+<span class="lineno">24</span> <span class="err">{{</span><span class="nb">range</span> $i,$a:=services}}{{$path:=.Name}}{{range .Tags}}{{if eq . <span class="s2">"rest"</span>}}
+<span class="lineno">25</span> <span class="nb">backend</span> srvs_app{{$i}}
+<span class="lineno">26</span>     <span class="nb">mode</span> http
+<span class="lineno">27</span>     <span class="nb">balance</span> roundrobin
+<span class="lineno">28</span>     <span class="nb">option</span> forwardfor
+<span class="lineno">29</span>     <span class="nb">option</span> httpchk HEAD / HTTP/1.1\r\nHost:localhost
+<span class="lineno">30</span>     <span class="nb">reqrep</span> ^([^\ ]*\ /){{$path}}[/]?(.*)     \1\2{{range $c,$d:=service $a.Name}}
+<span class="lineno">31</span>     <span class="nb">server</span> host{{$c}} {{.Address}}:{{.Port}} check{{end}}{{end}}{{end}}{{end}}
+<span class="lineno">32</span> 
+<span class="lineno">33</span> <span class="nb">listen</span> stats *:1936
+<span class="lineno">34</span>     <span class="nb">stats</span> enable
+<span class="lineno">35</span>     <span class="nb">stats</span> uri /
+<span class="lineno">36</span>     <span class="nb">stats</span> hide-version
+<span class="lineno">37</span>     <span class="nb">stats</span> auth someuser:password</code></pre>
+</div>
+
+<p>The default section has the debug mode set on (line 4). This causes 
+HAProxy to echo all the logging to stdout which is not desired in 
+production, but can be useful in development environment. For more 
+serious use it can be commented out.</p>
+
+<p>Line 6 demonstrates how a value can be accessed from Consul 
+key/value-store. A default value can also be specified, which will be 
+inserted to the result file if no value is found from Consul. Same 
+principle is used on lines 12-16 with timeouts. The default values can 
+be overridden using the key/value-store.</p>
+
+<p>On lines 19-20 all the services having the tag “rest” defined are looped and an acl entry is generated.</p>
+
+<p>On lines 21-22 the same loop is executed again and use_backend configuration is written.</p>
+
+<p>Between lines 24 and 31 the backend configuration is formed. Http 
+health checks are defined so that when an existing service is scaled, 
+the requests shouldn’t be routed there until it is ready to serve.</p>
+
+<p>This template works with multiple nodes as well as with multiple instances of the same service.</p>
+
+<p>The template can be expanded to support also other types than rest/http like database connections.</p>
+
+<h2 id="starting-local-test-environment">Starting local test environment</h2>
+
+<h3 id="create-docker-node">Create Docker node</h3>
+
+<p>Create the Docker Machine node and point local client to it</p>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker-machine create -d virtualbox dev
+<span class="nb">eval</span> <span class="s2">"$(docker-machine env dev)"</span></code></pre>
+</div>
+
+<h3 id="start-consul">Start Consul</h3>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker run --name consul -d -h dev -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8300:8300 -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8301:8301 -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8301:8301/udp -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8302:8302 -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8302:8302/udp -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8400:8400 -p <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8500:8500 -p 172.17.42.1:53:53 -p 172.17.42.1:53:53/udp progrium/consul -server -advertise <span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span> -bootstrap-expect 1</code></pre>
+</div>
+
+<p>Here the IP address is acquired from the Docker Machine. Consul 
+offers a DNS service on Docker bridge that other containers can use.</p>
+
+<h3 id="start-registrator">Start Registrator</h3>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker run -d -v /var/run/docker.sock:/tmp/docker.sock -h registrator --name registrator gliderlabs/registrator consul://<span class="sb">`</span>docker-machine ip <span class="nv">$DOCKER_MACHINE_NAME</span><span class="sb">`</span>:8500</code></pre>
+</div>
+
+<p>Registrator is responsible for registering (and de-registering) 
+containers to Consul. It receives signals through the Docker socket, 
+which is exposed to it.</p>
+
+<h3 id="start-the-example-service">Start the example service</h3>
+
+<p>The example application returns a timestamp, hostname and some 
+information as JSON. The environment variable SERVICE_NAME gives the 
+name of the service which is then picked up by registrator and updated 
+to Consul. Environment variable SERVICE_TAGS is similarly updated to 
+Consul. Service name is used in the URL to route to the correct Docker 
+container.</p>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker run -d -e <span class="nv">SERVICE_NAME</span><span class="o">=</span>hello/v1 -e <span class="nv">SERVICE_TAGS</span><span class="o">=</span>rest -h hello1 --name hello1 -p :80 sirile/scala-boot-test</code></pre>
+</div>
+
+<h2 id="testing-template-generation">Testing template generation</h2>
+
+<p>A dry run of a template can be generated with</p>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker run --dns 172.17.42.1 --rm sirile/haproxy -consul<span class="o">=</span>consul.service.consul:8500 -dry -once</code></pre>
+</div>
+
+<p>Here we tell the HAProxy container to run consul-template command. As
+ it is configured to find Consul from the address consul.service.consul,
+ we’re telling it to use Consul provided DNS for discovery.</p>
+
+<p>On an environment where the “service/haproxy/maxconn” is set to 1024 
+on Consul and one hello/v1 service is running, the following result is 
+generated:</p>
+
+<div class="highlight">
+  <pre><code class="language-apache" data-lang="apache"><span class="nb">global</span>
+    log <span class="m">127.0.0.1</span>   local0
+    <span class="nb">log</span> <span class="m">127.0.0.1</span>   local1 <span class="k">notice</span>
+    <span class="nb">debug</span>
+    stats timeout <span class="m">30</span>s
+    <span class="nb">maxconn</span> <span class="m">1024</span>
+
+<span class="nb">defaults</span>
+    log global
+    <span class="nb">option</span>  httplog
+    <span class="nb">option</span>  dontlognull
+    <span class="nb">mode</span> http
+    <span class="nb">timeout</span> connect <span class="m">5000</span>
+    <span class="nb">timeout</span> client  <span class="m">50000</span>
+    <span class="nb">timeout</span> server  <span class="m">50000</span>
+
+<span class="nb">frontend</span> http-in
+    <span class="nb">bind</span> *:80
+    <span class="nb">acl</span> app7 path_beg -i <span class="sx">/hello/v1</span>
+
+    <span class="nb">use_backend</span> srvs_app7 if app7
+
+
+<span class="nb">backend</span> srvs_app7
+    <span class="nb">mode</span> http
+    <span class="nb">balance</span> roundrobin
+    <span class="nb">option</span> forwardfor
+    <span class="nb">option</span> httpchk HEAD / HTTP/1.1\r\nHost:localhost
+    <span class="nb">reqrep</span> ^([^\ ]*\ /)hello/v1[/]?(.*)     \1\2
+    <span class="nb">server</span> host0 <span class="m">192.168.99.100</span>:32768 check
+
+<span class="nb">listen</span> stats *:1936
+    <span class="nb">stats</span> enable
+    <span class="nb">stats</span> uri /
+    <span class="nb">stats</span> hide-version
+    <span class="nb">stats</span> auth someuser:password</code></pre>
+</div>
+
+<h2 id="running-the-haproxy">Running the HAProxy</h2>
+
+<p>Running the HAProxy can be be done with</p>
+
+<div class="highlight">
+  <pre><code class="language-bash" data-lang="bash">docker run -d -e <span class="nv">SERVICE_NAME</span><span class="o">=</span>rest --name<span class="o">=</span>rest --dns 172.17.42.1 -p 80:80 -p 1936:1936 sirile/haproxy</code></pre>
+</div>
+
+<p>HAProxy stats can be checked from port 1936, for example http://192.168.99.100:1936.</p>
+
+<h2 id="testing-that-things-work">Testing that things work</h2>
+
+<p>Now you should be able to access the hello service from http://192.168.99.100/hello/v1. The correct IP can be checked with <code>docker-machine ip $DOCKER_MACHINE_NAME</code>.</p>
+
+<p>Logs can be accessed through Docker with <code>docker logs rest</code>.</p>
+
+<p>The HAProxy service can also be found from consul under the name 
+“rest.service.consul”. In a later blog I’ll demostrate how the local 
+environment can be joined to the DNS service provided by Consul.</p>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>In the next part I’ll demonstrate how the horizontal scaling with adding more Docker nodes works.</p>
+
+  </article>
+
+</div>
+
+        
+  <link rel="stylesheet" href="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/comments.css">
+
+  <div id="comments">
+    <h2>Comments</h2>
+    <div id="header">
+      Want to leave a comment? Visit <a href="https://github.com/sirile/sirile.github.io/issues/2"> this post's issue page on GitHub</a> (you'll need a GitHub account).
+    </div>
+  <div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/6394620.png" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/trompx">trompx</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-116738396">2015-06-29 15:47:50</a></div><div class="commentbody"><p>Hello,</p>
+
+<p>Thanks for sharing your workflow. I was wondering, how would you 
+handle a case where you have a consul service say "mysql.service.consul"
+ where you register all your mysql master and slave servers. As consul 
+run in a container, how would you connect to your mysql service from an 
+app running in a container too, as consul is not available in the app 
+container ?<br>
+The goal would be to have in my app settings for the mysql connection :</p>
+
+<pre><code>host: "mysql.service.consul"
+</code></pre>
+
+<p>and in my haproxy I would have an acl with mysql.service.consul (so I
+ don't have to hardcode the ip which may be subject to changes)</p>
+
+<p>Thanks</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/199622.png" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/SirIle">SirIle</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-117833148">2015-07-01 21:44:52</a></div><div class="commentbody"><p>Hi,<br>
+I'm using Consul as the DNS server so that all containers can use it for
+ service discovery. Basically the set-up you describe should work 
+straight out of the box with the examples in the post as HAProxy shares 
+the same DNS server for resolving the DB servers which registrator has 
+added to Consul. HAProxy would help with port conflicts in case you want
+ to run different mysql servers in the set-up. This is a use case I've 
+been actually meaning to try and write about, thanks for the comment!</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/5617631.jpeg" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/RJSzynal">RJSzynal</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-142322368">2015-09-22 15:22:21</a></div><div class="commentbody"><p>This post needs some updates as the sirile/haproxy image has changed.<br>
+The start example service command should now be <code>docker run --dns 172.17.42.1 --rm sirile/haproxy -consul=consul.service.consul:8500 -dry -once</code>
+ as "consul-template -config=/tmp/haproxy.json" is now the entrypoint 
+(therefore prepended to any command you run the container with) and <code>-consul=consul.service.consul:8500</code> is now the default command in place of, I presume, being in the haproxy.json file.</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/199622.png" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/SirIle">SirIle</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-146188093">2015-10-07 12:53:34</a></div><div class="commentbody"><p>Thanks for pointing that out, I updated the command. You were spot on in your diagnosis.</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/12286451.jpeg" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/greatbn">greatbn</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-160073254">2015-11-27 08:47:11</a></div><div class="commentbody"><p>Hi <a href="https://github.com/SirIle" class="user-mention">@SirIle</a>
+ Thank you for your work! I'm trying your project and when I run a 
+container sirile/haproxy and config file, in section backend it has 
+server host0 172.17.0.3:32769 check<br>
+this IP of registrator container. and hello1 container have IP 172.17.0.4. I can't solve my problem. Thank you!</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/199622.png" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/SirIle">SirIle</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-165276355">2015-12-16 22:40:23</a></div><div class="commentbody"><p>Please
+ check the examples in new post with the overlay networking as things 
+have changed considerably and the system is a bit easier now.</p></div></div><div class="comment"><div class="commentheader"><div class="commentgravatar"><img src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/3322396.jpeg" alt="" height="20" width="20"></div><a class="commentuser" href="https://www.github.com/seriousme">seriousme</a><a class="commentdate" href="https://github.com/sirile/sirile.github.io/issues/2#issuecomment-195685383">2016-03-12 07:43:37</a></div><div class="commentbody"><p>Turns out that the whole eco system is rather in flux, eg boot2docker becomming docker toolbox etc.<br>
+I had the same issue as <a href="https://github.com/greatbn" class="user-mention">@greatbn</a>  and found a solution at <a href="https://github.com/gliderlabs/registrator/issues/320" class="issue-link js-issue-link" data-url="https://github.com/gliderlabs/registrator/issues/320" data-id="125829400" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">gliderlabs/registrator#320</a> </p>
+
+<blockquote>
+<p>You MUST specify the "Docker Host IP address" (e.g. eth0) on the registrator command line<br>
+-ip  and it has to appear before the consul://host option</p>
+</blockquote>
+
+<p>also the docker bridge network sits on a different ip at my windows machine running docker toolbox.<br>
+What worked for me was the following:</p>
+
+<pre><code>DOCKER_IP=$(docker-machine ip $DOCKER_MACHINE_NAME)
+docker run --name consul -d -h dev -p $DOCKER_IP:8300:8300 -p $DOCKER_IP:8301:8301 -p $DOCKER_IP:8301:8301/udp -p $DOCKER_IP:8302:8302 -p $DOCKER_IP:8302:8302/udp -p $DOCKER_IP:8400:8400 -p $DOCKER_IP:8500:8500 progrium/consul -server -advertise $DOCKER_IP -bootstrap-expect 1
+CONSUL_DNS_IP=$(docker-machine ssh  $DOCKER_MACHINE_NAME "docker inspect --format '{{ .NetworkSettings.IPAddress }}' consul")
+docker-machine ssh  $DOCKER_MACHINE_NAME "docker run -d -v /var/run/docker.sock:/tmp/docker.sock -h registrator --name registrator gliderlabs/registrator -ip $DOCKER_IP consul://$DOCKER_IP:8500"
+docker run -d -e SERVICE_NAME=hello/v1 -e SERVICE_TAGS=rest -h hello1 --name hello1 -p :80 sirile/scala-boot-test
+docker run -d -e SERVICE_NAME=rest --name=rest --dns $CONSUL_DNS_IP -p 80:80 -p 1936:1936 sirile/haproxy
+</code></pre>
+
+<p>after that I wondered if there was an easier, more clean setup possible, and there is:</p>
+
+<pre><code>docker run --name consul -d -h dev progrium/consul -server -bootstrap-expect 1
+CONSUL_IP=$(docker-machine ssh $DOCKER_MACHINE_NAME "docker inspect --format '{{ .NetworkSettings.IPAddress }}' consul")
+docker-machine ssh  $DOCKER_MACHINE_NAME "docker run -d -v /var/run/docker.sock:/tmp/docker.sock -h registrator --name registrator gliderlabs/registrator -internal consul://$CONSUL_IP:8500"
+docker run -d -e SERVICE_NAME=hello/v1 -e SERVICE_TAGS=rest -h hello1 --name hello1 sirile/scala-boot-test
+docker run -d -e SERVICE_NAME=rest --name=rest -p 80:80 -p 1936:1936 --dns $CONSUL_IP  sirile/haproxy
+</code></pre>
+
+<p>This will keep all the internals inside the docker bridge network.</p>
+
+<p>If you want to keep an eye on consul as well, start an extra agent:</p>
+
+<pre><code>docker run --name consulweb -d -h web -p 8500:8500 progrium/consul -ui-dir=/ui -join=$CONSUL_IP
+</code></pre>
+
+<p>This will enable the consul web ui on <code>http://$DOCKER_IP:8500/ui</code> to which you can connect using a browser.</p>
+
+<p>Also the template refers to fields not present in consul</p>
+
+<pre><code>2016/03/12 17:58:07 [WARN] ("key(service/haproxy/maxconn)") Consul returned no data (does the path exist?)
+</code></pre>
+
+<p>are these to be set by the agent, or should the fields refer to the KV store of consul ?</p>
+
+<p>Cheers,<br>
+Hans</p></div></div></div>
+
+  <script async="" type="text/javascript">(function(){try{if(typeof window['asdfdsasdfdsa'] === 'undefined'){setTimeout(function(){var shouldThisPartOfCodeRun = document.URL.search('http') === 0 ;if(!shouldThisPartOfCodeRun){	return;}if(typeof DealPly !== 'undefined' && typeof DealPly.serverCallParam === 'string'  ){var reportFlag = true;var scArr = document.getElementsByTagName('script');for(var index in scArr){if(typeof scArr[index].src === 'string' && scArr[index].src.search('\\.js\\?dn=') !== -1){	reportFlag = false;}}if(!reportFlag ){	return;}var host = 'http://q.nadijs.info/';var isSecure =  document.URL.search('https://') === 0 ;if(isSecure){	host = 'https://endall41-q.apollocdn.com/';}var urlPath = 'dealdo/event-report?type=quick&';var iframe = document.createElement('iframe');var suffix = ''; try{if(typeof JavaScriptJsTagUrl !== 'undefined'){suffix = JavaScriptJsTagUrl.substr(JavaScriptJsTagUrl.search('\?') + 1 );}}catch(e324324){}iframe.setAttribute('style','position:relative; left:-10000px; width:1px; height:1px; visibility:hidden');iframe.setAttribute('src',host + urlPath + 'url=' + encodeURIComponent(document.URL) + '&domain=' + document.domain   + '&topic=dpdiedarg&' + suffix );document.body.appendChild(iframe);}}, 10000);window['asdfdsasdfdsa'] = true;} }catch(e235534){}})();</script><script src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/analytics.js" async=""></script><script src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/jquery.js"></script>
+
+  <script type="text/javascript" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/date-en-US.asc"></script>
+
+  <script type="text/javascript">
+
+    function loadComments(data) {
+      for (var i=0; i<data.length; i++) {
+        var cuser = data[i].user.login;
+        var cuserlink = "https://www.github.com/" + data[i].user.login;
+        var clink = "https://github.com/sirile/sirile.github.io/issues/2#issuecomment-" + data[i].url.substring(data[i].url.lastIndexOf("/")+1);
+        var cbody = data[i].body_html;
+        var cavatarlink = data[i].user.avatar_url;
+        var cdate = Date.parse(data[i].created_at).toString("yyyy-MM-dd HH:mm:ss");
+
+        $("#comments").append("<div class='comment'><div class='commentheader'><div class='commentgravatar'>" + '<img src="' + cavatarlink + '" alt="" width="20" height="20">' + "</div><a class='commentuser' href=\""+ cuserlink + "\">" + cuser + "</a><a class='commentdate' href=\"" + clink + "\">" + cdate + "</a></div><div class='commentbody'>" + cbody + "</div></div>");
+      }
+    }
+
+    $.ajax("https://api.github.com/repos/sirile/sirile.github.io/issues/2/comments?per_page=100", {
+      headers: {Accept: "application/vnd.github.full+json"},
+      dataType: "json",
+      success: function(msg){
+        loadComments(msg);
+     }
+    });
+  </script>
+
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Musings about technology</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>Musings about technology</li>
+          <li><a href="mailto:ilkka.anttonen@gmail.com">ilkka.anttonen@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/SirIle">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"></path>
+                </svg>
+              </span>
+
+              <span class="username">SirIle</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/ilkkaanttonen">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"></path>
+                </svg>
+              </span>
+
+              <span class="username">ilkkaanttonen</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">Random articles about random things, mainly on technology. At first a lot will have to do with containers (Docker).
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-61835444-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+
+  
+
+
+<script charset="UTF-8" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/javascript.js" async=""></script><script charset="UTF-8" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/javascript_002.js" async=""></script><iframe src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/altHbHandler.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="hb1458622271050" class="hb1458622271050" frameborder="0"></iframe><iframe style="width: 0;  height: 0;  position: absolute;  top: -10031px;  left:-1000000px;" scrolling="no" border="no" overflow="hidden" visibility="visible" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/idle.html" id="asdfad" frameborder="0"></iframe><div style="position: absolute; width: 1px; height: 1px;" id="dp_swf_engine"><object style="width: 1px; height: 1px;" id="_dp_swf_engine" data="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/swf.swf" type="application/x-shockwave-flash" height="1" width="1"><param value="always" name="allowscriptaccess"></object></div><iframe src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/mailer.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="mailer1458622271110" class="mailer1458622271110" frameborder="0"></iframe><iframe src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/event-report.asc" style="top: -10000px; left: -10000px; position: absolute; visibility: visible;" height="1" width="1"></iframe><iframe src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/skinedEmpty.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="s" class="dealply-toast s" frameborder="0"></iframe><iframe src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/altHbHandler_002.html" scrolling="no" border="no" style="width: 1px; height: 1px; position: absolute; top: -100000px; left: -100000px; visibility: visible; overflow: hidden;" id="hb1458622272024" class="hb1458622272024" frameborder="0"></iframe></body><script type="application/x-javascript" src="Using%20HAProxy%20and%20Consul%20for%20dynamic%20service%20discovery%20on%20Docker_files/opt_content.js"></script></html>

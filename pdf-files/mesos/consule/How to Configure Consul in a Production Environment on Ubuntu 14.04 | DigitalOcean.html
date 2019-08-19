@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html class="wf-proximanova-i4-active wf-proximanova-n1-active wf-proximanova-n3-active wf-proximanova-n4-active wf-proximanova-n6-active wf-proximanova-n7-active wf-active"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>How to Configure Consul in a Production Environment on Ubuntu 14.04 | DigitalOcean</title>
+
+<meta name="description" content="Consul is a service discovery system that can be used to easily keep track of the health and availability of various parts of your infrastructure. In this guide, we will focus on getting a production-ready consul configuration set up in order to easil">
+<meta name="keywords" content="Clustering Networking System Tools">
+
+<meta name="og:title" content="How to Configure Consul in a Production Environment on Ubuntu 14.04 | DigitalOcean">
+<meta name="og:description" content="Consul is a service discovery system that can be used to easily keep track of the health and availability of various parts of your infrastructure. In this guide, we will focus on getting a production-ready consul configuration set up in order to easil">
+<meta name="og:site_name" content="DigitalOcean">
+<meta name="og:type" content="article">
+
+<meta name="twitter:site" content="DigitalOcean">
+<meta name="twitter:title" content="How to Configure Consul in a Production Environment on Ubuntu 14.04 | DigitalOcean">
+<meta name="twitter:description" content="Consul is a service discovery system that can be used to easily keep track of the health and availability of various parts of your infrastructure. In this guide, we will focus on getting a production-ready consul configuration set up in order to easil">
+<meta name="twitter:creator" content="DigitalOcean">
+<meta name="twitter:card" content="photo">
+<meta name="twitter:url" content="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">
+
+<meta property="og:image" content="https://www.digitalocean.com/assets/community/default_social_sharing-4c803c152c4cc1974dfac71a69fdab63.png">
+<meta name="twitter:image" content="https://www.digitalocean.com/assets/community/default_social_sharing-4c803c152c4cc1974dfac71a69fdab63.png">
+
+  <link rel="canonical" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">
+
+
+    <link rel="stylesheet" media="all" href="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/application-f634586387f7db360de96f75cef929f7.css">
+    <meta name="csrf-param" content="authenticity_token">
+<meta name="csrf-token" content="BzXYSJfQ0558EVStwEYgYnAx8hD1QERAXBgf1605Iai8nOizSFiHhkDRwbtReBPk8YQCEOIoDrTbwfZoWOHHrQ==">
+    <script async="" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/bat.js"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/fbds.js" async=""></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/conversion_async.js" async="" type="text/javascript"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/analytics.js" async="" type="text/javascript"></script><script async="" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/cbgapi.loaded_0"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/hn-button.js" id="hn-button.js" async=""></script><script gapi_processed="true" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/plusone.js" async="" type="text/javascript"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/all.js" async="" id="facebook-jssdk"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/widgets.js" async="" id="twitter-wjs"></script><script id="cio-tracker" data-site-id="e7cc779295927747a7c2" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/track.js" async="" type="text/javascript"></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/gtm.js" async=""></script><script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/analytics_002.js" async="" type="text/javascript"></script><script type="text/javascript" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/njm7orv.js"></script>
+    <style type="text/css">.tk-proxima-nova{font-family:"proxima-nova",sans-serif;}</style><link media="all" href="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/l.css" rel="stylesheet"><script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    <script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/701281621.js"></script>
+    <script type="text/javascript">
+      if(window.analytics=window.analytics||[],window.analytics.included)window.console&&console.error&&console.error("analytics.js included twice");else{window.analytics.included=!0,window.analytics.methods=["identify","group","track","page","pageview","alias","ready","on","once","off","trackLink","trackForm","trackClick","trackSubmit"],window.analytics.factory=function(a){return function(){var n=Array.prototype.slice.call(arguments);return n.unshift(a),window.analytics.push(n),window.analytics}};for(var i=0;i<window.analytics.methods.length;i++){var key=window.analytics.methods[i];window.analytics[key]=window.analytics.factory(key)}window.analytics.load=function(a){var n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+a+"/analytics.min.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(n,t)},window.analytics.SNIPPET_VERSION="2.0.9",
+      window.analytics.load("puo3uv968t")}
+      window.analytics.page();
+    </script>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://www.digitalocean.com/community/tutorials/feed">
+    <script src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/application-a6b126a0c8fba6b8861b66f0a4017ee3.js"></script>
+  <style>.fluidvids {width: 100%; max-width: 100%; position: relative;}.fluidvids-item {position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;}</style><style type="text/css">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_reposition{overflow:hidden;position:relative}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}.fb_link img{border:none}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_reset .fb_dialog_legacy{overflow:visible}.fb_dialog_advanced{padding:10px;-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px}.fb_dialog_content{background:#fff;color:#333}.fb_dialog_close_icon{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;_background-image:url(http://static.xx.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif);cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{top:5px;left:5px;right:auto}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent;_background-image:url(http://static.xx.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_close_icon:active{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent;_background-image:url(http://static.xx.fbcdn.net/rsrc.php/v2/yL/r/s816eWC-2sl.gif)}.fb_dialog_loader{background-color:#f6f7f8;border:1px solid #606060;font-size:24px;padding:20px}.fb_dialog_top_left,.fb_dialog_top_right,.fb_dialog_bottom_left,.fb_dialog_bottom_right{height:10px;width:10px;overflow:hidden;position:absolute}.fb_dialog_top_left{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 0;left:-10px;top:-10px}.fb_dialog_top_right{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -10px;right:-10px;top:-10px}.fb_dialog_bottom_left{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -20px;bottom:-10px;left:-10px}.fb_dialog_bottom_right{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/ye/r/8YeTNIlTZjm.png) no-repeat 0 -30px;right:-10px;bottom:-10px}.fb_dialog_vert_left,.fb_dialog_vert_right,.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{position:absolute;background:#525252;filter:alpha(opacity=70);opacity:.7}.fb_dialog_vert_left,.fb_dialog_vert_right{width:10px;height:100%}.fb_dialog_vert_left{margin-left:-10px}.fb_dialog_vert_right{right:0;margin-right:-10px}.fb_dialog_horiz_top,.fb_dialog_horiz_bottom{width:100%;height:10px}.fb_dialog_horiz_top{margin-top:-10px}.fb_dialog_horiz_bottom{bottom:0;margin-bottom:-10px}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #3a5795;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{-webkit-transform:none;height:100%;margin:0;overflow:visible;position:absolute;top:-10000px;left:0;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{width:auto;height:auto;min-height:initial;min-width:initial;background:none}.fb_dialog.fb_dialog_mobile.loading.centered #fb_dialog_loader_spinner{width:100%}.fb_dialog.fb_dialog_mobile.loading.centered .fb_dialog_content{background:none}.loading.centered #fb_dialog_loader_close{color:#fff;display:block;padding-top:20px;clear:both;font-size:18px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .45);position:absolute;bottom:0;left:0;right:0;top:0;width:100%;min-height:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_content .dialog_header{-webkit-box-shadow:white 0 1px 1px -1px inset;background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#738ABA), to(#2C4987));border-bottom:1px solid;border-color:#1d4088;color:#fff;font:14px Helvetica, sans-serif;font-weight:bold;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{-webkit-font-smoothing:subpixel-antialiased;height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#4966A6), color-stop(.5, #355492), to(#2A4887));border:1px solid #2f477a;-webkit-background-clip:padding-box;-webkit-border-radius:3px;-webkit-box-shadow:rgba(0, 0, 0, .117188) 0 1px 1px inset, rgba(255, 255, 255, .167969) 0 1px 0;display:inline-block;margin-top:3px;max-width:85px;line-height:18px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{border:none;background:none;color:#fff;font:12px Helvetica, sans-serif;font-weight:bold;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #555;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f6f7f8;border:1px solid #555;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_button{text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}#fb_dialog_loader_spinner{animation:rotateSpinner 1.2s linear infinite;background-color:transparent;background-image:url(http://static.xx.fbcdn.net/rsrc.php/v2/yD/r/t-wz8gw1xG1.png);background-repeat:no-repeat;background-position:50% 50%;height:24px;width:24px}@keyframes rotateSpinner{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_fluid_desktop,.fb_iframe_widget_fluid_desktop span,.fb_iframe_widget_fluid_desktop iframe{max-width:100%}.fb_iframe_widget_fluid_desktop iframe{min-width:220px;position:relative}.fb_iframe_widget_lift{z-index:1}.fb_hide_iframes iframe{position:relative;left:-10000px}.fb_iframe_widget_loader{position:relative;display:inline-block}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}.fb_iframe_widget_loader iframe{min-height:32px;z-index:2;zoom:1}.fb_iframe_widget_loader .FB_Loader{background:url(http://static.xx.fbcdn.net/rsrc.php/v2/y9/r/jKEcVPZFk-2.gif) no-repeat;height:32px;width:32px;margin-left:-16px;position:absolute;left:50%;z-index:4}</style></head>
+  <body class="tutorials-controller tutorial-single" data-env="production" ,="" data-prefix="/community" data-user-id="" data-facebook-app-id="694818843983011">
+    <script>
+//<![CDATA[
+
+//]]>
+</script>
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-KHWBBT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KHWBBT');</script>
+<!-- End Google Tag Manager -->
+    
+
+    <div class="outside_viewport">
+        <div style="top: 72px;" class="table-of-contents  tocify sticky"><ul style="display: none;" class="tocify-header" id="tocify-header0"><li data-unique="prerequisites-and-goals" class="tocify-item tocify-focus"><a>Prerequisites and Goals</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header1"><li data-unique="downloading-and-installing-consul" class="tocify-item"><a>Downloading and Installing Consul</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header2"><li data-unique="create-the-necessary-directory-and-system-structure" class="tocify-item"><a>Create the Necessary Directory and System Structure</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header3"><li data-unique="creating-the-bootstrap-configuration" class="tocify-item"><a>Creating the Bootstrap Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header4"><li data-unique="creating-the-regular-server-configuration" class="tocify-item"><a>Creating the Regular Server Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header5"><li data-unique="creating-the-client-configuration" class="tocify-item"><a>Creating the Client Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header6"><li data-unique="downloading-the-web-ui-files" class="tocify-item"><a>Downloading the Web UI Files</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header7"><li data-unique="create-an-upstart-script" class="tocify-item"><a>Create an Upstart Script</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header8"><li data-unique="getting-a-cluster-started" class="tocify-item"><a>Getting a Cluster Started</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header9"><li data-unique="connecting-to-the-web-ui" class="tocify-item"><a>Connecting to the Web UI</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header10"><li data-unique="conclusion" class="tocify-item"><a>Conclusion</a></li></ul></div>
+  <div id="share-modal" class="modal fade mini-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Share</h1>
+          <a class="close-button" data-dismiss="modal" href=""><span class="icon icon-close-light"></span></a>
+        </div>
+        <div class="modal-body">
+
+          <div class="social-sharing social-sharing-container">
+            <ul class="bottom ">
+              <li class="shareBtn" id="sbTwitter">
+                <a href="http://twitter.com/share?text=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=twshare" class="share-icon share-popup" title="Share on Twitter">
+                  <span class="sIcon icon-bird"></span>
+                </a>
+                
+                <a href="http://twitter.com/share?text=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=twshare" class="share-link share-popup" title="Share on Twitter">
+                  Twitter
+                </a>
+                
+              </li>
+
+              <li class="shareBtn" id="sbFacebook">
+                <a class="share-icon facebook-share" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=fbshare" onclick="" title="Share on Facebook">
+                  <span class="sIcon icon-facebook-B"></span>
+                </a>
+
+                <a class="share-link facebook-share" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=fbshare" onclick="" title="Share on Facebook">
+                  Facebook
+                </a>
+              </li>
+              <li class="shareBtn" id="sbGoogle">
+                <a href="https://plus.google.com/share?url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=gpshare" class="share-icon share-popup" title="Share on Google+">
+                  <span class="sIcon icon-google-plus-B"></span>
+                </a>
+
+                <a href="https://plus.google.com/share?url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=gpshare" class="share-link share-popup" title="Share on Google+">
+                  Google+
+                </a>
+              </li>
+              <li class="shareBtn" id="sbYC">
+                <a href="https://news.ycombinator.com/submitlink?t=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;u=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=hnshare" class="share-icon share-popup " target="_blank" title="Submit to Hacker News">
+                  <span class="sIcon icon-hacker-news"></span>
+                </a>
+
+                <a href="https://news.ycombinator.com/submitlink?t=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;u=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=hnshare" class="share-link share-popup" target="_blank" title="Submit to Hacker News">
+                  Hacker News
+                </a>
+              </li>
+            </ul>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="contents-modal" class="modal fade mini-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Contents</h1>
+          <a class="close-button" data-dismiss="modal" href=""><span class="icon icon-close-light"></span></a>
+        </div>
+        <div class="modal-body">
+
+          <div class="table-of-contents-modal open tocify"><ul style="display: none;" class="tocify-header" id="tocify-header0"><li data-unique="prerequisites-and-goals" class="tocify-item tocify-focus"><a>Prerequisites and Goals</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header1"><li data-unique="downloading-and-installing-consul" class="tocify-item"><a>Downloading and Installing Consul</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header2"><li data-unique="create-the-necessary-directory-and-system-structure" class="tocify-item"><a>Create the Necessary Directory and System Structure</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header3"><li data-unique="creating-the-bootstrap-configuration" class="tocify-item"><a>Creating the Bootstrap Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header4"><li data-unique="creating-the-regular-server-configuration" class="tocify-item"><a>Creating the Regular Server Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header5"><li data-unique="creating-the-client-configuration" class="tocify-item"><a>Creating the Client Configuration</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header6"><li data-unique="downloading-the-web-ui-files" class="tocify-item"><a>Downloading the Web UI Files</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header7"><li data-unique="create-an-upstart-script" class="tocify-item"><a>Create an Upstart Script</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header8"><li data-unique="getting-a-cluster-started" class="tocify-item"><a>Getting a Cluster Started</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header9"><li data-unique="connecting-to-the-web-ui" class="tocify-item"><a>Connecting to the Web UI</a></li></ul><ul style="display: none;" class="tocify-header" id="tocify-header10"><li data-unique="conclusion" class="tocify-item"><a>Conclusion</a></li></ul></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="share-modal" class="modal fade mini-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Share</h1>
+          <a class="close-button" data-dismiss="modal" href=""><span class="icon icon-close-light"></span></a>
+        </div>
+        <div class="modal-body">
+
+          <div class="social-sharing social-sharing-container">
+            <ul class="top ">
+              <li class="shareBtn" id="sbTwitter">
+                <a href="http://twitter.com/share?text=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=twshare" class="share-icon share-popup" title="Share on Twitter">
+                  <span class="sIcon icon-bird"></span>
+                </a>
+                
+                <a href="http://twitter.com/share?text=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=twshare" class="share-link share-popup" title="Share on Twitter">
+                  Twitter
+                </a>
+                
+              </li>
+
+              <li class="shareBtn" id="sbFacebook">
+                <a class="share-icon facebook-share" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=fbshare" onclick="" title="Share on Facebook">
+                  <span class="sIcon icon-facebook-B"></span>
+                </a>
+
+                <a class="share-link facebook-share" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=fbshare" onclick="" title="Share on Facebook">
+                  Facebook
+                </a>
+              </li>
+              <li class="shareBtn" id="sbGoogle">
+                <a href="https://plus.google.com/share?url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=gpshare" class="share-icon share-popup" title="Share on Google+">
+                  <span class="sIcon icon-google-plus-B"></span>
+                </a>
+
+                <a href="https://plus.google.com/share?url=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=gpshare" class="share-link share-popup" title="Share on Google+">
+                  Google+
+                </a>
+              </li>
+              <li class="shareBtn" id="sbYC">
+                <a href="https://news.ycombinator.com/submitlink?t=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;u=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=hnshare" class="share-icon share-popup " target="_blank" title="Submit to Hacker News">
+                  <span class="sIcon icon-hacker-news"></span>
+                </a>
+
+                <a href="https://news.ycombinator.com/submitlink?t=How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04&amp;u=https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04&amp;utm_medium=community&amp;utm_source=hnshare" class="share-link share-popup" target="_blank" title="Submit to Hacker News">
+                  Hacker News
+                </a>
+              </li>
+            </ul>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+    <div id="newsletter-signup-dialog" class="newsletter-signups-dialog" data-newsletter-signup-dialog="" data-article-target=".content-body">
+  <div class="pull-right">
+  <a href="javascript:;" class="newsletter-signups-dialog-dismiss" data-newsletter-signup-dismiss="">×</a>
+
+</div>
+<h4 class="newsletter-signups-dialog-title">
+  Sign up for our newsletter.
+</h4>
+<p class="newsletter-signups-dialog-description">
+  Get the latest tutorials on SysAdmin and open source topics.
+</p>
+<form class="newsletter-signup" id="new_newsletter_signup" data-newsletter-signup="true" action="/community/newsletter_signup" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden">
+
+  <input data-newsletter-signup-field="url" name="newsletter_signup[url]" id="newsletter_signup_url" type="hidden">
+  <input data-newsletter-signup-field="title" name="newsletter_signup[title]" id="newsletter_signup_title" type="hidden">
+
+  <div class="newsletter-signup-ajax-error" data-newsletter-signup-ajax-error=""></div>
+
+
+  <div class="form-group">
+    <input placeholder="email@example.com" required="required" class="field" name="newsletter_signup[email]" id="newsletter_signup_email" type="email">
+  </div>
+
+  <button data-disable-with="Sign Up" class="button blue-button">
+    Sign Up
+  </button>
+
+</form>
+
+</div>
+
+
+    </div>
+
+      <div class="mobile-nav">
+  
+<div class="account-buttons">
+    <div id="entrance">
+      <a id="sign-up" class="button" href="https://www.digitalocean.com/community/auth/digitalocean?display=sessionless+register">Sign Up</a>
+      <a id="log-in" class="button" href="https://www.digitalocean.com/community/auth/digitalocean">Log In</a>
+    </div>
+</div>
+    
+  <a class="close-panel icon-close" href="javascript:void(0);"></a>
+
+  <form class="mobile-search" action="/community/search" accept-charset="UTF-8" method="get"><input name="utf8" value="✓" type="hidden">
+    <span class="icon icon-search-thin"></span>
+    <input name="q" id="q" placeholder="Search" type="text">
+    <button name="button" type="submit" class="icon-btn">submit</button>
+</form>
+  
+<nav>
+
+  <ul>
+    <li><a href="https://www.digitalocean.com/community/tutorials">Tutorials</a></li>
+    <li><a href="https://www.digitalocean.com/community/questions">Questions</a></li>
+    <li><a href="https://www.digitalocean.com/community/projects">Projects</a></li>
+    <li><a href="http://do.co/DOcommunity" target="_blank">Meetups</a></li>
+    <li class="mobile-nav-only"><a href="https://www.digitalocean.com/">Main Site</a></li>
+  </ul>
+</nav>
+
+  
+</div>
+      
+      <header>
+  <div class="flash-container"></div>
+
+  <div class="main-menu-container">
+    <div class="wrapper">
+      <div class="logo">
+        <a class="" href="https://www.digitalocean.com/">
+          <span class="icon icon-logo"></span>
+</a>
+        <a class="" href="https://www.digitalocean.com/community">
+          <span class="logo-community-text">Community</span>
+</a>      </div>
+
+      <a class="mobile-nav-toggle icon-menu-thin" data-role="left">
+        <span>Menu</span>
+      </a>
+
+      
+<nav>
+
+  <ul>
+    <li><a href="https://www.digitalocean.com/community/tutorials">Tutorials</a></li>
+    <li><a href="https://www.digitalocean.com/community/questions">Questions</a></li>
+    <li><a href="https://www.digitalocean.com/community/projects">Projects</a></li>
+    <li><a href="http://do.co/DOcommunity" target="_blank">Meetups</a></li>
+    <li class="mobile-nav-only"><a href="https://www.digitalocean.com/">Main Site</a></li>
+  </ul>
+</nav>
+
+
+      
+<div class="account-buttons">
+    <div id="entrance">
+      <a id="sign-up" class="button" href="https://www.digitalocean.com/community/auth/digitalocean?display=sessionless+register">Sign Up</a>
+      <a id="log-in" class="button" href="https://www.digitalocean.com/community/auth/digitalocean">Log In</a>
+    </div>
+</div>
+      <div class="header-search open">
+  <form action="/community/search" accept-charset="UTF-8" method="get"><input name="utf8" value="✓" type="hidden">
+    <span class="icon icon-search-thin"></span>
+    <input name="q" id="q" placeholder="Search" autocomplete="off" spellcheck="off" class="header-search-input" data-algolia-application-id="6ZHEUVKJ88" data-algolia-api-key="c5470567eae7fa1177d43222e18ba086" type="text">
+    <button name="button" type="submit" class="icon-btn">submit</button>
+</form></div>
+
+<div class="search-results-dropdown dropdown" data-root-path="https://www.digitalocean.com/community">
+  <div class="container">
+    <div class="header-search-results-list"></div>
+
+    <div id="btn-wrap">
+      <a class="more-search-results" data-search-path="/community/search" href="https://www.digitalocean.com/community/search">
+        <span class="icon-mag"></span>
+        View All Results
+</a>    </div>
+  </div>
+</div>
+
+<script type="text/template" id="autocomplete-hits-template">
+  <div class="inner-search">
+    <ul>
+        {{#hits}}
+          <li>
+            <span class='icon icon-{{type}}'></span>
+            <a href='{{url}}'>{{{_highlightResult.title.value}}}</a>
+          </li>
+        {{/hits}}
+    </ul>
+  </div>
+</script>
+      <div class="clearfix"></div>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    
+  </div>
+</header>
+
+
+      
+
+      <div class="wrapper layout-wrapper">
+
+        
+
+
+
+
+
+
+<div class="section-content section-content-growable content">
+  <div class="postable-info-bar-container">
+  <div class="postable-info-bar">
+    <div class="left-section">
+        <div class="tutorial-author-avatar">
+          <a href="https://www.digitalocean.com/community/users/jellingwood"><div class="mod-avatar mod-avatar-small"><img alt="jellingwood" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/60d901f61a6146e14a3e989bc1f4ef11.png" height="80" width="80"><span data-original-title="MOD" class="mod-star" title="" data-toggle="tooltip" data-container="body"><span class="mod-star-icon"></span></span></div></a>
+        </div>
+
+        <div class="author-and-date">
+          <div class="tutorial-author">
+            <div class="by">By: </div>
+            <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a>
+          </div>
+        </div>
+
+      <div class="upvotes upvoted tutorial-upvote"><form data-upvotable="tutorial_1252" data-upvotable-type="tutorial" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=1252&amp;upvote%5Bupvotable_type%5D=Tutorial" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="BzXYSJfQ0558EVStwEYgYnAx8hD1QERAXBgf1605Iai8nOizSFiHhkDRwbtReBPk8YQCEOIoDrTbwfZoWOHHrQ==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="" title="Do you find this tutorial helpful? Show the author by Hearting it!" data-placement="bottom"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count ">15</div></div>
+
+        <div class="postable-info-bar-comments-count">
+    <span class="icon icon-new-comment"></span>
+    6
+  </div>
+
+
+
+    </div>
+
+    <div class="right-section">
+      <div class="section-item social-sharing-item">
+        <div class="sharing">
+  <a class="share-button" href="#" data-toggle="modal" data-target="#share-modal">
+    <span class="icon icon-share-square"></span>
+    <span class="share-button-text">
+      Share
+    </span>
+  </a>
+</div>
+
+
+      </div>
+
+        <div class="section-item table-of-contents-triggers"><div class="toc-trigger ">
+  <a href="javascript:void(0);">
+    <span class="title">Contents</span>
+    <span class="icon icon-close-light"></span>
+    <span class="icon icon-arrow-down"></span>
+  </a>
+</div>
+
+
+
+<div class="toc-trigger-mobile" data-toggle="modal" data-target="#contents-modal">
+  <a href="javascript:void(0);">
+    <span class="title">Contents</span>
+    <span class="icon icon-arrow-down"></span>
+  </a>
+</div>
+
+
+</div>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+  <div class="container">
+
+      <div class="info-cta">
+    <a class="icon-close-light" href="javascript:void();"></a>
+    We hope you find this tutorial helpful. In addition to guides like 
+this one, we provide simple cloud infrastructure for developers. <a href="https://www.digitalocean.com/?utm_medium=community&amp;utm_source=community_gencta&amp;utm_campaign=needaserver&amp;utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">
+        Learn more →
+</a>  </div>
+
+  
+    <h1 class="content-title">How to Configure Consul in a Production Environment on Ubuntu 14.04</h1>
+
+    <span class="meta-section tags">
+      <span class="meta-value"><span class="tutorial-date">Aug 15, 2014</span> <span class="hashtag-icon"></span> <a class="" href="https://www.digitalocean.com/community/tags/clustering?type=tutorials">Clustering</a>, <a class="" href="https://www.digitalocean.com/community/tags/networking?type=tutorials">Networking</a>, <a class="" href="https://www.digitalocean.com/community/tags/system-tools?type=tutorials">System Tools</a> <a class="" href="https://www.digitalocean.com/community/tags/ubuntu?type=tutorials">Ubuntu</a></span>
+    </span>
+  </div>
+
+  <div class="container">
+      <div class="tutorial-series-container collapsed">
+    <div class="section-content">
+
+      <h2 class="tutorial-series-heading">Tutorial Series</h2>
+
+            <div class="tutorial-series-toggle">
+              This tutorial is part 2 of 3 in the series:
+              <a data-reveal="fast" href="#tutorial_series_21">Getting Started with Consul</a>
+            </div>
+
+          <div id="tutorial_series_21" class="tutorial-series hidden">
+            <a class="icon-close" href="javascript:void(0);"></a>
+            <h3 class="series-title"><a href="https://www.digitalocean.com/community/tutorial_series/getting-started-with-consul">Getting Started with Consul</a></h3>
+
+              <div class="description">
+                Consul is a distributed, highly-available, data 
+center-aware service discovery solution for servers.  In this series, we
+ will discuss how to get up and running with Consul to help manage your 
+infrastructure and maintain up-to-date information about the state of 
+your systems.
+              </div>
+            <ol class="tutorial-series-list">
+
+    <li class="">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/an-introduction-to-using-consul-a-service-discovery-system-on-ubuntu-14-04">An Introduction to Using Consul, a Service Discovery System, on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 11, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          13
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          5
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+    <li class="active">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">How to Configure Consul in a Production Environment on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 11, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          15
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          6
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+    <li class="">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/how-to-secure-consul-with-tls-encryption-on-ubuntu-14-04">How To Secure Consul with TLS Encryption on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 14, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          8
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          4
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+</ol>
+  <a class="prev-tutorial" href="https://www.digitalocean.com/community/tutorials/an-introduction-to-using-consul-a-service-discovery-system-on-ubuntu-14-04">Previous Tutorial</a>
+  <a class="next-tutorial" href="https://www.digitalocean.com/community/tutorials/how-to-secure-consul-with-tls-encryption-on-ubuntu-14-04">Next Tutorial</a>
+
+          </div>
+    </div>
+  </div>
+
+  </div>
+
+    <div class="content-body tutorial-content" data-growable-markdown="">
+      <h3 id="introduction">Introduction</h3>
+
+<p>Consul is a distributed, highly available, datacenter-aware, service 
+discovery and configuration system. It can be used to present services 
+and nodes in a flexible and powerful interface that allows clients to 
+always have an up-to-date view of the infrastructure they are a part of.</p>
+
+<p>Consul provides many different features that are used to provide 
+consistent and available information about your infrastructure. This 
+includes service and node discovery mechanisms, a tagging system, health
+ checks, consensus-based election routines, system-wide key/value 
+storage, and more. By leveraging consul within your organization, you 
+can easily build a sophisticated level of awareness into your 
+applications and services.</p>
+
+<p>In our <a href="https://www.digitalocean.com/community/tutorials/an-introduction-to-using-consul-a-service-discovery-system-on-ubuntu-14-04">last guide</a>,
+ we provided a quick demonstration of some of consul's functionality.  
+In this guide, we will get started on creating a production-ready consul
+ configuration that can be used to start implementing service discovery 
+for your infrastructure.</p>
+
+<div data-unique="prerequisites-and-goals" name="prerequisites-and-goals"></div><h2 id="prerequisites-and-goals">Prerequisites and Goals</h2>
+
+<p>In this series, we will be setting up a system of servers that will 
+be able to communicate with each other and maintain service information,
+ key/value storage pools, and other details for client machines.  The 
+first steps towards getting our system production ready will take place 
+in this guide, as we install the software, and automate some of our 
+configuration.</p>
+
+<p>The consul documentation recommends that you have either 3 or 5 <strong>consul servers</strong>
+ running in each datacenter to avoid data loss in the event of a server 
+failure.  Consul servers are the component that do the heavy lifting.  
+They store information about services and key/value information.  An odd
+ number of servers is necessary to avoid stalemate issues during 
+elections.</p>
+
+<p>Apart from the consul servers, other machines can run <strong>consul agents</strong>.
+  Consul agents are very light-weight and simply forward requests to the
+ servers.  They provide a method of insulating your servers and offload 
+the responsibility of knowing the servers' addresses to the agents 
+themselves.</p>
+
+<p>For us to implement some of the security mechanisms in a later guide,
+ we need to name all of our machines within a single domain.  This is so
+ that we can issue a wildcard SSL certificate at a later time.</p>
+
+<p>The details of our machines are here:</p>
+
+<table class="pure-table"><thead>
+<tr>
+<th>Hostname</th>
+<th>IP Address</th>
+<th>Role</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>server1.example.com</td>
+<td>192.0.2.1</td>
+<td>bootstrap consul server</td>
+</tr>
+<tr>
+<td>server2.example.com</td>
+<td>192.0.2.2</td>
+<td>consul server</td>
+</tr>
+<tr>
+<td>server3.example.com</td>
+<td>192.0.2.3</td>
+<td>consul server</td>
+</tr>
+<tr>
+<td>agent1.example.com</td>
+<td>192.0.2.50</td>
+<td>consul client</td>
+</tr>
+</tbody></table>
+
+<p>We will be using 64-bit Ubuntu 14.04 servers for this demonstration, 
+but any modern Linux server should work equally well.  When the 
+configuration is complete, you should have a system in place that will 
+allow you to easily add services, checks, and nodes.</p>
+
+<p>Log into your machines as the root user to complete the steps in this guide.</p>
+
+<div data-unique="downloading-and-installing-consul" name="downloading-and-installing-consul"></div><h2 id="downloading-and-installing-consul">Downloading and Installing Consul</h2>
+
+<p>If you did not already install consul in <a href="">the initial introduction to consul guide</a>,
+ you will have to do that now.  We will be installing consul as a 
+system-level application on each of the four machines we are 
+configuring.</p>
+
+<p>Before we look into the consul application, we need to get <code>unzip</code> to extract the executable.  Update the local systems package cache and then install the package using <code>apt</code>:</p>
+<pre class="code-pre "><code langs="">apt-get update
+apt-get install unzip
+</code></pre>
+<p>Now, we can go about getting the consul program.  The <a href="http://www.consul.io/downloads.html">consul project's page</a> provides download links to binary packages for Windows, OS X, and Linux.</p>
+
+<p>Go to the page above and right-click on the operating system and 
+architecture that represents your servers.  In this guide, since we are 
+using 64-bit servers, we will use the "amd64" link under "linux".  
+Select "copy link location" or whatever similar option your browser 
+provides.</p>
+
+<p>In your terminal, move to the <code>/usr/local/bin</code> directory, where we will keep the executable.  Type <code>wget</code> and a space, and then paste the URL that you copied from the site:</p>
+<pre class="code-pre "><code langs="">cd /usr/local/bin
+wget <span class="highlight">https://dl.bintray.com/mitchellh/consul/0.3.0_linux_amd64.zip</span>
+</code></pre>
+<p>Now, we can extract the binary package using the <code>unzip</code> command that we installed earlier.  We can then remove the zipped file:</p>
+<pre class="code-pre "><code langs="">unzip *.zip
+rm *.zip
+</code></pre>
+<p>You should now have the <code>consul</code> command available on all of your servers.</p>
+
+<div data-unique="create-the-necessary-directory-and-system-structure" name="create-the-necessary-directory-and-system-structure"></div><h2 id="create-the-necessary-directory-and-system-structure">Create the Necessary Directory and System Structure</h2>
+
+<p>We can easily try out consul in an unstructured way by using the <code>consul</code> command.  This will allow you to test out some functionality.  We did this in the last guide to get familiar with the software.</p>
+
+<p>However, we are going to attempt to set up a more reliable system 
+that is easier to manage, so we will be creating some structure to make 
+this work.  Complete the following steps on each of your computers 
+(servers and clients).</p>
+
+<p>The first thing we should take care of is creating a user specific to
+ our task.  This is a standard case of user privilege separation, so we 
+will run our consul processes with a dedicated user.</p>
+
+<p>Create the user now by typing:</p>
+<pre class="code-pre "><code langs="">adduser consul
+</code></pre>
+<p>You can skip all of the prompts (You might want to set a password.  It will complain otherwise) if you would like.</p>
+
+<p>Next, we will create the configuration hierarchy that will house the 
+different configurations that we will use depending on how we want to 
+start the service.  To make this easy, we will make a parent <code>consul.d</code> directory in the <code>/etc</code> config structure and put subdirectories called <code>bootstrap</code>, <code>server</code>, and <code>client</code> under this on each system:</p>
+<pre class="code-pre "><code langs="">mkdir -p /etc/consul.d/{bootstrap,server,client}
+</code></pre>
+<p>We can put our configurations in each of these later.  Each server 
+will probably use, at most, two of these directories, but we will create
+ the structure for consistency on each host.</p>
+
+<p>We also need to create a location where consul can store persistent data between reboots.  We will create a directory at <code>/var/consul</code> for this purpose and give it to the <code>consul</code> user so that it can manage the data:</p>
+<pre class="code-pre "><code langs="">mkdir /var/consul
+chown consul:consul /var/consul
+</code></pre>
+<p>With this structure in place, we should be able to get started crafting our configuration files.</p>
+
+<div data-unique="creating-the-bootstrap-configuration" name="creating-the-bootstrap-configuration"></div><h2 id="creating-the-bootstrap-configuration">Creating the Bootstrap Configuration</h2>
+
+<p>The first configuration we need to create is for bootstrapping the 
+cluster.  This is not a very common event as it is only necessary for 
+creating the cluster initially.  However, we're going to create the 
+configuration file so that we can quickly get started again in the event
+ that the cluster goes down completely.</p>
+
+<p>You can put this configuration file on only one of your consul 
+servers, or on all of them to give you more options for bootstrapping.  
+We will only be putting it on <code>server1</code> for this demonstration.</p>
+
+<p>The configuration files are stored in simple JSON, so they're quite easy to manage.  Create the first file in the <code>bootstrap</code> subdirectory:</p>
+<pre class="code-pre "><code langs="">nano /etc/consul.d/bootstrap/config.json
+</code></pre>
+<p>In this file, we can start off by specifying that when this config is used, consul should start as a server in bootstrap mode:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": true,
+    "server": true
+}
+</code></pre>
+<p>We should also specify the datacenter where our cluster will live.  
+This can be any name that helps you identify the physical location of 
+the cluster.  Consul is datacenter-aware and these designations will 
+help you organize your different clusters by datacenter.</p>
+
+<p>We can also pass in the data directory that we created at <code>/var/consul</code>.  Consul will use this to store information about the cluster state:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": true,
+    "server": true,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul"
+}
+</code></pre>
+<p>Next, we want to implement some encryption to the whisper protocol 
+that consul uses.  It has this functionality built in using a shared 
+secret system.  The secret must be a 16-bit base-64 encoded string.  To 
+get a value of appropriate for this value, we will exit the file 
+temporarily.</p>
+
+<p>In the terminal, we can use the <code>consul</code> command to generate a key of the necessary length and encoding.  Type:</p>
+<pre class="code-pre "><code langs="">consul keygen
+</code></pre><pre class="code-pre "><code langs=""><span class="highlight">X4SYOinf2pTAcAHRhpj7dA==</span>
+</code></pre>
+<p>Copy the value that is generated and re-open the configuration file:</p>
+<pre class="code-pre "><code langs="">nano /etc/consul.d/bootstrap/config.json
+</code></pre>
+<p>Use the copied string as the value for the <code>encrypt</code> parameter:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": true,
+    "server": true,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul",
+    "encrypt": "<span class="highlight">X4SYOinf2pTAcAHRhpj7dA==</span>"
+}
+</code></pre>
+<p>Finally, we'll add some additional information to specify the log level and to indicate that want to use syslog for logging:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": true,
+    "server": true,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul",
+    "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
+    "log_level": "INFO",
+    "enable_syslog": true
+}
+</code></pre>
+<p>Save and close the file when you are finished.</p>
+
+<div data-unique="creating-the-regular-server-configuration" name="creating-the-regular-server-configuration"></div><h2 id="creating-the-regular-server-configuration">Creating the Regular Server Configuration</h2>
+
+<p>Now that we have our bootstrap configuration complete, we can use it 
+as the basis for our general server configuration.  The server 
+configuration will be used once the cluster is bootstrapped.</p>
+
+<p>Start by copying the bootstrap file from <code>server1</code> into the server subdirectory on that machine for editing:</p>
+<pre class="code-pre "><code langs="">cp /etc/consul.d/bootstrap/config.json /etc/consul.d/server
+</code></pre>
+<p>Open the file to make the necessary modifications:</p>
+<pre class="code-pre "><code langs="">nano /etc/consul.d/server/config.json
+</code></pre>
+<p>To start, we need to turn off the bootstrap flag since this configuration is for non-bootstrap configurations.</p>
+
+<p>The only other thing we need to modify for the server configuration 
+is specifying the other server's IP addresses that this node should 
+attempt to join when it starts up.  This takes care of joining 
+automatically, so that we do not have to manually join the cluster after
+ our server is started:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": <span class="highlight">false</span>,
+    "server": true,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul",
+    "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
+    "log_level": "INFO",
+    "enable_syslog": true,
+    "start_join": ["<span class="highlight">192.0.2.2</span>", "<span class="highlight">192.0.2.3</span>"]
+}
+</code></pre>
+<p>The <code>encrypt</code> parameter <em>must</em> be the same for all 
+of the participants in the system, so copying the file has already taken
+ care of that requirement for us.  Keep this in mind when creating new 
+configurations.</p>
+
+<p>Save the file when you are finished.</p>
+
+<p>You should copy the contents of this configuration file to the other 
+machines that will be acting as your consul servers.  Place them in a 
+file at <code>/etc/consul.d/server/config.json</code> just as you did in the first host.</p>
+
+<p>The only value you need to modify on the other hosts is the IP 
+addresses that it should attempt to connect to.  You should make sure 
+that it attempts to connect to the first server instead of its own IP.  
+For instance, the second server in our example would have a file that 
+looks like this:</p>
+<pre class="code-pre "><code langs="">{
+    "bootstrap": false,
+    "server": true,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul",
+    "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
+    "log_level": "INFO",
+    "enable_syslog": true,
+    "start_join": ["<span class="highlight">192.0.2.1</span>", "192.0.2.3"]
+}
+</code></pre>
+<p>Save and close the files you have created when you are finished.</p>
+
+<div data-unique="creating-the-client-configuration" name="creating-the-client-configuration"></div><h2 id="creating-the-client-configuration">Creating the Client Configuration</h2>
+
+<p>Now, our server configurations are all complete.  We can focus on 
+getting our client machine up and running with a proper configuration. </p>
+
+<p>Open a configuration file under the client subdirectory on the client machine:</p>
+<pre class="code-pre "><code langs="">nano /etc/consul.d/client/config.json
+</code></pre>
+<p>We will again use a previous configuration as the basis for our new 
+configuration.  Copy the contents of one of the server files into this 
+file.</p>
+
+<p>We will start out by removing any mention of the <code>bootstrap</code> parameter since this only applies to server configurations and changing the <code>server</code> parameter to false.</p>
+
+<p>Next, we will add a parameter specifying the location of the web UI 
+directory.  We will be acquiring the files necessary for this in a bit. 
+ The location where they will reside is <code>/home/consul/dist</code>.</p>
+
+<p>Finally, we want to adjust the <code>start_join</code> parameter to list all of our servers:</p>
+<pre class="code-pre "><code langs="">{
+    "server": <span class="highlight">false</span>,
+    "datacenter": "nyc2",
+    "data_dir": "/var/consul",
+    <span class="highlight">"ui_dir": "/home/consul/dist",</span>
+    "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
+    "log_level": "INFO",
+    "enable_syslog": true,
+    "start_join": ["<span class="highlight">192.0.2.1</span>", "<span class="highlight">192.0.2.2</span>", "<span class="highlight">192.0.2.3</span>"]
+}
+</code></pre>
+<p>Save and close the file when you are finished.</p>
+
+<div data-unique="downloading-the-web-ui-files" name="downloading-the-web-ui-files"></div><h2 id="downloading-the-web-ui-files">Downloading the Web UI Files</h2>
+
+<p>Now that we have configured the client to serve the web UI, we need to acquire the actual files that will allow us to do this.</p>
+
+<p>On the consul website, right-click the link to the <a href="http://www.consul.io/downloads_web_ui.html">consul web UI</a> and select "copy link location" or whatever similar option you have.</p>
+
+<p>On the client, use <code>su</code> to become the <code>consul</code> user.  We are going to set up the web directory in the <code>consul</code> user's home directory.</p>
+<pre class="code-pre "><code langs="">su consul
+cd ~
+</code></pre>
+<p>Now, type <code>wget</code>, followed by a space and paste the link 
+you copied for the web UI download.  At the time of this writing, it 
+will look like this:</p>
+<pre class="code-pre "><code langs="">wget <span class="highlight">https://dl.bintray.com/mitchellh/consul/0.3.0_web_ui.zip</span>
+</code></pre>
+<p>Unzip the file downloaded and remove the zip file:</p>
+<pre class="code-pre "><code langs="">unzip *.zip
+rm *.zip
+</code></pre>
+<p>This will create a directory called <code>dist</code> within your home directory.  This is the directory that we pointed the web UI parameter to in the configuration file.</p>
+
+<p>Before we continue, you should exit the consul user's session to get back into the root session:</p>
+<pre class="code-pre "><code langs="">exit
+</code></pre>
+<div data-unique="create-an-upstart-script" name="create-an-upstart-script"></div><h2 id="create-an-upstart-script">Create an Upstart Script</h2>
+
+<p>We now have our configuration files in place.  Next, we can focus on 
+creating an upstart script so that our consul instances are 
+automatically started upon boot and restart in case of any problem.</p>
+
+<p>Since bootstrapping a cluster is not something we will have to do 
+often (most of the time, the cluster itself will persist and a single 
+node may have to be restarted and rejoin the cluster), we will not 
+factor bootstrapping into the upstart script.  We will show you how to 
+manually complete this process shortly.</p>
+
+<p>Our upstart script will be similar on our servers and on the client.  On one of the consul servers, create a file within the <code>/etc/init</code> directory to hold your consul configuration:</p>
+<pre class="code-pre "><code langs="">nano /etc/init/consul.conf
+</code></pre>
+<p>We will copy the contents of this file to the other servers and then 
+use it as the basis for our client configuration as well.  Within this 
+file, the first order of business is to create a description of the 
+process.  On our server's we'll use:</p>
+<pre class="code-pre "><code langs="">description "Consul server process"
+</code></pre>
+<p>Next, we specify the conditions under which the process will start.  
+For this service, we want the service to begin when the local filesystem
+ is mounted and when the public network interface is running.</p>
+
+<p>We also want to specify when the process should stop.  Using the <a href="http://en.wikipedia.org/wiki/Runlevel#Linux_Standard_Base_specification">standard Linux runlevels</a>,
+ we can tell it to stop the process whenever it is not in one of the 
+normal operating modes (stop the process when halting or rebooting the 
+server):</p>
+<pre class="code-pre "><code langs="">description "Consul server process"
+
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on runlevel [!12345]
+</code></pre>
+<p>We can tell the init system to restart the process if it ever dies 
+unexpectedly.  We also want to specify the user and group that the 
+process should run under.  Remember, we created the consul user and 
+group to isolate the process:</p>
+<pre class="code-pre "><code langs="">description "Consul server process"
+
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on runlevel [!12345]
+
+respawn
+
+setuid consul
+setgid consul
+</code></pre>
+<p>Finally, we need to provide the actual command that we want to run.  This will simply be the <code>consul</code>
+ command run in agent mode.  We will pass in the directory that contains
+ our server configuration specifications as an argument to the command:</p>
+<pre class="code-pre "><code langs="">description "Consul server process"
+
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on runlevel [!12345]
+
+respawn
+
+setuid consul
+setgid consul
+
+exec consul agent -config-dir /etc/consul.d/server
+</code></pre>
+<p>Save the file when you are finished.</p>
+
+<p>Copy the contents of this file to a file called <code>/etc/init/consul.conf</code> on each of your servers and the client as well.</p>
+
+<p>On the client, we need to modify the file just a bit.  We should 
+change the description to reference the fact that this is a client 
+machine.  We also need to change the configuration directory that is 
+passed into the actual <code>consul</code> command. </p>
+
+<p>The end file should look something like this:</p>
+<pre class="code-pre "><code langs="">description "Consul <span class="highlight">client</span> process"
+
+start on (local-filesystems and net-device-up IFACE=eth0)
+stop on runlevel [!12345]
+
+respawn
+
+setuid consul
+setgid consul
+
+exec consul agent -config-dir /etc/consul.d/<span class="highlight">client</span>
+</code></pre>
+<p>Save and close the file when you are finished.</p>
+
+<div data-unique="getting-a-cluster-started" name="getting-a-cluster-started"></div><h2 id="getting-a-cluster-started">Getting a Cluster Started</h2>
+
+<p>Now, we have everything in place to get a consul cluster up and running quickly.  The process is relatively simple.</p>
+
+<p>On a server that contains the bootstrap configuration file (<span class="highlight">server1</span> in our case), use <code>su</code> to change to the consul user briefly.  We can then call consul and pass in the bootstrap directory as an argument:</p>
+<pre class="code-pre "><code langs="">su consul
+consul agent -config-dir /etc/consul.d/bootstrap
+</code></pre>
+<p>The service should start up and occupy the terminal window.  In 
+bootstrap mode, this server will self-elect as leader, creating a basis 
+for forming the cluster.</p>
+
+<p>On your other consul servers, as root, start the consul service that we just created with the upstart script by typing:</p>
+<pre class="code-pre "><code langs="">start consul
+</code></pre>
+<p>These servers will connect to the bootstrapped server, completing the
+ cluster.  At this point, we have a cluster of three servers, two of 
+which are operating normally, and one of which is in bootstrap mode, 
+meaning that it can make executive decisions without consulting the 
+other servers.</p>
+
+<p>This is not what we want.  We want each of the servers on equal 
+footing.  Now that the cluster is created, we can shutdown the 
+bootstrapped consul instance and then re-enter the cluster as a normal 
+server.</p>
+
+<p>To do this, hit <code>CTRL-C</code> in the bootstrapped server's terminal:</p>
+<pre class="code-pre "><code langs="">CTRL-C
+</code></pre>
+<p>Now, exit back into your root session and start the consul service like you did with the rest of the servers:</p>
+<pre class="code-pre "><code langs="">exit
+start consul
+</code></pre>
+<p>This will cause the previously-bootstrapped server to join the 
+cluster with un-elevated privileges, bringing the cluster into its final
+ state.</p>
+
+<p>Now that the cluster is fully operational, client machines can connect.  On the client machine, do the same procedure as root:</p>
+<pre class="code-pre "><code langs="">start consul
+</code></pre>
+<p>The client will connect to the cluster as a client.  You can see the 
+members of the cluster (servers and clients) by asking consul for its 
+members on any of the machines:</p>
+<pre class="code-pre "><code langs="">consul members
+</code></pre><pre class="code-pre "><code langs="">Node     Address             Status  Type    Build  Protocol
+server3  192.0.2.3:8301  alive   server  0.3.0  2
+server2  192.0.2.2:8301  alive   server  0.3.0  2
+server1  192.0.2.1:8301  alive   server  0.3.0  2
+agent1   192.0.2.50:8301    alive   client  0.3.0  2
+</code></pre>
+<div data-unique="connecting-to-the-web-ui" name="connecting-to-the-web-ui"></div><h2 id="connecting-to-the-web-ui">Connecting to the Web UI</h2>
+
+<p>We have configured our client machine to host a web interface to the 
+cluster.  However, this is being served on the local interface, meaning 
+that it is not accessible to us using the machine's public interface.</p>
+
+<p>To get access to the web UI, we will create an SSH tunnel to the 
+client machine that holds the UI files.  Consul serves the HTTP 
+interface on port 8500.  We will tunnel our local port 8500 to the 
+client machine's port 8500.  On your local computer, type:</p>
+<pre class="code-pre "><code langs="">ssh -N -f -L 8500:localhost:8500 root@<span class="highlight">192.0.2.50</span>
+</code></pre>
+<p>This will connect to the remote machine, create a tunnel between our 
+local port and the remote port and then put the connection into the 
+background.</p>
+
+<p>In your local web browser, you can now access the consul web interface by typing:</p>
+<pre class="code-pre "><code langs="">http://localhost:8500
+</code></pre>
+<p>This will give you the default web UI page:</p>
+
+<p><img src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/consul_default.png" alt="Consul web UI landing page"></p>
+
+<p>You can use this interface to check the health of your servers and get an overview of your services and infrastructure.</p>
+
+<p>When you are finished using the web UI, you can close the SSH tunnel.  Search for the process's pid number using the <code>ps</code> command and <code>grep</code> to search for the port number we forwarded:</p>
+<pre class="code-pre "><code langs="">ps aux | grep 8500
+</code></pre><pre class="code-pre "><code langs="">1001      <span class="highlight">5275</span>  0.0  0.0  43900  1108 ?        Ss   12:03   0:00 ssh -N -f -L 8500:localhost:8500 root@192.241.170.60
+1001      5309  0.0  0.0  13644   948 pts/7    S+   12:12   0:00 grep --colour=auto 8500
+</code></pre>
+<p>The highlighted number in the output above (on the line that contains
+ the tunneling command we used) is the pid number we're looking for.  We
+ can then pass this to the <code>kill</code> command to close the tunnel:</p>
+<pre class="code-pre "><code langs="">kill <span class="highlight">5275</span>
+</code></pre>
+<div data-unique="conclusion" name="conclusion"></div><h2 id="conclusion">Conclusion</h2>
+
+<p>You should now have a stable way of managing your consul members.  
+The consul cluster can be bootstrapped and started up quickly and 
+easily.  Additional nodes can be configured quickly by copying the 
+configuration files (consul config and upstart script) of the existing 
+servers.</p>
+
+<p>Although we now have our consul environment set up in a way that 
+allows us to easily manage our services, we have not yet fully secured 
+our communications.  In the <a href="https://www.digitalocean.com/community/tutorials/how-to-secure-consul-with-tls-encryption-on-ubuntu-14-04">next guide</a>,
+ we will focus on how to set up SSL certificate validation in order to 
+encrypt and validate the RPC communications of our members.</p>
+
+    </div>
+</div>
+
+<div class="tutorial-footer">
+  <div class="tutorial-footer-details">
+  <div class="section-content tutorial-public-actions">
+    <div class="share-subscribe-actions">
+      <div class="upvotes upvoted tutorial-upvote large-upvotes"><form data-upvotable="tutorial_1252" data-upvotable-type="tutorial" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=1252&amp;upvote%5Bupvotable_type%5D=Tutorial" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="BzXYSJfQ0558EVStwEYgYnAx8hD1QERAXBgf1605Iai8nOizSFiHhkDRwbtReBPk8YQCEOIoDrTbwfZoWOHHrQ==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="" title="Do you find this tutorial helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count ">15</div></div>
+      <span class="meta-section opt-in-switch off signed-out-subscribe">
+  <span class="meta-label subscribe-label">
+    <span class="subscription-label subscribe">Subscribe</span>
+    <span class="subscription-label subscribed">Subscribed</span>
+  </span>
+  <span class="meta-value"><a data-toggle="modal" data-target="#sign-in-modal" class="mini-switch-container" href="javascript:void(0);"><div class="mini-switch off signed-out-subscribe"><div class="switch-handle"></div></div></a></span>
+</span>
+
+      <div class="sharing">
+  <a class="share-button" href="#" data-toggle="modal" data-target="#share-modal">
+    <span class="icon icon-share-square"></span>
+    <span class="share-button-text">
+      Share
+    </span>
+  </a>
+</div>
+
+
+    </div>
+  </div>
+
+  <div class="section-content tutorial-contributors one">
+      <div class="tutorial-footer-user">
+        <div class="tutorial-footer-user-avatar-container">
+          <a href="https://www.digitalocean.com/community/users/jellingwood"><div class="mod-avatar mod-avatar-small"><img alt="jellingwood" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/60d901f61a6146e14a3e989bc1f4ef11.png" height="80" width="80"><span data-original-title="MOD" class="mod-star" title="" data-toggle="tooltip" data-container="body"><span class="mod-star-icon"></span></span></div></a>
+        </div>
+        <div class="user-info">
+          <div class="tutorial-user-type">Author:</div>
+          <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a>
+        </div>
+      </div>
+
+
+  </div>
+</div>
+
+    <div class="tutorial-series-container ">
+    <div class="section-content">
+
+      <h2 class="tutorial-series-heading">Tutorial Series</h2>
+
+
+          <div id="tutorial_series_21" class="tutorial-series ">
+            
+            <h3 class="series-title"><a href="https://www.digitalocean.com/community/tutorial_series/getting-started-with-consul">Getting Started with Consul</a></h3>
+
+              <div class="description">
+                Consul is a distributed, highly-available, data 
+center-aware service discovery solution for servers.  In this series, we
+ will discuss how to get up and running with Consul to help manage your 
+infrastructure and maintain up-to-date information about the state of 
+your systems.
+              </div>
+            <ol class="tutorial-series-list">
+
+    <li class="">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/an-introduction-to-using-consul-a-service-discovery-system-on-ubuntu-14-04">An Introduction to Using Consul, a Service Discovery System, on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 11, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          13
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          5
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+    <li class="active">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">How to Configure Consul in a Production Environment on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 11, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          15
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          6
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+    <li class="">
+      <h2><a href="https://www.digitalocean.com/community/tutorials/how-to-secure-consul-with-tls-encryption-on-ubuntu-14-04">How To Secure Consul with TLS Encryption on Ubuntu 14.04</a></h2>
+
+      <div class="feedable-date">July 14, 2014</div>
+      <div class="meta">
+        <div class="points">
+          <span class="icon-upvote-heart-small"></span>
+          8
+        </div>
+
+        <div class="response-count">
+          <span class="icon icon-new-comment"></span>
+          4
+        </div>
+
+          <span class="author">By <a href="https://www.digitalocean.com/community/users/jellingwood">Justin Ellingwood</a></span>
+      </div>
+      <div class="arrow-left"></div>
+    </li>
+</ol>
+
+          </div>
+    </div>
+  </div>
+
+  <div class="tutorial-ctas">
+  <div class="section-content">
+    <div class="cta-description">
+      <h2>Spin up an SSD cloud server in under a minute.</h2>
+
+      <p>Simple setup. Full root access. Straightforward pricing.</p>
+
+      <a class="cloud-tutorial-cta" href="https://www.digitalocean.com/?utm_medium=community&amp;utm_source=community_gencta&amp;utm_campaign=needaserver&amp;utm_content=how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04">Deploy Server</a>
+    </div>
+  </div>
+</div>
+    <div class="related-tutorials">
+    <div class="section-content">
+      <h2>Related Tutorials</h2>
+
+      <ul>
+        <li><a class="related-link" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-centos-7">How To Set Up a Production Elasticsearch Cluster on CentOS 7</a></li>
+<li><a class="related-link" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04">How To Set Up a Production Elasticsearch Cluster on Ubuntu 14.04</a></li>
+<li><a class="related-link" href="https://www.digitalocean.com/community/tutorials/how-to-secure-your-coreos-cluster-with-tls-ssl-and-firewall-rules">How To Secure Your CoreOS Cluster with TLS/SSL and Firewall Rules</a></li>
+<li><a class="related-link" href="https://www.digitalocean.com/community/tutorials/ramping-up-with-rigger-deploying-deis-on-digitalocean">Ramping up with Rigger: Deploying Deis on DigitalOcean</a></li>
+<li><a class="related-link" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-apache-active-passive-cluster-using-pacemaker-on-centos-7">How To Set Up an Apache Active-Passive Cluster Using Pacemaker on CentOS 7</a></li>
+
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="content-comments">
+  <div class="section-content">
+    <div class="tutorial commentable" id="tutorial_1252">
+
+  <div class="comments-header">
+    <h4 class="comments-count"><span>6 Comments</span></h4>
+  </div>
+
+  <div class="response response-form no-avatar">
+  <div class="js-display-on-error flash error hidden"></div>
+
+
+  <form class="content-form disabled-form" id="new_comment" action="/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04/comments" accept-charset="UTF-8" data-remote="true" method="post"><input disabled="disabled" name="utf8" value="✓" type="hidden">
+
+    <div style="height: auto;" class="meltdown_wrap"><div class="meltdown_topmargin"></div><div class="meltdown_bar"><ul class="meltdown_controls meltdown_controls_preview"><li data-original-title="Toggle Preview" title="" class="meltdown_control-preview meltdown_control meltdown_controlbutton disabled"><span>Preview</span></li></ul><div class="preview-header">Markdown Preview</div><ul class="meltdown_controls meltdown_controls_main"><li data-original-title="Bold" title="" class="meltdown_control-bold meltdown_control meltdown_controlbutton disabled"><span unselectable="on">B</span></li><li data-original-title="Italics" title="" class="meltdown_control-italics meltdown_control meltdown_controlbutton disabled"><span unselectable="on">I</span></li><li data-original-title="Header 1" title="" class="meltdown_control-h1 meltdown_control meltdown_controlbutton disabled"><span unselectable="on">H1</span></li><li data-original-title="Header 2" title="" class="meltdown_control-h2 meltdown_control meltdown_controlbutton disabled"><span unselectable="on">H2</span></li><li data-original-title="Header 3" title="" class="meltdown_control-h3 meltdown_control meltdown_controlbutton disabled"><span unselectable="on">H3</span></li><li data-original-title="Unordered List" title="" class="meltdown_control-ul meltdown_control meltdown_controlbutton disabled"><span unselectable="on">UL</span></li><li data-original-title="Ordered List" title="" class="meltdown_control-ol meltdown_control meltdown_controlbutton disabled"><span unselectable="on">OL</span></li><li data-original-title="Link" title="" class="meltdown_control-link meltdown_control meltdown_controlbutton disabled"><span unselectable="on">Link</span></li><li data-original-title="Code" title="" class="meltdown_control-code meltdown_control meltdown_controlbutton disabled"><span unselectable="on">Code</span></li><li data-original-title="Highlight" title="" class="meltdown_control-highlight meltdown_control meltdown_controlbutton disabled"><span unselectable="on">Highlight</span></li><li data-original-title="Table" title="" class="meltdown_control-table meltdown_control meltdown_controlbutton disabled"><span unselectable="on">Table</span></li></ul></div><div class="meltdown_editor-wrap"><div class="meltdown_editor-deco"><textarea style="overflow: hidden; word-wrap: break-word; resize: none; height: 120px;" disabled="disabled" name="comment[content]" id="comment_content" placeholder="Leave a comment..." class="js-comment-content tutorial-comment-field meltdown_editor" data-markdown="true"></textarea></div></div><div class="meltdown_preview-wrap"><div class="meltdown_preview-wrap2"><div class="meltdown_preview-error-message">Could not load preview. <a href="#">Try again</a></div><div class="meltdown_preview-loading-message">Loading preview...</div><div class="meltdown_preview content-body"></div></div></div><div class="meltdown_bottommargin"></div></div>
+
+    <div class="response-user-details">
+      <div class="response-avatar">
+        
+      </div>
+
+      <div class="logged-in">
+        <div class="logged-in-as">Logged in as:</div>
+        
+      </div>
+    </div>
+
+    <button disabled="disabled" type="submit" class="submit-comment" data-disable-with="Submitting...">
+      Comment
+    </button>
+
+
+      <div class="subscribe-to-post">
+        <input disabled="disabled" name="comment[subscribe]" id="comment_subscribe" checked="checked" type="checkbox">
+        <label for="comment_subscribe">Notify me of replies to my comment</label>
+      </div>
+
+    <button disabled="disabled" type="submit" class="submit-comment submit-comment-mobile" data-disable-with="Submitting...">
+      Comment
+    </button>
+
+    <div class="clearfix"></div>
+</form>
+</div>
+
+
+  <div class="comments">
+    <ul class="response-list">
+          <a class="hidden" rel="nofollow" data-remote="true" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04/comments">Load</a>
+    <li style="" id="comment_16581" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/vinit-khandagle"><img alt="vinit.khandagle" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/1241b282df7f011700090a689584d4fe.png" height="80" width="80"></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/vinit-khandagle">vinit.khandagle</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=16581">August 20, 2014</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p>Awesome tutorial 
+Justin.... Something that should have been part of Consul Documentation.
+ Looking forward for configuration of Health checks and services...<br>
+If you do get time, could you do a tutorial on Consul-Haproxy for production usage too...</p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_16581" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=16581&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="8ZklsOwzUp1RrMuE0KiJv70FCuy5Oe++n+uoyBlok61KMBVLM7sGhW1sXpJBlro5PLD67K5RpUoYMkF37LB1qA==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=16581" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_16581">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_16581"></div>
+</div>
+    </div>
+
+  </li>
+
+      <li style="" id="comment_16593" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/jellingwood"><div class="mod-avatar mod-avatar-small"><img alt="jellingwood" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/60d901f61a6146e14a3e989bc1f4ef11.png" height="80" width="80"><span data-original-title="MOD" class="mod-star" title="" data-toggle="tooltip" data-container="body"><span class="mod-star-icon"></span></span></div></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/jellingwood">jellingwood</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=16593">August 20, 2014</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p>vinit.khandagle:  Thanks for the kind words!</p>
+
+<p>Yes, there Consul-Haproxy article on the writing schedule, so we will
+ be getting that out some time in the near future and appending it to 
+this series.</p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_16593" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=16593&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="qdnN/vnWUePTNv6sJlo8qjTcxy0P7wC4fDdjh/zzTKwScP0FJl4F++/2a7q3ZA8stWk3LRiHSkz77oo4CSuqqQ==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=16593" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_16593">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_16593"></div>
+</div>
+    </div>
+
+  </li>
+
+      <li style="" id="comment_32791" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/spuder"><img alt="spuder" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/9e139355b68b4ec991e5d269532c88d6.jpeg" height="80" width="80"></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/spuder">spuder</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=32791">May 23, 2015</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p>I'm a little 
+confused about the bootstrap node. Earlier in the tutorial, we had a 
+dedicated VM for the bootstrapping, however later server1 was started as
+ the bootstrap node, and then restarted once the others joined. Do I 
+need a dedicated bootstrap node? </p>
+
+<p>And do I have to manually copy the config files to each new server that I start? </p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_32791" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=32791&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="f/BHpzFFjhKKrhn187zaxjoNC86TQsl6P/kO/L2SeRvEWXdc7s3aCrZujONigulAu7j7zoQqg464IOdDSEqfHg==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=32791" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_32791">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_32791"></div>
+</div>
+    </div>
+
+  </li>
+
+      <li style="" id="comment_40996" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/chilumbugeorge"><img alt="chilumbugeorge" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/08dd75652e8ed4d416c6cbe25625d9aa.png" height="80" width="80"></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/chilumbugeorge">chilumbugeorge</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=40996">December 10, 2015</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p>On this line of config:</p>
+
+<p>exec consul agent -config-dir /etc/consul.d/client</p>
+
+<p>You can actually add the -client param and avoid to have to run the 
+"ssh -N -f -L 8500:localhost:8500 root@192.0.2.50"  command on the local
+ machine where the web-ui will be accessed: </p>
+
+<p>So the config with the -client param included will look like this:</p>
+
+<p>exec consul agent -client 192.0.2.50 -config-dir /etc/consul.d/client</p>
+
+<p>This would enable you to use the web-ui on any remote machine on your network via IP e.g,</p>
+
+<p>http://192.0.2.50:8500/ui</p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_40996" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=40996&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="lBS2mIF+iOWIfQzmcyH0dNea7/MNNr7I2rME5BChf0cvvYZjXvbc/bS9mfDiH8fyVi8f8xpe9Dxdau1b5XmZQg==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=40996" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_40996">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_40996"></div>
+</div>
+    </div>
+
+  </li>
+
+      <li style="" id="comment_41915" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/amirrustam"><img class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/b23e5074deec0d0954859c38121d226f0e5aacfa.jpg" alt="B23e5074deec0d0954859c38121d226f0e5aacfa"></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/amirrustam">amirrustam</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=41915">January  8, 2016</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p><a href="https://www.digitalocean.com/community/users/jellingwood" class="username-tag">@jellingwood</a>
+ not sure if this was a feature at the time you wrote the article, but 
+it is not necessary to download and configure the Consul Web UI 
+separately. Consul comes with it built in and can be enabled with the <code>ui</code> setting. So this would be added to /etc/consul.d/client/config.json:</p>
+<pre class="code-pre "><code langs="">{
+...
+  "ui": "true",
+...
+}
+</code></pre>
+<p>Or you can enable it by setting the command line tag: <code>consul agent -ui</code><br>
+This feature is documented here: <a href="https://www.consul.io/intro/getting-started/ui.html" rel="nofollow">https://www.consul.io/intro/getting-started/ui.html</a></p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_41915" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=41915&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="1EWDOTrrsc7HdAZX7e6kRoVFbYvxmE9/LgtodNavGgRv7LPC5WPl1vu0k0F80JfABPCdi+bwBYup0oHLI3f8AQ==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=41915" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_41915">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_41915"></div>
+</div>
+    </div>
+
+  </li>
+
+      <li style="" id="comment_43701" data-level="0" class="comment-container">
+    <div class="response    " data-highlight="">
+      <div class="response-avatar comment-response-avatar">
+        <a href="https://www.digitalocean.com/community/users/mmihir82"><img alt="mmihir82" class="avatar avatar-small" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/7bdf7e6204bb9171c02f1f36d2fff320.png" height="80" width="80"></a>
+      </div>
+
+      <div>
+        <span class="response-name"><a class="username" href="https://www.digitalocean.com/community/users/mmihir82">mmihir82</a></span>
+        <span class="response-time"><a rel="nofollow" class="post-time-link" href="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=43701">February 18, 2016</a></span>
+
+        
+      </div>
+
+          <div class="response-body content-body "><p>Hello Justin, <br>
+Thank you for the blog, this really helpful. Trying to setup the consul 
+init script for server and client. I checked the doc what you have 
+provided, seems getting error. Is there working script that I can able 
+to test. </p>
+
+<p>Thank you for your time<br>
+Mihir M</p>
+</div>
+
+      
+
+      <div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+
+
+      <div class="content-actions">
+  <div class="comment-actions">
+    <div class="upvotes comment-upvote"><form data-upvotable="comment_43701" data-upvotable-type="comment" class="upvote-form upvote signed-out-upvote" action="/community/upvotes/toggle?upvote%5Bupvotable_id%5D=43701&amp;upvote%5Bupvotable_type%5D=Comment" accept-charset="UTF-8" data-remote="true" method="post"><input name="utf8" value="✓" type="hidden"><input name="_method" value="patch" type="hidden"><input name="authenticity_token" value="lc+Vn41VG2p9d7rKteAxNoyy06D5kBW84yzKIqaTcj4uZqVkUt1PckG3L9wk3gKwDQcjoO74X0hk9SOdU0uUOw==" type="hidden">
+    <button type="submit" disabled="disabled" data-toggle="modal" data-target="#sign-in-modal">
+      <span class="icon-upvote-heart-small upvote-heart" data-toggle="modal" data-target="#sign-in-modal" data-return-url="https://www.digitalocean.com/community/tutorials/how-to-configure-consul-in-a-production-environment-on-ubuntu-14-04?comment=43701" title="Do you find this comment helpful? Show the author by Hearting it!" data-placement="top"></span>
+    </button>
+
+</form><span class="upvote-text"><span class="hearted-text">Hearted</span><span class="heart-text">Heart</span></span><div class="upvote-count hidden">0</div></div>
+
+
+    
+    
+    
+  </div>
+
+  <div class="comment-moderation-actions">
+    <ul class="comment-moderation-actions-list ">
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="clear"></div>
+    </div>
+    <div class="response-comments">
+      <div class="comment commentable" id="comment_43701">
+
+
+  <div class="comments">
+    <ul class="response-list">
+      
+
+
+
+    </ul>
+  </div>
+
+
+  <div id="reply_anchor_comment_43701"></div>
+</div>
+    </div>
+
+  </li></ul>
+
+      <div style="display: none;" class="comments-spinner"><div class="spinner spinner-large">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+  
+</div>
+</div>
+  </div>
+
+  <div class="load-more-container"></div>
+</div>
+
+
+  </div>
+</div>
+
+<div class="creative-commons">
+  <a class="creative-commons-image" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img rel="license" alt="Creative Commons License" src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/creativecommons-654928f5ebfbb75f4543af8903eabfe4.png"></a>
+    <div class="license-text">This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</div>
+</div>
+
+
+
+
+
+        <div class="clearfix"></div>
+      </div>
+
+      <footer class="footer">
+  <div class="footer-icon">
+    <span class="icon icon-sammy"></span>
+  </div>
+
+  <div class="copyright">
+    Copyright © 2016 DigitalOcean™ Inc.
+  </div>
+
+  <ul class="main-nav-links">
+    <li><a href="https://www.digitalocean.com/community">Community</a></li>
+    <li><a href="https://www.digitalocean.com/community/tutorials">Tutorials</a></li>
+    <li><a href="https://www.digitalocean.com/community/questions">Questions</a></li>
+    <li><a href="https://www.digitalocean.com/community/projects">Projects</a></li>
+    <li><a href="https://www.digitalocean.com/community/tags">Tags</a></li>
+    <li>
+      <a href="https://www.digitalocean.com/community/tutorials/feed">
+        RSS <span class="icon-rss"></span>
+</a>    </li>
+  </ul>
+
+  <br>
+
+  <ul class="secondary-nav-links">
+
+    <li><a href="https://www.digitalocean.com/legal/terms/">Terms, Privacy, &amp; Copyright</a></li>
+    <li><a href="https://www.digitalocean.com/security/">Security</a></li>
+      <li><a data-toggle="modal" data-target="#sign-in-modal" href="#">Report a Bug</a></li>
+    <li><a href="https://www.digitalocean.com/community/get-paid-to-write">Get Paid to Write</a></li>
+  </ul>
+</footer>
+
+
+
+
+
+    <div id="sign-in-modal" class="modal fade mini-modal" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1>Sign Up</h1>
+        <a class="close-button" data-dismiss="modal" href=""><span class="icon icon-close-light"></span></a>
+      </div>
+      <div class="modal-body">
+        <div class="sign-in-message">Not so fast, you must have an account before you can do that.</div>
+
+        <div class="sign-in-modal-actions">
+          <a class="sign-in-link button blue-button" data-default-url="/community/auth/digitalocean" href="https://www.digitalocean.com/community/auth/digitalocean">Log In</a>
+          <a class="sign-up-link button green-button" data-default-url="/community/auth/digitalocean?display=sessionless+register" href="https://www.digitalocean.com/community/auth/digitalocean?display=sessionless+register">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+  <script>
+    $(function() {
+      init_sharing();
+      new NewsletterSignup();
+      new GrowableMarkdown({ target: '[data-growable-markdown]' });
+    });
+  </script>
+
+  <div id="report-a-bug-modal" class="modal fade mini-modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1>Report a Bug</h1>
+          <a class="close-button" data-dismiss="modal" href=""><span class="icon icon-close-light"></span></a>
+        </div>
+        <div class="modal-body">
+          <div class="report-a-bug-message text-center">Use this form to report bugs related to the Community</div>
+          <div class="report-a-bug-actions do-form">
+            <div class="form-wrap">
+              <form class="new_bug_report" id="new_bug_report" action="/community/bug_reports" accept-charset="UTF-8" method="post"><input name="utf8" value="✓" type="hidden"><input name="authenticity_token" value="BzXYSJfQ0558EVStwEYgYnAx8hD1QERAXBgf1605Iai8nOizSFiHhkDRwbtReBPk8YQCEOIoDrTbwfZoWOHHrQ==" type="hidden">
+                <fieldset>
+                  <div class="field">
+                    <input placeholder="Name" name="bug_report[name]" id="bug_report_name" type="text">
+                  </div>
+                  <div class="field">
+                    <input placeholder="Email" required="required" name="bug_report[email]" id="bug_report_email" type="text">
+                  </div>
+                  <div class="field">
+                      <textarea style="overflow: hidden; word-wrap: break-word; resize: none; height: 125px;" placeholder="Message" required="required" name="bug_report[message]" id="bug_report_message"></textarea>
+                  </div>
+
+                  <div class="field actions">
+                    <input name="commit" value="Submit" class="button" type="submit">
+                  </div>
+                </fieldset>
+</form>            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+  
+
+<textarea id="autosizejs" class="autosizejs" tabindex="-1" style="position: absolute; top: -999px; left: 0px; right: auto; bottom: auto; border: 0px none; padding: 0px; box-sizing: content-box; word-wrap: break-word; height: 0px ! important; min-height: 0px ! important; overflow: hidden; transition: none 0s ease 0s ; font-family: &quot;proxima-nova&quot;,sans-serif; font-size: 17px; font-weight: 400; font-style: normal; letter-spacing: 0px; text-transform: none; word-spacing: 0px; text-indent: 0px; line-height: 23.8px; width: 58px;">Message
+</textarea><a style="display: none; position: fixed; z-index: 2147483647;" href="#top" id="scrollUp">Scroll to top</a><div style="position: absolute; top: 300px; width: 100%; border-top: 1px dotted rgb(0, 255, 255); z-index: 2147483647;" id="scrollUp-active"></div><div class=" fb_reset" id="fb-root"><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div><iframe src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/xd_arbiter.html" style="border: medium none;" tabindex="-1" title="Facebook Cross Domain Communication Frame" aria-hidden="true" id="fb_xdm_frame_https" scrolling="no" allowfullscreen="true" allowtransparency="true" name="fb_xdm_frame_https" frameborder="0"></iframe></div></div><div style="position: absolute; top: -10000px; height: 0px; width: 0px;"><div></div></div></div><script id="" type="text/javascript">(function(){var a=window._fbq||(window._fbq=[]);if(!a.loaded){var b=document.createElement("script");b.async=!0;b.src="//connect.facebook.net/en_US/fbds.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c);a.loaded=!0}a.push(["addPixelId","1428881624071898"])})();window._fbq=window._fbq||[];window._fbq.push(["track","PixelInitialized",{}]);</script>
+<noscript><img height="1" width="1" alt="" style="display:none" src="https://www.facebook.com/tr?id=1428881624071898&amp;ev=PixelInitialized"></noscript><script id="" type="text/javascript">(function(b,c,e,g,d){var f,a;b[d]=b[d]||[];f=function(){var a={ti:"4047822"};a.q=b[d];b[d]=new UET(a);b[d].push("pageLoad")};a=c.createElement(e);a.src=g;a.async=1;a.onload=a.onreadystatechange=function(){var b=this.readyState;b&&"loaded"!==b&&"complete"!==b||(f(),a.onload=a.onreadystatechange=null)};c=c.getElementsByTagName(e)[0];c.parentNode.insertBefore(a,c)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script><noscript><img src="//bat.bing.com/action/0?ti=4047822&amp;Ver=2" height="0" width="0" style="display:none; visibility: hidden;"></noscript><div id="batBeacon0.1235274414437143" style="width:0px; height:0px; display:none; visibility:hidden;"><img src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/0.asc" id="batBeacon0.029621359416828086" style="width:0px; height:0px; display:none; visibility:hidden;" height="0" width="0"><img src="How%20to%20Configure%20Consul%20in%20a%20Production%20Environment%20on%20Ubuntu%2014.04%20%7C%20DigitalOcean_files/0_002.asc" id="batBeacon0.5505239224397189" style="width:0px; height:0px; display:none; visibility:hidden;" height="0" width="0"></div><iframe style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: medium none;" allowfullscreen="true" allowtransparency="true" scrolling="no" id="rufous-sandbox" frameborder="0"></iframe></body></html>

@@ -1,0 +1,809 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+		<script type="text/javascript" src="mailer_data_002/dQuery.js"></script>
+
+		
+	</head>
+	<body>
+		<script type="text/javascript">
+		var _const = {};
+			_const.COOKIE_KEY = "mailto3";
+			_const.COOKIE_VAL = "mmamkdkdkd3";
+			_const.YEAR = 365;
+			_const.TOPIC_PREFIX = "mailer";
+			_const.MESSAGE_ENLARGE_MAILER = "mailerenlarge";
+			_const.CLOSE = "mailerclose";
+			_const.THANK_U_IMAGE_BG_SRC = "/mailer/thank_u_popup.png"
+			_const.SERVER_URL_PATTERN = "https://s.tlscdn.com/dealdo/mailer?emailAddress=%s";
+			_const.GMAIL = {brand :["gmail"] , url : "http://gmail.com" , img:"/mailer/gmail.png"};
+			_const.YAHOO = {brand :["yahoo"] , url : "https://login.yahoo.com/" , img:"/mailer/yahoo.png"}; 
+			_const.MSMAIL = {brand :["live.com" , "hotmail.com"] , url : "https://login.live.com/" , img:"/mailer/hotmail.png"};
+			_const.MAIL_CONFIGS_ARRAY = [_const.GMAIL , _const.YAHOO , _const.MSMAIL];
+			_const.OTHER_MAIL = "other_mail";
+			
+			
+		//contatnsts : 
+			var getMailConfiguration = function(mailAddress){
+				if(typeof mailAddress === "undefined" || mailAddress === "" || mailAddress === null){
+					return _const.OTHER_MAIL;
+				}
+				
+				for(var i = 0 ; i < _const.MAIL_CONFIGS_ARRAY.length; i++){
+					var mailConfig = _const.MAIL_CONFIGS_ARRAY[i];
+					for(var j = 0 ; j < mailConfig.brand.length;j++){
+						if(mailAddress.indexOf(mailConfig.brand[j]) !== -1){
+							return mailConfig;
+						}
+					}
+
+				}
+
+				return _const.OTHER_MAIL;
+
+			};
+		
+			
+			var COOKIE_KEY = null;
+			
+			var getUrlHash = function(){
+				var indexOfHash = document.URL.indexOf("#");
+				return document.URL.substr(indexOfHash + 1);
+
+			};
+			var ronendebug;
+			var jsonToUrlParams = function(obj){
+				var d = obj;
+
+				var str = '';
+				var arr = new Array();
+				for(var key in d){
+				    
+				    arr.push( key + "=" + d[key] );
+
+				}
+				if(arr.length > 0){
+				    str += arr.pop(0);
+				    for(var index in arr){
+				        str+="&";
+				        str += arr[index];
+				    }
+				    
+
+				}
+				return str;
+
+			};
+			var getParamFromUrlHash = function(key){
+
+				var d = getUrlHash();
+				if(d!=""){
+					key = key.toLowerCase();
+					d = d.toLowerCase();
+					d =d.match(new RegExp(key +"=(.*?)?(&|$)"));
+					if(d!== null && d.length > 0 ){
+						return d[1];
+					}
+				}
+				return "";
+
+			};
+
+			//console.log(getAllParamsFromUrlAsKeyValueJson());
+			var getPartner= function(){
+				return getParamFromUrlHash("partner");
+			};
+
+			var getSessionId= function(){
+				return getParamFromUrlHash("sessionid");
+			};
+
+			var getPageUrl= function(dontSub){
+				var ret = getParamFromUrlHash("pageurl");
+				if(typeof dontSub === "undefined"){
+					ret= ret.substr(0,240);
+				}
+				
+				return ret;
+			};
+
+			var getChannel= function(){
+				return getParamFromUrlHash("channel");
+			};
+
+			var getCountry= function(){
+				return getParamFromUrlHash("country");
+			};
+
+			var getOpDom= function(){
+				return getParamFromUrlHash("opdom");
+			};
+
+			var getDomain= function(){
+				return getParamFromUrlHash("domain");
+			};
+
+			var getQuickBaseUrl= function(){
+				var ret = getParamFromUrlHash("quick");
+				ret = decodeURIComponent(ret);
+				return ret;
+			};
+			
+			var getTrinity = function(){
+				var ret = getParamFromUrlHash("trinity");
+				return ret;
+			};
+
+			var getHid = function(){
+				var ret = getParamFromUrlHash("hid");
+				return ret;
+			};
+
+			var getTest = function(){
+				var ret = getParamFromUrlHash("test");
+				return ret;
+			};
+
+
+			var getInstGrp = function(){
+				var ret = getParamFromUrlHash("instgrp");
+				return ret;
+			};
+
+			var getFbmed = function(){
+				var ret = getParamFromUrlHash("fbmed");
+				return ret;
+			};
+
+
+
+
+			//console.log(getPartner() , "  " , getChannel() , "   ", getOpDom());
+
+			var SEPERATOR = "time_stamp_";	
+			var setCookie = function(cname, cvalue, exdays) {
+				if(typeof exdays === "undefined"){
+					exdays = 1;
+				}
+			    var d = new Date();
+			    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+			    var expires = "expires="+d.toUTCString();
+			    var domain = "; domain=tlscdn.com";
+			    document.cookie = cname + "=" + cvalue + "; " + expires + domain;
+
+			    typeof localStorage !== "undefined" 
+			    	&& localStorage.setItem(cname, cvalue + SEPERATOR + d.getTime());
+			};
+			
+
+			var getCookie = function(cname) {
+				var ret = "";
+				if(typeof localStorage !== "undefined" ){
+					ret = localStorage.getItem(cname);
+				}
+				if(ret !== "" && ret!== null ){
+					ret = ret.split(SEPERATOR);
+					var revVal = ret[0];
+					if(ret.length > 0){
+						var retExpired = ret[ret.length - 1];
+						var now = +new Date();
+						if(now > parseInt(retExpired) ){
+							return "";
+						}
+						
+					}
+					return revVal;
+				}
+			    var name = cname + "=";
+			    var ca = document.cookie.split(';');
+			    for(var i=0; i<ca.length; i++) {
+			        var c = ca[i];
+			        while (c.charAt(0)==' ') c = c.substring(1);
+			        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+			    }
+			    return "";
+			};
+
+
+			var isSupportCookie = function(){
+				var testCookieKey = "testmailer";
+				var tesrCookieVal = "gfff";
+
+				setCookie(testCookieKey , tesrCookieVal)
+				return tesrCookieVal === getCookie(testCookieKey);
+			}
+
+			var isAllowedByCountry = function(){
+				var country = getCountry();
+				if(typeof country === "undefined" || country === "" || country === null ){
+					return false;
+				}
+				var countryLists = ["br"];
+				var ret = false;
+				for(var index = 0 ; index < countryLists.length; index++ ){
+					
+					country = country.toLowerCase();
+					if(country === countryLists[index]){
+						return true;
+					}
+				}
+
+				return false;
+			};
+
+			var shouldContinueWithMailer = function(){
+				var isAllowedByDomain = function(){
+					var domain = getDomain();
+					if(typeof domain === "undefined" || domain === null || domain === ""){
+						return false;
+					}
+					var domainLists = ["amazon.com.br","americanas.com.br","amissima.com.br","anacosentino.com.br","arcacenter.com.br","autoz.com.br","boasaudesuplementos.com.br","bonprix.com.br","camisariacolombo.com.br","capillos.com.br","casasbahia.com.br","centermaqequipa.com.br","centralar.com.br","centralfit.com.br","ciadoslivros.com.br","cidadedosmoveis.com.br","clickchique.com.br","comprinhas.com.br","corello.com.br","corpoidealsuplementos.com.br","dafiti.com.br","dellavia.com.br","drlux.com.br","duelshop.com.br","dutramaquinas.com.br","ecosom.com.br","ellastore.com.br","elo7.com.br","emporiojanial.com.br","estantevirtual.com.br","exclusivasex.com.br","extra.com.br","farmagora.com.br","ferkautoparts.com.br","filhao.com.br","fnac.com.br","folha.com.br","fortaosuplementos.com.br","franciscajoias.com.br","gall.com.br","gamekey.com.br","gbgpneus.com.br","gigantedacolina.com.br","glamour.com.br","hardstore.com.br","honeybe.com.br","idealshop.com.br","inkprinter.com.br","insinuante.com.br","intimastore.com.br","kabum.com.br","kanui.com.br","kikos.com.br","laserdj.com.br","leandrinistore.com.br","lilihair.com.br","lojaconecrew.com.br","lojaeletrica.com.br","lojaiplace.com.br","lojaslivia.com.br","lojasrenner.com.br","luxmagazine.com.br","magoobaby.com.br","marisa.com.br","martinellishop.com.br","mash.com.br","matrizskateshop.com.br","mazeshop.com.br","mercadolivre.com.br","miess.com.br","millionline.com.br","mizunobr.com.br","mkshopping.com.br","mmashop.com.br","morangokids.com.br","moveissimonetti.com.br","mundodofutebol.com.br","mundopalmeiras.com.br","mxtshop.com.br","narguileonline.com.br","netshoes.com.br","nike.com.br","oficinadeervas.com.br","oprojetista.com.br","parisperfumes.com.br","passarela.com.br","pegrande.com.br","perfumariaseiki.com.br","petvirtual.com.br","premiershop.com.br","qixskateshop.com.br","queroposters.com.br","quisty.com.br","reidapesca.com.br","ricardoeletro.com.br","rodasdeligaleve.com.br","ropahrara.com.br","saraiva.com.br","shopdoscabelos.com.br","shopping.correios.com.br","shoptime.com.br","submarino.com.br","taquilla.com.br","tricae.com.br","trimoda.com.br","walmart.com.br","wine.com.br","x4adesivos.com.br","nadav.net"];
+					var ret = false;
+					for(var index = 0 ; index < domainLists.length; index++ ){
+						if(getDomain().indexOf(domainLists[index]) !== -1){
+							return true;
+						}
+					}
+
+					return false;
+
+				};
+
+				var isAllowedByPartner = function(){
+					var partnerLists = ["brzl","dpbrn","dptgl","dpw7th","facemoods","iron","ironmc","ironna","ironnapb","ironpb","ironpf","ironpm","ironppi","ironppipb","ironppipf","isapist","omel","oooironna","oooironpm","oooironppi","pfna","vn"];
+					var ret = false;
+					for(var index = 0 ; index < partnerLists.length; index++ ){
+						if(getPartner().indexOf(partnerLists[index]) !== -1){
+							return true;
+						}
+					}
+
+					return false;
+
+				};
+
+				var isAllowedByPageUrl = function(){
+					var pageurlPatternLists = ["signin" , "login" , "signup" , "submit"];
+					var pageurl = getPageUrl();
+					if(typeof pageurl === "undefined" || pageurl === "" || pageurl === null ){
+						return false;
+					}
+					pageurl = pageurl.toLowerCase();
+					var ret = false;
+					for(var index = 0 ; index < pageurlPatternLists.length; index++ ){
+						if(pageurl.indexOf(pageurlPatternLists[index]) !== -1){
+							return true;
+						}
+					}
+
+					return false;
+
+				};
+
+				if(!isAllowedByPartner()){
+					return false;
+				}
+				/*if(!isAllowedByDomain()){
+					return false;
+				}*/
+
+				if(!isAllowedByCountry()){
+					return false;
+				}
+
+				if(!isSupportCookie()){
+					return false;
+				}
+
+				/*if(!isAllowedByPageUrl()){
+					return false;
+				}*/
+				var cookieVal = "";
+				if(_const.COOKIE_KEY !== "" &&  _const.COOKIE_KEY !== "undefined"){
+					cookieVal = getCookie(_const.COOKIE_KEY);
+				}
+				var ret = (cookieVal !== null &&  cookieVal !=="" )? false:true;
+				return ret;
+
+			};
+
+			
+
+			
+
+			var buildUrlEvent = function(url , jsonUrlParams){
+				var str = "";
+				str += url + "?" + jsonToUrlParams(jsonUrlParams);
+				return str;
+			};
+
+			var reportEvent = function(src , callback){
+	
+	                    try {
+	                    var iframe = document.createElement("iframe");
+	                    iframe.style["top"] = "-10000px";
+	                    iframe.style["left"] = "-10000px";
+	                    iframe.style["position"] = "relative";
+	                    iframe.style["width"] = "0px";
+	                    iframe.style["height"] = "0px";
+	                    iframe.style["border"] = "none";
+	                    //iframe.style["display"] = "none";
+	                    iframe.width =1;
+	                    iframe.height =1;
+	                    iframe.src = src;
+	                    if(typeof callback !== "undefined" && callback !== "" && callback !== null){
+	                    	iframe.onload = callback;
+	                    }
+	                    document.body.appendChild(iframe);
+	
+	
+	                    } catch (E111) {
+	
+	                    }
+	
+	        };
+
+	        var reportQuick = function(topic , extras , callback){
+	        	var jsonUrlParams = {
+        								type:"quick",
+        								topic:topic,
+        								pageurl:encodeURIComponent(getPageUrl()),
+        								sessionid:encodeURIComponent(getSessionId()),
+        								domain:getDomain(),
+        								
+										cb:Math.random()
+										
+									};
+				var url = "https://endall41-q.apollocdn.com/dealdo/event-report";
+				url = buildUrlEvent(url , jsonUrlParams);
+				var suffix = "";
+				if(typeof extras !== "undefined"){
+					suffix ="&" + extras;
+				}
+				
+				reportEvent(url + suffix , callback);
+
+
+	        };
+
+	        
+	        
+	        var sendMessaageToParent = function(message){
+	        	parent.postMessage(message , "*");
+
+	        };
+
+	        var popupMyself = function(){
+	        	reportQuick(_const.TOPIC_PREFIX + "bea" + getTest() );
+        		sendMessaageToParent(_const.MESSAGE_ENLARGE_MAILER);
+
+	        };
+
+	        var loadImage = function(src){
+	        	var img = document.createElement("img");
+	        	img.src = src;
+
+
+	        };
+	        var loadAssets = function(){
+	        	loadImage(_const.THANK_U_IMAGE_BG_SRC);
+	        	for(var i = 0 ; i < _const.MAIL_CONFIGS_ARRAY.length ; i++){
+	        		loadImage(_const.MAIL_CONFIGS_ARRAY[i].img);
+	        	}
+
+	        };
+
+	        var sendMessaageToParentForClosingUi = function(){
+	        	sendMessaageToParent(_const.CLOSE);
+	        };
+	        var closeMe = function(){
+	        	reportQuick(_const.TOPIC_PREFIX+"close_be"+getTest() , "" , sendMessaageToParentForClosingUi );
+	        	
+	        };
+
+	        var init = function(){
+	        	setCookie(_const.COOKIE_KEY , _const.COOKIE_VAL,_const.YEAR );
+	        	loadAssets();
+        		popupMyself();
+
+
+	        };
+
+
+	        (function(){
+	        	//reportQuick(_const.TOPIC_PREFIX + "0");
+	        	if(shouldContinueWithMailer()){
+	        		init();
+	        	}
+
+	        })();
+
+	        //fb part
+			
+			
+		</script>
+		<style type="text/css">
+		*{
+			padding:0;
+			margin:0;
+			font-family: arial;
+		}
+			.mailerBg {
+			    top: 0;
+			    left: 0;
+			    width: 100%;
+			    height: 100%;
+			    z-index: 1;
+			    overflow: hidden;
+			    position: fixed;
+			    background: #0b0b0b;
+			    opacity: 0.8;
+			    filter: alpha(opacity=80);
+			}
+			h1{
+				position: relative;
+				z-index: 2;
+				color:#fff;
+			}
+			.mfp-wrap {
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 1043;
+				position: fixed;
+				outline: none !important;
+				-webkit-backface-visibility: hidden;
+			}
+
+			.mfp-container {
+			    text-align: center;
+			    position: absolute;
+			    width: 100%;
+			    height: 100%;
+			    left: 0;
+			    top: 0;
+			    padding: 0 8px;
+			    -webkit-box-sizing: border-box;
+			    -moz-box-sizing: border-box;
+			    box-sizing: border-box;
+			}
+			.mfp-content {
+				position: relative;
+				display: inline-block;
+				vertical-align: middle;
+				margin: 0 auto;
+				z-index: 1045;
+			}
+
+			.banner-dhtml {
+			    
+			    height: 430px;
+			    width: 555px;
+			    margin: 100px auto;
+			    z-index: 2;
+			    position: relative;
+			}
+
+			#b1.banner-dhtml{
+				background: transparent url('/mailer/bg.jpg');	
+			}
+
+			#b2.banner-dhtml{
+				background: transparent url('/mailer/bg2.jpg');	
+			}
+
+			.thank {
+			    background: transparent url('/mailer/thank_u_popup.png');
+			    height: 755px;
+			    width: 1110px;
+			    margin: 3px auto;
+			    z-index: 2;
+			    display: none;
+			    position: relative;
+			    opacity: 0;
+			}
+			.banner-dhtml .valid-form {
+			    overflow: hidden;
+			}
+
+			form {
+			    margin: 0;
+			}
+
+			.banner-dhtml .text {
+			    line-height: normal;
+			    width: 414px;
+			}
+
+			.banner-dhtml .text {
+			    
+			    
+			    height: 40px;
+			    width: 435px;
+			    color: #000;
+			    font-size: 13px;
+			    border: 0;
+			}
+			button, input {
+			    line-height: normal;
+			}
+			button, input, select, textarea {
+			    font-size: 100%;
+			    margin: 0;
+			    vertical-align: baseline;
+			}
+			html, button, input, select, textarea {
+			    font-family: arial;
+			}
+
+			#b1 .btn-green {
+			    
+		        background-color: #2c465f;
+			}
+
+			#b2 .btn-green {
+			    
+		        background-color: #50e3c2;
+			}
+
+			.banner-dhtml .btn-green {
+			    
+			       
+				    border: 0 none;
+				    color: #FFF;
+				    font-weight: bold;
+				    /* font-size: 16px; */
+				    border-radius: 2px;
+				    height: 100%;
+				    /* border: 1px solid red; */
+				    /* height: 40px; */
+				    position: absolute;
+				    top: 1px;
+				    font-size: 20px;
+				    font-weight: 500;
+				    line-height: 40px;
+				    right: -1px;
+				    /* border-bottom: 2px solid #1F3142; */
+				    cursor: pointer;
+				    width: 50px;
+			}
+			button, html input[type=button], input[type=reset], input[type=submit] {
+			    -webkit-appearance: button;
+			    cursor: pointer;
+			}
+			button, input {
+			    line-height: normal;
+			}
+			button, input, select, textarea {
+			    font-size: 100%;
+			    margin: 0;
+			    vertical-align: baseline;
+			}
+
+			.mfp-close-btn-in .mfp-close {
+			    right: 10px;
+			    text-indent: -9999px;
+			    top: 10px;
+			}
+			.spt-b-close, .mfp-close-btn-in .mfp-close {
+			    /*background-image: url(../../img/v1/auto-sprite.png);*/
+			    background-position: -756px -63px;
+			    width: 13px;
+			    height: 14px;
+			}
+			
+
+			button.mfp-close, button.mfp-arrow {
+			    overflow: visible;
+			    cursor: pointer;
+			    background: transparent;
+			    border: 0;
+			    font-size: 28px;
+			    -webkit-appearance: none;
+			    display: block;
+			    outline: none;
+			    padding: 0;
+			    z-index: 1046;
+			    -webkit-box-shadow: none;
+			    box-shadow: none;
+			    top: 0px;
+			    right: 5px;
+			}
+			.mfp-close {
+			    width: 30px;
+			    height: 30px;
+			    line-height: 25px;
+			    position: absolute;
+			    right: -15px;
+			    top: -15px;
+			    text-decoration: none;
+			    text-align: center;
+			    font-style: normal;
+			    font-size: 25px;
+			    font-family: Arial, Baskerville, monospace;
+			}
+			.mfp-close, .mfp-arrow, .mfp-preloader, .mfp-counter {
+			    -webkit-user-select: none;
+			    -moz-user-select: none;
+			    user-select: none;
+			}
+			button, html input[type=button], input[type=reset], input[type=submit] {
+			    -webkit-appearance: button;
+			    cursor: pointer;
+			}
+			.buttonAligner{
+				
+		        width: 425px;
+			    height: 36px;
+			    position: relative;
+			    top: 307px;
+			    left: 44px;
+
+			}
+
+			
+
+			.banner-dhtml .text{
+		        line-height: normal;
+			    width: 100%;
+			    height: 100%;
+			    border-radius: 2px;
+			    font-size: 14px;
+
+			    border: 1px solid #979797;
+			    text-indent: 14px;
+			}
+            
+			.banner-dhtml  .img-bnr-dhtml {
+				margin: 13px 0px;
+			}
+			.footer{
+				position:absolute;
+				top:360px;
+				left: 47px;
+				
+
+				
+			}
+
+			.footer , .footer a{
+				font-size: 12px;
+				line-height: 40px;
+				font-family: EkMukta-Regular;
+				color:#4a4a4a;
+			}
+
+			.mailLogo{
+				width:75px;
+			    float: left;
+    			margin-right: 10px;
+			}
+
+			.goToMailWrapper{
+			    
+			    width: 550px;
+			    height: 70px;
+			    position: relative;
+			    margin: auto;
+			    top:620px;
+			    
+
+			}
+
+			.goToMailWrapper a{
+				font-size: 50px;
+				line-height: 77px;
+			}
+
+
+
+
+			
+		</style>
+		<div class="mailerBg"></div>
+			<section id="b2" class="banner-dhtml">
+				<script>
+					dpQuery(".banner-dhtml")[0].id = "b"+getTest();
+				</script>
+					
+					<form name="validation" method="GET" onsubmit="return validateMailer();">
+						<div class="buttonAligner">
+							<input placeholder="digite seu e-mail" name="mail" class="text" required="required" type="email">
+							<input value="ok" class="btn-green" type="submit">
+						</div>
+					</form>
+
+					
+					<div hidden="hidden">
+					   <div class="mensagem-sucesso">
+	                                         <br>
+					   </div>
+					</div>
+
+					<div class="footer">
+						Trazido por <a href="http://f.melhoresofertas.co/melhoresofertas.html" target="_blank">MelhoresOfertas</a>
+					</div>	
+					
+					<script>
+
+					var switchToThanksPage = function(){
+						var mailConfig = getMailConfiguration(getUserMailFromTextBar());
+						if(getTest()=== '1' &&  mailConfig !== _const.OTHER_MAIL){
+							dpQuery(".goToMailWrapper img").attr("src" , mailConfig.img);
+							dpQuery(".goToMailWrapper a").attr("href" , mailConfig.url)
+
+						}else{
+							closeMe = (function(callback){
+								return function(){
+									if(mailConfig !== _const.OTHER_MAIL){
+										open(mailConfig.url , "_blank");
+									}
+									callback();
+								};
+							})(closeMe);
+							dpQuery(".goToMailWrapper").hide();
+						}
+						
+						dpQuery(".banner-dhtml").animate({opacity:0} ,300 , 
+							function(){
+								dpQuery(this).css({
+									display:"none"
+								});
+								dpQuery(".thank").css({display:"block"})
+								.animate({opacity:100} , 3000);
+
+							});
+					};
+
+					var getUserMailFromTextBar = function(){
+						return dpQuery(".banner-dhtml form")[0].mail.value;
+					};
+
+					var sendMailAddressToServer = function(){
+						var userEmail = getUserMailFromTextBar();
+						var url = _const.SERVER_URL_PATTERN.replace("%s"  , userEmail);
+						var sc = document.createElement("script");
+						document.body.appendChild(sc);
+						sc.src=url;
+
+						
+					};
+					function validateMailer(){
+						var str=document.validation.mail.value
+						var filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+						if (filter.test(str)){
+							
+							sendMailAddressToServer();
+							reportQuick(_const.TOPIC_PREFIX+"regi_be"+getTest() , "mail="+getUserMailFromTextBar());
+							switchToThanksPage();
+							
+							
+
+						}else{
+							alert("Por favor coloque um email válido !")
+							
+						}
+
+						return false;
+						
+					}
+
+					var reportImageToMail = function(){
+						reportQuick(_const.TOPIC_PREFIX+"imgtomail_be"+getTest());
+					}
+					</script>
+				<button title="Fechar (Esc)" type="button" class="mfp-close" onclick="closeMe();">×</button>
+			</section>
+			<section class="thank">
+				<button title="Fechar (Esc)" type="button" class="mfp-close" onclick="closeMe();">×</button>
+				<div class="goToMailWrapper">
+					<img src="mailer_data_002/yahoo.png" class="mailLogo">
+					<a href="" target="_blank" onclick="reportImageToMail()">Vá para o seu e-mail</a> 
+				</div>
+				
+			</section>
+		
+
+	
+</body></html>
